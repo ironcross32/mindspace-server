@@ -425,7 +425,7 @@ class RandomSoundContainerMixin:
         fields = []
         fields.append(Label('Random Sounds'))
         for name in ('min_random_sound_interval', 'max_random_sound_interval'):
-            fields.append(self.make_field(name))
+            fields.append(self.make_field(name, type=float))
         return fields
 
 
