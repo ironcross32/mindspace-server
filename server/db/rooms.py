@@ -52,7 +52,7 @@ class Room(
         fields = super().get_all_fields()
         fields.append(Label('Distances'))
         for name in ('visibility', 'max_distance'):
-            fields.append(self.make_field(name))
+            fields.append(self.make_field(name), type=float)
         fields.extend(RandomSoundContainerMixin.get_all_fields(self))
         fields.append(Label('Background'))
         for name in ('music', 'floor_type'):
