@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mindspace Web | {% block title %}Index{% endblock %}</title>
+{% block head %}{% endblock %}
+</head>
+<body>
+<h1>{% block header %}Welcome to Mindspace{% endblock %}</h1>
+<h2>Menu</h2>
+<p>
+<a href="/">Home</a>
+ |
+<a href="/credits/">Credits</a>
+ | 
+<a href="/rules/">Rules</a>
+ |
+<a href="/ideas">Ideas</a>
+ |
+<a href="/statistics">Server Statistics</a>
+ |
+<a href="/help/">Help</a>
+ |
+<a href="/login">Login</a>
+</p>
+<hr>
+{% block body %}
+<p>Please choose an entry from the menu above to get started.</p>
+{% endblock %}
+<hr>
+<p>Powered by Klein version {{ klein_version }}, running under Python {{ python_version }}.</p>
+<p>Copyright (c) forever by Chris Norman.</p>
+</body>
+</html>

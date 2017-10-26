@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Credits{% endblock %}
+{% block header %}Acknowledgements{% endblock %}
+{% block body %}
+<p>Every person or group of people on this list helped make Mindspace what it is, and I am grateful to every single one of them.</p>
+<p>And now... In no particular order:</p>
+<dl>{% for credit in credits %}
+<dt>{{ credit.get_name() }}</dt>
+<dd>{{ credit.get_description() }}</dd>
+{% endfor %}</dl>
+{% endblock %}

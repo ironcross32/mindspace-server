@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Rules{% endblock %}
+{% block header %}Rules{% endblock %}
+{% block body %}
+<p>Below are the rules that you are agreeing to abide by by virtue of playing the game. Admins can and will deal with players who break these.</p>
+<ul>{% for rule in rules %}
+<li><a href="/rules/{{ rule.id }}/">{{ rule.name }}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}

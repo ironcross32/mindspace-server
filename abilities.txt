@@ -1,0 +1,37 @@
+Described here are the abilities of the server.
+
+Miscelaneous:
+Generic things the server can do.
+
+* message
+The client should display these messages in a suitable manner.
+
+* options
+The server is telling the client the options it has on file for the player.
+
+* shutdown
+The server is telling the client it's about to shutdown. The client can then know whether or not to keep attempting reconnection.
+
+Objects:
+Object-related abilities. The client should maintain a local database of objects which the below actions can modify.
+
+* identify
+The server is telling the client about a new object or modifying an existing one.
+
+* delete
+The server wants the client to disregard the object with the given id.
+
+* location
+The server is telling the client about the location of the player's character.
+
+Sound:
+Sound-related abilities.
+
+* object_sound
+The server is telling the client that an object with a specific ID is making a sound. In this way the client knows what panning ETC to apply to the sound.
+
+* hidden_sound
+The server is telling the client that it should play a sound at specific coordinates. This should be used for ambiant sounds (creaking ETC), but should not be used for sounds made by actual objects.
+
+* interface_sound
+The server is telling the client to play a sound with no fx or panning. Suitable for alerts or whatever.

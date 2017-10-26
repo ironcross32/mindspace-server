@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if page %}{{ page.name }}{% else %}Help System{% endif %}{% endblock %}
+{% block header %}Help System{% endblock %}
+{% block body %}
+{% if page %}
+<h2>{{ page.name }}</h2>
+{{ page.text | markdown }}
+{% endif %}
+{% if pages %}
+<h2>Pages</h2>
+<ul>{% for page in pages %}
+<li><a href="/help/{{ page.id }}/">{{ page.name }}</a></ul>
+{% endfor %}</ul>
+{% endif %}
+<h2>Keywords</h2>
+{% if keywords %}
+<ul>{% for keyword in keywords %}
+<li><a href="/help/keyword/{{ keyword.id }}/">{{ keyword.name }}</a></ul>
+{% endfor %}</ul>
+{% else %}
+<p>No keywords.</p>
+{% endif %}
+{% endblock %}
