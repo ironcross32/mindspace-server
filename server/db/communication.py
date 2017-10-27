@@ -61,7 +61,7 @@ class CommunicationChannel(
     )
 
     def transmit(
-        self, who, message, format='{} transmits: "{}"', strict=True,
+        self, who, message, format='[{}] {} transmits: "{}"', strict=True,
         store=True
     ):
         """Send a message on this channel. If strict then perform permission
@@ -96,7 +96,8 @@ class CommunicationChannel(
         for l in self.listeners:
             l.message(
                 format.format(
-                    m.owner.get_name(l.is_builder or l.is_admin),
+                    self.get_name(l.is_staff),
+                    m.owner.get_name(l.is_staff),
                     m.text
                 ),
                 channel=self.name
