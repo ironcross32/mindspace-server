@@ -3,6 +3,11 @@
 from attr import attrs, attrib, Factory
 
 
+class text(type):
+    """For multiline text fields."""
+    pass
+
+
 @attrs
 class Label:
     """A label in a menu."""
@@ -69,9 +74,7 @@ class Form:
 class ObjectForm(Form):
     """Make a form out of an object."""
 
-    def __init__(
-        self, obj, command, exclude_classes=None, title=None, **kwargs
-    ):
+    def __init__(self, obj, command, title=None, **kwargs):
         """Create with an object and an optional list of classes to ignore when
         searching bases."""
         fields = obj.get_all_fields()

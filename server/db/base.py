@@ -17,7 +17,7 @@ from .session import Session
 from ..protocol import identify, random_sound
 from ..sound import sounds_dir, get_sound
 from ..util import now
-from ..forms import Label, Field
+from ..forms import Label, Field, text
 
 ambiences_dir = os.path.join(sounds_dir, 'ambiences')
 random_sounds_dir = os.path.join(sounds_dir, 'random')
@@ -312,9 +312,17 @@ class CodeMixin:
             self.backup()
         self.code = code
 
+    @property
+    def python_code(self):
+        return self.code
+
+    @python_code.setter
+    def python_code(self, value):
+        self.set_code(value)
+
     @classmethod
     def get_fields(self, instance):
-        return [instance.make_field('code')]
+        return [instance.make_field('python_code', type=text)]
 
     def backup(self):
         """Backup the code in this object. Typically performed as part of a
