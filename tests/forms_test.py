@@ -2,9 +2,9 @@ from server.forms import Form, Label, Field
 
 
 def test_label():
-    l = Label('Test')
-    assert l.text == 'Test'
-    assert l.dump() == dict(type=Label.__name__, values=[l.text])
+    lbl = Label('Test')
+    assert lbl.text == 'Test'
+    assert lbl.dump() == dict(type=Label.__name__, values=[lbl.text])
 
 
 def test_field():
