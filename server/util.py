@@ -324,3 +324,14 @@ def format_speed(s, include_percentage=True):
     if include_percentage:
         res += ' (%.2f%% light)' % percentage_lightspeed(s)
     return res
+
+
+def distance_between(c1, c2):
+    """Return the distance between c1 and c2."""
+    x1, y1, z1 = c1
+    x2, y2, z2 = c2
+    return max(
+        max(x1, x2) - min(x1, x2),
+        max(y1, y2) - min(y1, y2),
+        max(z1, z2) - min(z1, z2),
+    )
