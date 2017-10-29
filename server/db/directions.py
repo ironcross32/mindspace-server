@@ -53,8 +53,8 @@ class Direction(Base, NameMixin, CoordinatesMixin):
             'I': 'north',
             'O': 'northeast',
             'L': 'east',
-            'PERIOD': 'southeast',
-            'COMMA': 'south',
+            '.': 'southeast',
+            ',': 'south',
             'M': 'southwest',
             'J': 'west',
             'U': 'northwest'
