@@ -7,7 +7,7 @@ from sqlalchemy.orm import relationship
 from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import (
     Base, SizeMixin, NameMixin, DescriptionMixin, AmbienceMixin,
-    RandomSoundMixin, RandomSoundContainerMixin
+    RandomSoundMixin, RandomSoundContainerMixin, CoordinatesMixin
 )
 from .session import Session
 from ..protocol import hidden_sound, reverb_property_names
@@ -25,6 +25,15 @@ class RoomRandomSound(RandomSoundMixin, Base):
     __tablename__ = 'room_random_sounds'
     room_id = Column(Integer, ForeignKey('rooms.id'), nullable=False)
     room = relationship('Room', backref='random_sounds')
+
+
+@attrs_sqlalchemy
+class RoomFloorType(Base, CoordinatesMixin, NameMixin):
+    """An altered floor type for a room."""
+
+    __tablename__ = 'room_floor_types'
+    room_id = Column(Integer, ForeignKey('rooms.id'), nullable=False)
+    room = relationship('Room', backref='floor_types')
 
 
 @attrs_sqlalchemy
@@ -122,11 +131,21 @@ class Room(
             func = self.broadcast_command_selective
         return func(*args)
 
-    def get_walk_sound(self):
+    def get_walk_sound(self, coordinates=None):
         """Return a suitable footstep sound for this room."""
-        if self.floor_type is not None:
+        name = None
+        if coordinates is not None:
+            x, y, z = coordinates
+            covering = RoomFloorType.query(
+                room_id=self.id, x=x, y=y, z=z
+            ).first()
+            if covering is not None:
+                name = covering.name
+        if self.floor_type is not None and name is None:
+            name = self.floor_type
+        if name is not None:
             return get_sound(
-                os.path.join('Footsteps', self.floor_type)
+                os.path.join('Footsteps', name)
             )
 
     def make_random_sound(self, name):

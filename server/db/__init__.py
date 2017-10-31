@@ -9,7 +9,7 @@ from yaml import dump, load
 from .engine import engine
 from .session import Session, session
 from .base import Base, dump_object
-from .rooms import Room, RoomRandomSound
+from .rooms import Room, RoomRandomSound, RoomFloorType
 from .players import Player
 from .objects import Object, ObjectRandomSound
 from .actions import Action, ObjectAction
@@ -187,5 +187,5 @@ __all__ = (
     'HelpTopic', 'HelpKeyword', 'ServerOptions', 'Mobile', 'Social',
     'ObjectRandomSound', 'BannedIP', 'output_directory', 'Window', 'IdeaVote',
     'Idea', 'IdeaComment', 'ChangelogEntry', 'MailMessage', 'LoggedCommand',
-    'Credit', 'StarshipEngine'
+    'Credit', 'StarshipEngine', 'RoomFloorType'
 )
