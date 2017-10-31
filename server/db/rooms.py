@@ -44,7 +44,7 @@ class Room(
     delay_modulation_frequency = Column(Float, nullable=False, default=10.0)
     density = Column(Float, nullable=False, default=0.5)
     t60 = Column(Float, nullable=False, default=1.0)
-    floor_type = Column(String(20), nullable=False, default='grass')
+    floor_type = Column(String(20), nullable=True, default='grass')
     zone_id = Column(Integer, ForeignKey('zones.id'), nullable=True)
     zone = relationship('Zone', backref='rooms', foreign_keys=[zone_id])
 
@@ -124,9 +124,10 @@ class Room(
 
     def get_walk_sound(self):
         """Return a suitable footstep sound for this room."""
-        return get_sound(
-            os.path.join('Footsteps', self.floor_type)
-        )
+        if self.floor_type is not None:
+            return get_sound(
+                os.path.join('Footsteps', self.floor_type)
+            )
 
     def make_random_sound(self, name):
         """Make an instance of RoomRandomSound."""

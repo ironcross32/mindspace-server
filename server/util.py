@@ -160,9 +160,12 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
                 obj.recent_exit_id = None
                 obj.coordinates = (px, py, pz)
                 obj.update_neighbours()
-                obj.sound(
-                    sound if obj is player else obj.location.get_walk_sound()
-                )
+                if obj is player:
+                    wsound = sound
+                else:
+                    wsound = obj.location.get_walk_sound()
+                if wsound is not None:
+                    obj.sound(wsound)
             s.add_all(players)
             return True
         else:
