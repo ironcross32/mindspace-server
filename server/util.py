@@ -139,8 +139,6 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
     sound is None then the default walk sound for the current room will be
     used."""
     s = db.Session
-    if sound is None:
-        sound = player.location.get_walk_sound(player.coordinates)
     players = [player]
     players.extend(player.followers)
     now = time()
@@ -162,6 +160,8 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
                 obj.update_neighbours()
                 if obj is player:
                     wsound = sound
+                    if wsound is None:
+                        wsound = obj.location.get_walk_sound(obj.coordinates)
                 else:
                     wsound = obj.location.get_walk_sound(obj.coordinates)
                 if wsound is not None:
