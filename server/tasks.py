@@ -106,7 +106,7 @@ def do_purge():
             CommunicationChannelMessage.sent < oldest
         ).all() + Player.query(object=None).all() + Entrance.query(
             object=None
-        ).all():
+        ).all() + Object.query(Object.player_id.isnot(None), steps=0).all():
             logger.info('Purging %r.', obj)
             s.delete(obj)
         logger.info('Purge completed in %.2f seconds.', time() - started)
