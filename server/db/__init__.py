@@ -125,6 +125,7 @@ def load_db():
                     name='Default', first_room=s.query(Room).first()
                 )
             )
+        s.query(Object).update({Object.connected: False})
     return sum(
         [
             s.query(

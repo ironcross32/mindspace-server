@@ -39,6 +39,7 @@ class Object(
 ):
     """An object or player."""
     __tablename__ = 'objects'
+    connected = Column(Boolean, nullable=False, default=False)
     anchored = Column(Boolean, nullable=False, default=True)
     steps = Column(Integer, nullable=False, default=0)
     holder_id = Column(Integer, ForeignKey('objects.id'), nullable=True)
@@ -154,10 +155,6 @@ class Object(
     @property
     def is_window(self):
         return self.window is not None
-
-    @property
-    def connected(self):
-        return self.id in connections
 
     @property
     def is_player(self):

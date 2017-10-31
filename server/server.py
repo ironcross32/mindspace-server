@@ -192,6 +192,7 @@ class MindspaceProtocol(NetstringReceiver):
         if self.player_id is not None:
             with session() as s:
                 player = self.get_player(s)
+                player.connected = False
                 for account in Player.query(disconnect_notifications=True):
                     obj = account.object
                     if obj is None:
@@ -208,7 +209,7 @@ class MindspaceProtocol(NetstringReceiver):
                         )
                 player.player.transmition_id = None
                 player.register_connection(None)
-                s.add(player)
+                s.add_all([player, player.player])
 
     def set_locked(self, value):
         """Lock or unlock this connection."""
