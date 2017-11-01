@@ -2,6 +2,7 @@
 
 from time import time
 from datetime import datetime
+from math import sin, cos, radians, pi
 import numpy as np
 from emote_utils import NoMatchError
 from attr import attrs, attrib
@@ -348,3 +349,10 @@ def angle_between(p1, p2):
     if r > 360:
         r -= 360
     return r
+
+
+def point_pos(c, d, theta):
+    """Return the coordinates distance d units in theta direction."""
+    x, y, z = c
+    theta_rad = pi/2 - radians(theta)
+    return x + d*cos(theta_rad), y + d*sin(theta_rad), z
