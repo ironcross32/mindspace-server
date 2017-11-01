@@ -1,7 +1,7 @@
 """Provides the ServerOptions class."""
 
 from datetime import timedelta
-from sqlalchemy import Column, Integer, Interval, String, ForeignKey
+from sqlalchemy import Column, Integer, Interval, String, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import Base, NameMixin
@@ -29,6 +29,7 @@ class ServerOptions(Base, NameMixin):
     first_room_id = Column(Integer, ForeignKey('rooms.id'), nullable=False)
     first_room = relationship('Room', backref='first_room_options')
     purge_after = Column(Interval, nullable=False, default=timedelta(days=30))
+    log_commands = Column(Boolean, nullable=False, default=False)
 
     @classmethod
     def get(cls):

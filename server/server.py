@@ -231,7 +231,7 @@ class MindspaceProtocol(NetstringReceiver):
 
     def stringReceived(self, string):
         self.last_active = time()
-        if self.player_id is not None:
+        if self.player_id is not None and ServerOptions.get().log_commands:
             Session.add(LoggedCommand(string=string, owner_id=self.player_id))
             Session.commit()
         if self.locked:
