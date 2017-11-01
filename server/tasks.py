@@ -5,9 +5,10 @@ from datetime import datetime
 from inspect import isclass
 from time import time, strftime
 from sqlalchemy import and_, or_
+from .util import angle_between, point_pos
 from .db import (
     session, dump_db, Object, Zone, Mobile, Base, ServerOptions, LoggedCommand,
-    CommunicationChannelMessage, Player, Entrance
+    CommunicationChannelMessage, Player, Entrance, Orbit
 )
 from .db.base import RandomSoundContainerMixin
 from .server import server
@@ -110,3 +111,16 @@ def do_purge():
             logger.info('Purging %r.', obj)
             s.delete(obj)
         logger.info('Purge completed in %.2f seconds.', time() - started)
+
+
+@server.task
+def do_orbit():
+    """Move stuff which is orbiting other stuff."""
+    with session() as s:
+        for o in Orbit.query():
+            angle = angle_between(o.orbiting.coordinates, o.zone.coordinates)
+            angle += o.offset
+            o.zone.coordinates = point_pos(
+                o.zone.coordinates, o.distance, angle
+            )
+            s.add(o.zone)
