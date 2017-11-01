@@ -15,6 +15,7 @@ from .communication import CommunicationChannel
 from ..protocol import (
     object_sound, location, message, identify, delete, zone, random_sound
 )
+from .. import server
 from ..forms import Label, Field
 from ..sound import get_sound, get_ambience
 from ..socials import factory
@@ -39,6 +40,7 @@ class Object(
 ):
     """An object or player."""
     __tablename__ = 'objects'
+    log = Column(Boolean, nullable=False, default=False)
     connected = Column(Boolean, nullable=False, default=False)
     anchored = Column(Boolean, nullable=False, default=True)
     steps = Column(Integer, nullable=False, default=0)
@@ -148,7 +150,7 @@ class Object(
     def get_all_fields(self):
         fields = super().get_all_fields()
         fields.append(self.make_field('pose'))
-        for name in ('hidden', 'anchored'):
+        for name in ('hidden', 'anchored', 'log_commands'):
             fields.append(self.make_field(name, type=bool))
         for name in (
             'start_use_msg', 'stop_use_msg', 'get_msg', 'drop_msg', 'give_msg',
@@ -165,6 +167,17 @@ class Object(
                         field.name = f'{name}.{field.name}'
                     fields.append(field)
         return fields + RandomSoundContainerMixin.get_all_fields(self)
+
+    @property
+    def log_commands(self):
+        return self.id in server.server.logged_players
+
+    @log_commands.setter
+    def log_commands(self, value):
+        if value:
+            server.server.logged_players.add(self.id)
+        else:
+            server.server.logged_players.remove(self.id)
 
     @property
     def is_window(self):

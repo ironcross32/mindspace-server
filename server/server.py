@@ -50,6 +50,7 @@ class Server:
     def __init__(self):
         """Leave everything in one place."""
         self.started = None
+        self.logged_players = set()
         self.tasks = []
         self.connections = []
         self.tcp_factory = ServerFactory()
@@ -231,7 +232,7 @@ class MindspaceProtocol(NetstringReceiver):
 
     def stringReceived(self, string):
         self.last_active = time()
-        if self.player_id is not None and ServerOptions.get().log_commands:
+        if self.player_id in server.logged_players:
             Session.add(LoggedCommand(string=string, owner_id=self.player_id))
             Session.commit()
         if self.locked:
