@@ -1,7 +1,4 @@
-pytest
-flake8
 twisted
-service-identity
 attrs
 pyyaml
 msgpack-python
