@@ -119,7 +119,7 @@ class Object(
             else:
                 return 'Player'
         elif self.is_window:
-            return 'Wndow'
+            return 'Window'
         elif self.is_mobile:
             return 'Mobile'
         elif self.is_exit:
