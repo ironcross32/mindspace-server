@@ -2,6 +2,7 @@
 
 from time import time
 from datetime import datetime
+import numpy as np
 from emote_utils import NoMatchError
 from attr import attrs, attrib
 from twisted.internet.task import LoopingCall
@@ -338,3 +339,12 @@ def distance_between(c1, c2):
         max(y1, y2) - min(y1, y2),
         max(z1, z2) - min(z1, z2),
     )
+
+
+def angle_between(p1, p2):
+    ang1 = np.arctan2(*p1[:2])
+    ang2 = np.arctan2(*p2[:2])
+    r = np.rad2deg((ang1 - ang2) % (2 * np.pi)) + 90
+    if r > 360:
+        r -= 360
+    return r
