@@ -102,6 +102,20 @@ class Object(
             args.append(getattr(Object, name) == getattr(self, name))
         return args
 
+    def get_actions(self):
+        """Return all actions attached to this object."""
+        a = self.actions.copy()
+        for type in self.types:
+            a.extend(type.actions)
+        return a
+
+    def get_hotkeys(self):
+        """Return all hotkeys attached to this object."""
+        h = self.hotkeys.copy()
+        for type in self.types:
+            h.extend(type.hotkeys)
+        return h
+
     def get_full_name(self, *args, **kwargs):
         """Get name including pose."""
         name = self.get_name(*args, **kwargs)

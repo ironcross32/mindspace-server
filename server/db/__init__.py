@@ -19,9 +19,8 @@ from .zones import Zone
 from .directions import Direction
 from .adverts import Advert
 from .commands import Command
-from .hotkeys import Hotkey
+from .hotkeys import Hotkey, HotkeySecondary
 from .revisions import Revision
-from .object_keys import ObjectKey
 from .communication import (
     CommunicationChannel, CommunicationChannelListener,
     CommunicationChannelMessage, CommunicationChannelBan, TransmitionError
@@ -38,6 +37,10 @@ from .changelog import ChangelogEntry
 from .mail import MailMessage
 from .logged_commands import LoggedCommand
 from .credits import Credit
+from .object_types import (
+    ObjectTypeActionSecondary, ObjectTypeHotkeySecondary, ObjectTypeSecondary,
+    ObjectType
+)
 
 logger = logging.getLogger(__name__)
 output_directory = 'world'
@@ -181,11 +184,12 @@ __all__ = (
     'engine', 'Session', 'session', 'Base', 'dump_object', 'Room',
     'RoomRandomSound', 'Player', 'Object', 'Action', 'ObjectAction',
     'load_db', 'dump_db', 'Entrance', 'Zone', 'Direction', 'Advert', 'Command',
-    'Hotkey', 'Action', 'Revision', 'ObjectKey', 'CommunicationChannel',
+    'Hotkey', 'Action', 'Revision', 'HotkeySecondary', 'CommunicationChannel',
     'CommunicationChannelListener', 'CommunicationChannelMessage',
     'CommunicationChannelBan', 'TransmitionError', 'Rule', 'HelpTopicKeyword',
     'HelpTopic', 'HelpKeyword', 'ServerOptions', 'Mobile', 'Social',
     'ObjectRandomSound', 'BannedIP', 'output_directory', 'Window', 'IdeaVote',
     'Idea', 'IdeaComment', 'ChangelogEntry', 'MailMessage', 'LoggedCommand',
-    'Credit', 'StarshipEngine', 'RoomFloorType'
+    'Credit', 'StarshipEngine', 'RoomFloorType', 'ObjectTypeActionSecondary',
+    'ObjectTypeHotkeySecondary', 'ObjectTypeSecondary', 'ObjectType'
 )

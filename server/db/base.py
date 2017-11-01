@@ -91,7 +91,7 @@ class _Base:
         return lines
 
     @classmethod
-    def number_od_objects(cls):
+    def number_of_objects(cls):
         """Return the number of objects in the database."""
         n = 0
         for base in cls._decl_class_registry.values():

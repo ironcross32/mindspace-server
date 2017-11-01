@@ -103,7 +103,7 @@ def server_info():
     stats.append('Virtual: %s' % naturalsize(process_size.vms))
     stats.append('Percent: %.2f' % proc.memory_percent())
     stats.append('Lines of code in server: %d' % db.Base.code_lines())
-    stats.append('Objects in server: %d' % db.Base.number_od_objects())
+    stats.append('Objects in server: %d' % db.Base.number_of_objects())
     stats.append('Statistics generated in %.2f seconds.' % (time() - started))
     return stats
 
