@@ -41,6 +41,7 @@ from .object_types import (
     ObjectTypeActionSecondary, ObjectTypeHotkeySecondary, ObjectTypeSecondary,
     ObjectType
 )
+from .orbits import Orbit
 
 logger = logging.getLogger(__name__)
 output_directory = 'world'
@@ -191,5 +192,5 @@ __all__ = (
     'ObjectRandomSound', 'BannedIP', 'output_directory', 'Window', 'IdeaVote',
     'Idea', 'IdeaComment', 'ChangelogEntry', 'MailMessage', 'LoggedCommand',
     'Credit', 'StarshipEngine', 'RoomFloorType', 'ObjectTypeActionSecondary',
-    'ObjectTypeHotkeySecondary', 'ObjectTypeSecondary', 'ObjectType'
+    'ObjectTypeHotkeySecondary', 'ObjectTypeSecondary', 'ObjectType', 'Orbit'
 )
