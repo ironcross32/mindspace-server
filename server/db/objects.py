@@ -177,7 +177,8 @@ class Object(
         if value:
             server.server.logged_players.add(self.id)
         else:
-            server.server.logged_players.remove(self.id)
+            if self.id in server.server.logged_players:
+                server.server.logged_players.remove(self.id)
 
     @property
     def is_window(self):
