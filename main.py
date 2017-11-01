@@ -4,8 +4,8 @@ import logging
 from time import time
 from argparse import ArgumentParser, FileType, ArgumentDefaultsHelpFormatter
 from twisted.internet import reactor, error
-from server.db import load_db, dump_db, ServerOptions
 from server.server import server
+from server.db import load_db, dump_db, ServerOptions
 from server.program import build_context
 from server.log_handler import LogHandler
 
