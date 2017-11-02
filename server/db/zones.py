@@ -12,6 +12,7 @@ from .base import (
 from ..forms import Label
 from ..protocol import zone
 from ..sound import sounds_dir
+from ..util import distance_between
 
 
 @attrs_sqlalchemy
@@ -78,3 +79,24 @@ class Zone(
                 con = obj.get_connection()
                 if con is not None:
                     zone(con, self)
+
+    def visible_objects(self, sort=True):
+        """Get the objects in sensor range."""
+        cls = self.__class__
+        args = []
+        for name in ('x', 'y', 'z'):
+            args.append(
+                getattr(cls, name).between(
+                    getattr(self, name) - self.sensors.distance,
+                    getattr(self, name) + self.sensors.distance
+                )
+            )
+        objects = cls.query(*args)
+        if sort:
+            objects = sorted(
+                objects,
+                key=lambda value: distance_between(
+                    self.coordinates, value.coordinates
+                )
+            )
+        return objects
