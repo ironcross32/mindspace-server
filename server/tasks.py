@@ -5,7 +5,7 @@ from datetime import datetime
 from inspect import isclass
 from time import time, strftime
 from sqlalchemy import and_, or_
-from .util import angle_between, point_pos
+from .util import angle_between, point_pos, directions
 from .db import (
     session, dump_db, Object, Zone, Mobile, Base, ServerOptions, LoggedCommand,
     CommunicationChannelMessage, Player, Entrance, Orbit
@@ -47,10 +47,18 @@ def do_space():
                 setattr(obj, name, value)
             s.add(obj)
         for o in Orbit.query():
+            logger.info(
+                'Before: %s.',
+                directions(o.zone.coordinates, o.orbiting.coordinates)
+            )
             angle = angle_between(o.orbiting.coordinates, o.zone.coordinates)
             angle += o.offset
             o.zone.coordinates = point_pos(
                 o.orbiting.coordinates, o.distance, angle
+            )
+            logger.info(
+                'After: %s.',
+                directions(o.zone.coordinates, o.orbiting.coordinates)
             )
             s.add(o.zone)
 
