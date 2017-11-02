@@ -50,7 +50,7 @@ def do_space():
             angle = angle_between(o.orbiting.coordinates, o.zone.coordinates)
             angle += o.offset
             o.zone.coordinates = point_pos(
-                o.zone.coordinates, o.distance, angle
+                o.orbiting.coordinates, o.distance, angle
             )
             s.add(o.zone)
 
