@@ -87,8 +87,8 @@ class Zone(
         for name in ('x', 'y', 'z'):
             args.append(
                 getattr(cls, name).between(
-                    getattr(self, name) - self.sensors.distance,
-                    getattr(self, name) + self.sensors.distance
+                    getattr(self, name) - self.starship.sensors.distance,
+                    getattr(self, name) + self.starship.sensors.distance
                 )
             )
         objects = cls.query(*args)
