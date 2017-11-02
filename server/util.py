@@ -18,7 +18,7 @@ def now():
     return datetime.utcnow()
 
 
-def directions(c1, c2):
+def directions(c1, c2, format=str):
     """Return the textual directions between c1 and c2."""
     results = []
     x1, y1, z1 = c1
@@ -29,21 +29,21 @@ def directions(c1, c2):
             direction = 'east'
         elif x2 < x1:
             direction = 'west'
-        results.append('%d %s' % (diff, direction))
+        results.append('%d %s' % (format(diff), direction))
     if y1 != y2:
         diff = max(y1, y2) - min(y1, y2)
         if y2 > y1:
             direction = 'north'
         else:
             direction = 'south'
-        results.append('%d %s' % (diff, direction))
+        results.append('%d %s' % (format(diff), direction))
     if z1 != z2:
         diff = max(z1, z2) - min(z1, z2)
         if z2 > z1:
             direction = 'up'
         else:
             direction = 'down'
-        results.append('%d %s' % (diff, direction))
+        results.append('%d %s' % (format(diff), direction))
     if results:
         return ', '.join(results)
     else:
