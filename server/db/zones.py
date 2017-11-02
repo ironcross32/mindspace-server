@@ -83,7 +83,7 @@ class Zone(
     def visible_objects(self, sort=True):
         """Get the objects in sensor range."""
         cls = self.__class__
-        args = []
+        args = [cls.id != self.id]
         for name in ('x', 'y', 'z'):
             args.append(
                 getattr(cls, name).between(
