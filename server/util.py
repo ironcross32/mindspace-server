@@ -18,7 +18,7 @@ def now():
     return datetime.utcnow()
 
 
-def directions(c1, c2, format=int):
+def directions(c1, c2, format=str):
     """Return the textual directions between c1 and c2."""
     results = []
     x1, y1, z1 = c1
@@ -335,29 +335,29 @@ def format_distance_simple(d):
     """Format distance d in a simple way."""
     if d >= tpc:
         v = d / tpc
-        u = 'teraparsec'
+        u = 'tpc'
     elif d >= gpc:
         v = d / gpc
-        u = 'gigaparsec'
+        u = 'gpc'
     elif d >= kpc:
         v = d / kpc
-        u = 'kiloparsec'
+        u = 'kpc'
     elif d >= pc:
         v = d / pc
-        u = 'parsec'
+        u = 'pc'
     elif d >= ly:
         v = d / ly
-        u = 'lightyear'
+        u = 'ly'
     elif d >= au:
         v = d / au
-        u = 'astronomical unit'
+        u = 'au'
     elif d >= km:
         v = d / km
-        u = 'kilometre'
+        u = 'km'
     else:
         v = d / m
-        u = 'metre'
-    return '%.2f %ss' % (v, u)
+        u = 'm'
+    return '%.2f %s' % (v, u)
 
 
 def percentage_lightspeed(d):
