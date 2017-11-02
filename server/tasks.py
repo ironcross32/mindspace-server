@@ -46,6 +46,13 @@ def do_space():
                 value += (obj.speed * getattr(obj.direction, name))
                 setattr(obj, name, value)
             s.add(obj)
+        for o in Orbit.query():
+            angle = angle_between(o.orbiting.coordinates, o.zone.coordinates)
+            angle += o.offset
+            o.zone.coordinates = point_pos(
+                o.zone.coordinates, o.distance, angle
+            )
+            s.add(o.zone)
 
 
 @server.task
@@ -111,16 +118,3 @@ def do_purge():
             logger.info('Purging %r.', obj)
             s.delete(obj)
         logger.info('Purge completed in %.2f seconds.', time() - started)
-
-
-@server.task
-def do_orbit():
-    """Move stuff which is orbiting other stuff."""
-    with session() as s:
-        for o in Orbit.query():
-            angle = angle_between(o.orbiting.coordinates, o.zone.coordinates)
-            angle += o.offset
-            o.zone.coordinates = point_pos(
-                o.zone.coordinates, o.distance, angle
-            )
-            s.add(o.zone)
