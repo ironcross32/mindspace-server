@@ -6,7 +6,7 @@ from math import sin, cos, radians, pi, degrees, atan2
 from emote_utils import NoMatchError
 from attr import attrs, attrib
 from twisted.internet.task import LoopingCall
-from .distance import pc, kpc, mpc, au, ly, light_speed
+from .distance import pc, kpc, mpc, gpc, tpc, au, ly, km, m, light_speed
 from .sound import get_sound, empty_room, nonempty_room
 from . import db
 from .protocol import interface_sound
@@ -260,6 +260,8 @@ def direction_between(origin, target):
 
 def format_distance(
     units,
+    show_tpcs=True,
+    show_gpcs=True,
     show_mpcs=True,
     show_kpcs=True,
     show_pcs=True,
@@ -270,6 +272,20 @@ def format_distance(
     base = 1000000  # Multiplying just seemed to fix things...
     units = units * base
     fmt = []
+    if show_tpcs:
+        tpcs, units = divmod(units, tpc * base)
+        tpcs = round(tpcs, 2)
+        if tpcs == int(tpcs):
+            tpcs = int(tpcs)
+        if tpcs:
+            fmt.append('%r tpc' % round(tpcs, 2))
+    if show_gpcs:
+        gpcs, units = divmod(units, gpc * base)
+        gpcs = round(gpcs, 2)
+        if gpcs == int(gpcs):
+            gpcs = int(gpcs)
+        if gpcs:
+            fmt.append('%r gpc' % round(gpcs, 2))
     if show_mpcs:
         mpcs, units = divmod(units, mpc * base)
         mpcs = round(mpcs, 2)
@@ -313,6 +329,35 @@ def format_distance(
             units = round(units, 2)
         fmt.append('%r km' % units)
     return english_list(fmt)
+
+
+def format_distance_simple(d):
+    """Format distance d in a simple way."""
+    if d >= tpc:
+        v = d / tpc
+        u = 'teraparsec'
+    elif d >= gpc:
+        v = d / gpc
+        u = 'gigaparsec'
+    elif d >= kpc:
+        v = d / kpc
+        u = 'kiloparsec'
+    elif d >= pc:
+        v = d / pc
+        u = 'parsec'
+    elif d >= ly:
+        v = d / ly
+        u = 'lightyear'
+    elif d >= au:
+        v = d / au
+        u = 'astronomical unit'
+    elif d >= km:
+        v = d / km
+        u = 'kilometre'
+    else:
+        v = d / m
+        u = 'metre'
+    return '%.2f %ss' % (v, u)
 
 
 def percentage_lightspeed(d):

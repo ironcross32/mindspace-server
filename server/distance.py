@@ -8,6 +8,8 @@ ly = au * 63241.077
 pc = ly * 3.26156
 kpc = pc * 1000
 mpc = pc * 1000000
+gpc = mpc * 1000
+tpc = gpc * 1000
 
 light_speed = 2.998e+8  # metres / second
 light_speed *= m  # Units / second
