@@ -14,7 +14,7 @@ from .players import Player
 from .objects import Object, ObjectRandomSound
 from .actions import Action, ObjectAction
 from .entrances import Entrance
-from .starship_engines import StarshipEngine
+from .starships import Starship, StarshipSensors, StarshipEngine
 from .zones import Zone
 from .directions import Direction
 from .adverts import Advert
@@ -192,5 +192,6 @@ __all__ = (
     'ObjectRandomSound', 'BannedIP', 'output_directory', 'Window', 'IdeaVote',
     'Idea', 'IdeaComment', 'ChangelogEntry', 'MailMessage', 'LoggedCommand',
     'Credit', 'StarshipEngine', 'RoomFloorType', 'ObjectTypeActionSecondary',
-    'ObjectTypeHotkeySecondary', 'ObjectTypeSecondary', 'ObjectType', 'Orbit'
+    'ObjectTypeHotkeySecondary', 'ObjectTypeSecondary', 'ObjectType', 'Orbit',
+    'Starship', 'StarshipSensors'
 )

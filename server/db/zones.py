@@ -9,7 +9,6 @@ from .base import (
     Base, CoordinatesMixin, NameMixin, DescriptionMixin, OwnerMixin,
     DirectionMixin
 )
-from .starship_engines import StarshipEngine
 from ..forms import Label
 from ..protocol import zone
 from ..sound import sounds_dir
@@ -26,11 +25,9 @@ class Zone(
     speed = Column(Float, nullable=True)
     acceleration = Column(Float, nullable=True)
     accelerating = Column(Boolean, nullable=False, default=True)
-    starship_engine_id = Column(
-        Integer, ForeignKey('starship_engines.id'), nullable=True
-    )
-    starship_engine = relationship(
-        'StarshipEngine', backref=backref('object', uselist=False)
+    starship_id = Column(Integer, ForeignKey('starships.id'), nullable=True)
+    starship = relationship(
+        'Starship', backref=backref('object', uselist=False)
     )
     last_turn = Column(Float, nullable=False, default=0.0)
     background_sound = Column(String(150), nullable=True)
@@ -38,15 +35,22 @@ class Zone(
     background_volume = Column(Float, nullable=False, default=1.0)
     speed = Column(Float, nullable=True)
 
+    @property
+    def is_starship(self):
+        return self.starship is not None
+
+    def get_type(self):
+        """Get an appropriate type."""
+        if self.is_starship:
+            return 'Starship'
+        else:
+            return 'Debris'
+
     def get_all_fields(self):
-        d = {None: 'None'}
-        for engine in StarshipEngine.query():
-            d[engine.id] = engine.name
         fields = [Label(f'Configure {self.get_name(True)}')]
         fields.extend(NameMixin.get_fields(self))
         fields.extend(DescriptionMixin.get_fields(self))
         fields.extend(DirectionMixin.get_fields(self))
-        fields.append(self.make_field('starship_engine_id', type=d))
         fields.extend(CoordinatesMixin.get_fields(self))
         for name in ('speed',):
             fields.append(self.make_field(name, type=float))
