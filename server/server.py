@@ -36,14 +36,18 @@ def transmit(udp, host, port, type, id, data):
         player_obj = player.object
         if player.transmition_banned:
             return  # They've been naughty.
-        for obj in player_obj.location.objects:
-            if obj is not player_obj or player_obj.monitor_transmitions:
-                obj_con = obj.get_connection()
-                if obj_con is not None:
-                    udp.transport.write(
-                        login_parser.prepare_data(type, player_obj.id, data),
-                        (obj_con.host, server.udp_port)
-                    )
+        args = [
+            Object.connected.is_(True),
+            Object.player_id.isnot(None)
+        ]
+        if not player_obj.monitor_transmitions:
+            args.append(Object.id.isnot(player_obj.id))
+        for obj in player_obj.get_visible(*args):
+            obj_con = obj.get_connection()
+            udp.transport.write(
+                login_parser.prepare_data(type, player_obj.id, data),
+                (obj_con.host, server.udp_port)
+            )
 
 
 class Server:
