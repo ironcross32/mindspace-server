@@ -236,7 +236,7 @@ def percent(n, full):
     return (100.0 / full) * n
 
 
-def direction_between(origin, target, vehicle=True):
+def direction_between(origin, target):
     """Get a Direction instance representing the distance between origin and
     target."""
     def get_difference(a, b):
@@ -255,7 +255,7 @@ def direction_between(origin, target, vehicle=True):
         get_difference(oy, ty),
         get_difference(oz, tz)
     )
-    return db.Direction.query(x=x, y=y, z=z, vehicle=vehicle).first()
+    return db.Direction.query(x=x, y=y, z=z).first()
 
 
 def format_distance(
