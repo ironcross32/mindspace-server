@@ -18,7 +18,7 @@ def now():
     return datetime.utcnow()
 
 
-def directions(c1, c2, format=str):
+def directions(c1, c2, format=int):
     """Return the textual directions between c1 and c2."""
     results = []
     x1, y1, z1 = c1
