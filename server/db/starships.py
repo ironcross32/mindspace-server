@@ -1,6 +1,6 @@
 """Provides the StarshipEngine class."""
 
-from sqlalchemy import Column, Float, Integer, ForeignKey
+from sqlalchemy import Column, Float, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import Base, NameMixin
@@ -42,3 +42,18 @@ class Starship(Base):
         Integer, ForeignKey('starship_sensors.id'), nullable=True
     )
     sensors = relationship('StarshipSensors', backref='starships')
+    last_scanned_id = Column(Integer, ForeignKey('zones.id'), nullable=True)
+    last_scanned = relationship(
+        'Zone', backref='scanned_by', foreign_keys=[last_scanned_id]
+    )
+    filter_star = Column(Boolean, nullable=False, default=False)
+    filter_starship = Column(Boolean, nullable=False, default=False)
+    filter_blackhole = Column(Boolean, nullable=False, default=False)
+
+    def get_filters(self):
+        """Return a list of everything this array is filtering."""
+        filters = []
+        for x in dir(self):
+            if x.startswith('filter_') and getattr(self, x):
+                filters.append(x[7:].title())
+        return filters

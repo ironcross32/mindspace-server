@@ -28,7 +28,8 @@ class Zone(
     accelerating = Column(Boolean, nullable=False, default=True)
     starship_id = Column(Integer, ForeignKey('starships.id'), nullable=True)
     starship = relationship(
-        'Starship', backref=backref('object', uselist=False)
+        'Starship', backref=backref('object', uselist=False),
+        foreign_keys=[starship_id]
     )
     last_turn = Column(Float, nullable=False, default=0.0)
     background_sound = Column(String(150), nullable=True)
