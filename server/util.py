@@ -2,8 +2,7 @@
 
 from time import time
 from datetime import datetime
-from math import sin, cos, radians, pi
-import numpy as np
+from math import sin, cos, radians, pi, degrees, atan2
 from emote_utils import NoMatchError
 from attr import attrs, attrib
 from twisted.internet.task import LoopingCall
@@ -343,12 +342,13 @@ def distance_between(c1, c2):
 
 
 def angle_between(p1, p2):
-    ang1 = np.arctan2(*p1[:2])
-    ang2 = np.arctan2(*p2[:2])
-    r = np.rad2deg((ang1 - ang2) % (2 * np.pi)) + 180
-    if r > 360:
-        r -= 360
-    return r
+    """Get the angle between p1 and p2. No clue what this is measured in.
+    Code modified from:
+    https://stackoverflow.com/questions/42258637/how-to-know-the-angle-between-
+    two-points"""
+    x1, y1, z1 = p1
+    x2, y2, z2 = p2
+    return degrees(atan2(y2 - y1, x2 - x1))
 
 
 def point_pos(c, d, theta):
