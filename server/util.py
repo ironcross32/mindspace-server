@@ -345,7 +345,7 @@ def distance_between(c1, c2):
 def angle_between(p1, p2):
     ang1 = np.arctan2(*p1[:2])
     ang2 = np.arctan2(*p2[:2])
-    r = np.rad2deg((ang1 - ang2) % (2 * np.pi)) + 90
+    r = np.rad2deg((ang1 - ang2) % (2 * np.pi)) + 180
     if r > 360:
         r -= 360
     return r
