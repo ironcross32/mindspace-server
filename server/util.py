@@ -29,21 +29,21 @@ def directions(c1, c2, format=str):
             direction = 'east'
         elif x2 < x1:
             direction = 'west'
-        results.append('%d %s' % (format(diff), direction))
+        results.append('%s %s' % (format(diff), direction))
     if y1 != y2:
         diff = max(y1, y2) - min(y1, y2)
         if y2 > y1:
             direction = 'north'
         else:
             direction = 'south'
-        results.append('%d %s' % (format(diff), direction))
+        results.append('%s %s' % (format(diff), direction))
     if z1 != z2:
         diff = max(z1, z2) - min(z1, z2)
         if z2 > z1:
             direction = 'up'
         else:
             direction = 'down'
-        results.append('%d %s' % (format(diff), direction))
+        results.append('%s %s' % (format(diff), direction))
     if results:
         return ', '.join(results)
     else:
