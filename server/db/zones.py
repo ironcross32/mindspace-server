@@ -31,6 +31,8 @@ class Zone(
         'Starship', backref=backref('object', uselist=False),
         foreign_keys=[starship_id]
     )
+    star_id = Column(Integer, ForeignKey('stars.id'), nullable=True)
+    star = relationship('Star', backref=backref('object', uselist=False))
     last_turn = Column(Float, nullable=False, default=0.0)
     background_sound = Column(String(150), nullable=True)
     background_rate = Column(Float, nullable=False, default=1.0)
@@ -41,10 +43,16 @@ class Zone(
     def is_starship(self):
         return self.starship is not None
 
+    @property
+    def is_star(self):
+        return self.star is not None
+
     def get_type(self):
         """Get an appropriate type."""
         if self.is_starship:
             return 'Starship'
+        elif self.is_star:
+            return 'Star'
         else:
             return 'Debris'
 

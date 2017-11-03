@@ -42,6 +42,7 @@ from .object_types import (
     ObjectType
 )
 from .orbits import Orbit
+from .stars import Star
 
 logger = logging.getLogger(__name__)
 output_directory = 'world'
@@ -193,5 +194,5 @@ __all__ = (
     'Idea', 'IdeaComment', 'ChangelogEntry', 'MailMessage', 'LoggedCommand',
     'Credit', 'StarshipEngine', 'RoomFloorType', 'ObjectTypeActionSecondary',
     'ObjectTypeHotkeySecondary', 'ObjectTypeSecondary', 'ObjectType', 'Orbit',
-    'Starship', 'StarshipSensors'
+    'Starship', 'StarshipSensors', 'Star'
 )
