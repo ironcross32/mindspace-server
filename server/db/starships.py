@@ -50,6 +50,28 @@ class Starship(Base):
     filter_starship = Column(Boolean, nullable=False, default=False)
     filter_blackhole = Column(Boolean, nullable=False, default=False)
 
+    def get_sound_coordinates(self, obj, player):
+        """Return the coordinates where relative sounds should be played,
+        taking into account object and player coordinates, as well as
+        player.location.max_distance."""
+        zone = self.object
+        coordinates = []
+        for name in ('x', 'y', 'z'):
+            c = max(
+                getattr(obj, name),
+                getattr(zone, name)
+            ) - min(
+                getattr(obj, name),
+                getattr(zone, name)
+            )
+            if getattr(zone, name) > getattr(obj, name):
+                c *= -1
+            c *= player.location.max_distance
+            c /= self.sensors.distance
+            c += getattr(player, name)
+            coordinates.append(c)
+        return coordinates
+
     def get_filters(self):
         """Return a list of everything this array is filtering."""
         filters = []
