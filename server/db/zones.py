@@ -108,4 +108,12 @@ class Zone(
                     self.coordinates, value.coordinates
                 )
             )
+        for name in dir(self.starship):
+            if name.startswith(
+                'filter_'
+            ) and getattr(
+                self.starship, name
+            ):
+                type = name[7:].title()
+                objects = [x for x in objects if x.get_type() != type]
         return objects
