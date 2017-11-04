@@ -1,10 +1,13 @@
 """Provides the StarshipEngine class."""
 
+import os.path
 from sqlalchemy import Column, Float, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import Base, NameMixin
 from ..distance import km, ly
+from ..sound import get_sound, NoSuchSound
+from ..protocol import hidden_sound
 
 
 @attrs_sqlalchemy
@@ -71,6 +74,18 @@ class Starship(Base):
             c += getattr(player, name)
             coordinates.append(c)
         return coordinates
+
+    def play_object_sound(self, obj, player):
+        """Plays a sound representing obj to player."""
+        try:
+            sound = get_sound(os.path.join('sensors', obj.get_type() + '.wav'))
+            hidden_sound(
+                player.get_connection(), sound,
+                self.get_sound_coordinates(obj, player), False
+            )
+            return True
+        except NoSuchSound:
+            return False
 
     def get_filters(self):
         """Return a list of everything this array is filtering."""
