@@ -355,7 +355,7 @@ def format_distance_simple(d):
         v = d / km
         u = 'km'
     else:
-        v = d / m
+        v = d
         u = 'm'
     return '%.2f %s' % (v, u)
 
