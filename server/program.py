@@ -33,7 +33,7 @@ def valid_sensors(player):
         return (zone, ship)
 
 
-def valid_engines(player):
+def valid_engine(player):
     """Return (zone, starship) or exit."""
     zone = player.location.zone
     ship = zone.starship
@@ -162,6 +162,8 @@ ctx = dict(
     OK=OK,
     end=end,
     valid_object=valid_object,
+    valid_sensors=valid_sensors,
+    valid_engine=valid_engine,
     check_perms=check_perms,
     check_admin=check_admin,
     check_builder=check_builder,
