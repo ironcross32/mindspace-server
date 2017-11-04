@@ -22,6 +22,28 @@ class PermissionError(Exception):
     """Someone did something naughty."""
 
 
+def valid_sensors(player):
+    """Return (zone, starship) or exit."""
+    zone = player.location.zone
+    ship = zone.starship
+    if ship is None or ship.sensors is None:
+        player.message('No sensors found.')
+        end()
+    else:
+        return (zone, ship)
+
+
+def valid_engines(player):
+    """Return (zone, starship) or exit."""
+    zone = player.location.zone
+    ship = zone.starship
+    if ship is None or ship.engine is None:
+        player.message('No engines found.')
+        end()
+    else:
+        return (zone, ship)
+
+
 def valid_object(player, obj, message='Invalid object.'):
     """Check an object is valid."""
     if obj is None:
