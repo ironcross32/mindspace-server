@@ -27,9 +27,10 @@ class Player(Base, PermissionsMixin, PasswordMixin):
     idea_notifications = Column(Boolean, nullable=False, default=True)
 
     def get_all_fields(self):
-        fields = [Label('Account')]
-        for name in ('username'):
-            fields.append(self.make_field(name))
+        fields = [
+            Label('Account'),
+            self.make_field('username')
+        ]
         fields.extend(
             [
                 *PasswordMixin.get_fields(self),
