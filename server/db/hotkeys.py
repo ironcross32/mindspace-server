@@ -22,13 +22,24 @@ class Hotkey(Base, NameMixin, DescriptionMixin, CodeMixin, PermissionsMixin):
     """Respond to a hotkey."""
 
     __tablename__ = 'hotkeys'
+    control = Column(Boolean, nullable=True)
+    shift = Column(Boolean, nullable=True)
+    alt = Column(Boolean, nullable=True)
     reusable = Column(Boolean, nullable=False, default=False)
     objects = relationship(
         'Object', backref='hotkeys', secondary=HotkeySecondary.__table__
     )
 
     def get_all_fields(self):
-        fields = [
-            self.make_field('reusable', type=bool)
-        ]
-        return super().get_all_fields() + fields
+        fields = super().get_all_fields()
+        for name in ('control', 'shift', 'alt', 'reusable'):
+            fields.append(
+                self.make_field(
+                    name, type={
+                        None: 'Either',
+                        True: 'Down',
+                        False: 'Up'
+                    }
+                )
+            )
+        return fields
