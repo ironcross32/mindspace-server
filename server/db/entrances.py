@@ -29,6 +29,11 @@ class Entrance(
     )
     locked_sound = Column(String(100), nullable=True)
     lockable = Column(Boolean, nullable=False, default=False)
+    other_locked_msg = Column(
+        String(100), nullable=False,
+        default='%1N tr%1y %2n only to find it locked.'
+    )
+    other_locked_sound = Column(String(100), nullable=True)
     enter_code_msg = Column(
         String(100), nullable=False, default='%1N step%1s up to %2n.'
     )
@@ -78,7 +83,8 @@ class Entrance(
             'incorrect_code_sound', 'lock_msg', 'lock_sound', 'unlock_msg',
             'unlock_sound', 'other_lock_msg', 'other_lock_sound',
             'other_unlock_msg', 'other_unlock_sound', 'chime_msg',
-            'chime_sound', 'locked_msg', 'locked_sound'
+            'chime_sound', 'locked_msg', 'locked_sound', 'other_locked_msg',
+            'other_locked_sound'
         ):
             fields.append(self.make_field(name))
         return fields
