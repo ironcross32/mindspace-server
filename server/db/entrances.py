@@ -5,6 +5,7 @@ from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import (
     Base, CoordinatesMixin, AmbienceMixin, LocationMixin, PasswordMixin
 )
+from ..sound import get_sound
 
 
 @attrs_sqlalchemy
@@ -65,3 +66,10 @@ class Entrance(
         ):
             fields.append(self.make_field(name))
         return fields
+
+    def incorrect_code(self, player):
+        """Play incorrect code sound and show incorrect code social."""
+        player.do_social(self.incorrect_code_msg, _others=[self])
+        if self.incorrect_code_sound is not None:
+            sound = get_sound(self.incorrect_code_sound)
+            self.object.sound(sound)
