@@ -34,6 +34,13 @@ class Entrance(
         String(100), nullable=False, default='%1N lock%1s %2n.'
     )
     lock_sound = Column(String(100), nullable=True)
+    chime_msg = Column(
+        String(100), nullable=False, default='%1N ring%1s the chime on %2n.'
+    )
+    chime_sound = Column(
+        String(100), nullable=False, default='ambiences/doorbell.wav'
+    )
+    has_chime = Column(Boolean, nullable=False, default=False)
 
     def get_all_fields(self):
         fields = super().get_all_fields()
