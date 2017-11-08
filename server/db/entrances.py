@@ -92,3 +92,8 @@ class Entrance(
         if self.incorrect_code_sound is not None:
             sound = get_sound(self.incorrect_code_sound)
             self.object.sound(sound)
+
+    def get_other_side(self):
+        return self.object.__class__.query(
+            location_id=self.location_id, x=self.x, y=self.y, z=self.z
+        ).first()
