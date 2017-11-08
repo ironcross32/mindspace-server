@@ -31,7 +31,8 @@ class Entrance(
     lockable = Column(Boolean, nullable=False, default=False)
     other_locked_msg = Column(
         String(100), nullable=False,
-        default='%1n|normal rattle%1s as someone on the other side tries to open it.'
+        default='%1n|normal rattle%1s as someone on the other side tries to '
+        'open it.'
     )
     other_locked_sound = Column(String(100), nullable=True)
     enter_code_msg = Column(
@@ -66,7 +67,8 @@ class Entrance(
     )
     other_lock_sound = Column(String(100), nullable=True)
     chime_msg = Column(
-        String(100), nullable=False, default='%1n|normal ring%1s the chime on %2n.'
+        String(100), nullable=False,
+        default='%1n|normal ring%1s the chime on %2n.'
     )
     chime_sound = Column(
         String(100), nullable=False, default='ambiences/doorbell.wav'

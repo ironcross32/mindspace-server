@@ -73,10 +73,12 @@ class Object(
     )
     pose = Column(String(20), nullable=True)
     follow_msg = Column(
-        String(200), nullable=False, default='%1n|normal start%1s to follow %2n.'
+        String(200), nullable=False,
+        default='%1n|normal start%1s to follow %2n.'
     )
     unfollow_msg = Column(
-        String(200), nullable=False, default='%1n|normal stop%1s following %2n.'
+        String(200), nullable=False,
+        default='%1n|normal stop%1s following %2n.'
     )
     ditch_msg = Column(
         String(200), nullable=False, default='%1n|normal ditch%1e %2n.'
@@ -87,8 +89,12 @@ class Object(
     stop_use_msg = Column(
         String(200), nullable=False, default='%1n|normal stop%1s using %2n.'
     )
-    get_msg = Column(String(200), nullable=False, default='%1n|normal get%1s %2n.')
-    drop_msg = Column(String(200), nullable=False, default='%1n|normal drop%1s %2n.')
+    get_msg = Column(
+        String(200), nullable=False, default='%1n|normal get%1s %2n.'
+    )
+    drop_msg = Column(
+        String(200), nullable=False, default='%1n|normal drop%1s %2n.'
+    )
     give_msg = Column(
         String(200), nullable=False, default='%1n|normal give%1s %2n to %3n.'
     )
@@ -410,7 +416,8 @@ class Object(
         else:
             sound = None
         player.message(
-            f'You arrive at {player.location.get_name(player.is_staff)}.'
+            'You arrive at '
+            f'{player.location.get_name(player.is_staff).lower()}.'
         )
         for old_object in self.location.objects:
             if con is not None:
