@@ -50,6 +50,16 @@ class Entrance(
         String(100), nullable=False, default='%1N lock%1s %2n.'
     )
     lock_sound = Column(String(100), nullable=True)
+    other_unlock_msg = Column(
+        String(100), nullable=False,
+        default='%2N %2is unlocked from the other side.'
+    )
+    other_unlock_sound = Column(String(100), nullable=True)
+    other_lock_msg = Column(
+        String(100), nullable=False,
+        default='%2N %2is locked from the other side.'
+    )
+    other_lock_sound = Column(String(100), nullable=True)
     chime_msg = Column(
         String(100), nullable=False, default='%1N ring%1s the chime on %2n.'
     )
@@ -66,8 +76,9 @@ class Entrance(
             'leave_msg', 'arrive_msg', 'enter_code_msg', 'enter_code_sound',
             'correct_code_msg', 'incorrect_code_msg', 'correct_code_sound',
             'incorrect_code_sound', 'lock_msg', 'lock_sound', 'unlock_msg',
-            'unlock_sound', 'chime_msg', 'chime_sound', 'locked_msg',
-            'locked_sound'
+            'unlock_sound', 'other_lock_msg', 'other_lock_sound',
+            'other_unlock_msg', 'other_unlock_sound', 'chime_msg',
+            'chime_sound', 'locked_msg', 'locked_sound'
         ):
             fields.append(self.make_field(name))
         return fields
