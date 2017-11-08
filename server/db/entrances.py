@@ -67,9 +67,16 @@ class Entrance(
             fields.append(self.make_field(name))
         return fields
 
+    def correct_code(self, player):
+        """Play correct code sound and show correct code social."""
+        player.do_social(self.correct_code_msg, _others=[self.object])
+        if self.correct_code_sound is not None:
+            sound = get_sound(self.correct_code_sound)
+            self.object.sound(sound)
+
     def incorrect_code(self, player):
         """Play incorrect code sound and show incorrect code social."""
-        player.do_social(self.incorrect_code_msg, _others=[self])
+        player.do_social(self.incorrect_code_msg, _others=[self.object])
         if self.incorrect_code_sound is not None:
             sound = get_sound(self.incorrect_code_sound)
             self.object.sound(sound)
