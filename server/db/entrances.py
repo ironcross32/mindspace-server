@@ -31,7 +31,7 @@ class Entrance(
     lockable = Column(Boolean, nullable=False, default=False)
     other_locked_msg = Column(
         String(100), nullable=False,
-        default='%1N tr%1y %2n only to find it locked.'
+        default='%1N rattle%1s as someone on the other side tries to open it.'
     )
     other_locked_sound = Column(String(100), nullable=True)
     enter_code_msg = Column(
