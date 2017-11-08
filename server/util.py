@@ -6,7 +6,7 @@ from math import sin, cos, radians, pi, degrees, atan2
 from emote_utils import NoMatchError
 from attr import attrs, attrib
 from twisted.internet.task import LoopingCall
-from .distance import pc, kpc, mpc, gpc, tpc, au, ly, km, m, light_speed
+from .distance import pc, kpc, mpc, gpc, tpc, au, ly, km, light_speed
 from .sound import get_sound, empty_room, nonempty_room
 from . import db
 from .protocol import interface_sound
@@ -150,8 +150,9 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
         pz += z
         if player.location.coordinates_ok((px, py, pz)):
             if player.following is not None:
-                who = player.following.get_name(player.is_staff)
-                player.message(f'You stop following {who}.')
+                player.do_social(
+                    player.unfollow_msg, _others=[player.following]
+                )
                 player.following_id = None
             player.last_walked = now
             for obj in players:
