@@ -29,6 +29,10 @@ class Entrance(
     )
     locked_sound = Column(String(100), nullable=True)
     lockable = Column(Boolean, nullable=False, default=False)
+    enter_code_msg = Column(
+        String(100), nullable=False, default='%1N step%1s up to %2n.'
+    )
+    enter_code_sound = Column(String(100), nullable=True)
     correct_code_msg = Column(
         String(100), nullable=False, default='%1N fiddle%1s with %2n.'
     )
@@ -59,13 +63,21 @@ class Entrance(
         for name in ('no_mobiles', 'locked', 'lockable', 'has_chime'):
             fields.append(self.make_field(name, type=bool))
         for name in (
-            'leave_msg', 'arrive_msg', 'correct_code_msg',
-            'incorrect_code_msg', 'correct_code_sound', 'incorrect_code_sound',
-            'lock_msg', 'lock_sound', 'unlock_msg', 'unlock_sound',
-            'chime_msg', 'chime_sound', 'locked_msg', 'locked_sound'
+            'leave_msg', 'arrive_msg', 'enter_code_msg', 'enter_code_sound',
+            'correct_code_msg', 'incorrect_code_msg', 'correct_code_sound',
+            'incorrect_code_sound', 'lock_msg', 'lock_sound', 'unlock_msg',
+            'unlock_sound', 'chime_msg', 'chime_sound', 'locked_msg',
+            'locked_sound'
         ):
             fields.append(self.make_field(name))
         return fields
+
+    def enter_code(self, player):
+        """Play enter code sound and show enter code social."""
+        player.do_social(self.enter_code_msg, _others=[self.object])
+        if self.enter_code_sound is not None:
+            sound = get_sound(self.enter_code_sound)
+            self.object.sound(sound)
 
     def correct_code(self, player):
         """Play correct code sound and show correct code social."""
