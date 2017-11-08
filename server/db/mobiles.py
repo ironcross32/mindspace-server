@@ -65,7 +65,8 @@ class Mobile(Base):
                 Object.x == x,
                 Object.y == y,
                 Object.z == z,
-                Entrance.no_mobiles.is_(False)
+                Entrance.no_mobiles.is_(False),
+                Entrance.locked.is_(False)
             ]
             if obj.recent_exit_id is not None:
                 args.append(Object.id != obj.recent_exit_id)
