@@ -6,6 +6,7 @@ from time import time
 from inspect import isclass
 from random import choice, uniform
 from functools import partial
+from passlib.hash import sha256_crypt as crypt
 from attr import asdict
 from sqlalchemy import (
     Column, Integer, String, Float, ForeignKey, DateTime, Boolean
@@ -19,6 +20,7 @@ from ..sound import sounds_dir, get_sound
 from ..util import now
 from ..forms import Label, Field, text
 
+rounds = 10000
 ambiences_dir = os.path.join(sounds_dir, 'ambiences')
 random_sounds_dir = os.path.join(sounds_dir, 'random')
 
@@ -443,3 +445,35 @@ class TextMixin:
     @classmethod
     def get_fields(cls, instance):
         return [instance.make_field('text')]
+
+
+class PasswordMixin:
+    """Add passwords to things."""
+    password = Column(String(80), nullable=True)
+
+    @property
+    def reset_password(self):
+        return ''
+
+    @reset_password.setter
+    def reset_password(self, value):
+        if value:  # Don't clear passwords.
+            self.set_password(value)
+
+    @classmethod
+    def get_fields(cls, instance):
+        return [instance.make_field('reset_password')]
+
+    def check_password(self, secret):
+        """Check that secret matches self.password."""
+        return self.password is not None and crypt.verify(
+            secret, self.password
+        )
+
+    def set_password(self, value):
+        """Set self.password."""
+        self.password = crypt.encrypt(value, rounds=rounds)
+
+    def clear_password(self):
+        """Effectively lock the account."""
+        self.password = None
