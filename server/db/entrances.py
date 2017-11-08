@@ -27,6 +27,7 @@ class Entrance(
         default='%1N tr%1y %2n only to find it locked.'
     )
     locked_sound = Column(String(100), nullable=True)
+    coded = Column(Boolean, nullable=False, default=False)
     code_msg = Column(
         String(100), nullable=False, default='%1N fiddle%1s with %2n.'
     )
@@ -49,7 +50,7 @@ class Entrance(
 
     def get_all_fields(self):
         fields = super().get_all_fields()
-        for name in ('no_mobiles', 'locked', 'has_chime'):
+        for name in ('no_mobiles', 'locked', 'coded', 'has_chime'):
             fields.append(self.make_field(name, type=bool))
         for name in (
             'leave_msg', 'arrive_msg', 'code_msg', 'code_sound', 'lock_msg',
