@@ -356,11 +356,7 @@ class Object(
         entrance = self.exit
         assert entrance
         con = player.get_connection()
-        other_side = Object.query(
-            Object.location_id == entrance.location_id, Object.x == entrance.x,
-            Object.y == entrance.y, Object.z == entrance.z,
-            Object.exit_id.isnot(None)
-        ).first()
+        other_side = entrance.get_other_side()
         if other_side is None:
             recent_exit_id = self.id
             msg = '%1N arrive%1s.'
