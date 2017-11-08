@@ -9,6 +9,7 @@ from platform import platform, architecture, python_implementation
 from contextlib import redirect_stdout, redirect_stderr
 from code import InteractiveConsole
 import sqlalchemy
+from random_password import random_password
 from humanize import naturalsize
 from psutil import Process, boot_time, virtual_memory
 from sqlalchemy import exc
@@ -159,6 +160,7 @@ def end():
 codes = {}
 ctx = dict(
     util=util,
+    random_password=random_password,
     OK=OK,
     end=end,
     valid_object=valid_object,

@@ -14,3 +14,4 @@ mindspace-protocol
 psutil
 humanize
 emote-utils
+random-password
