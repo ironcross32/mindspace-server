@@ -44,7 +44,12 @@ class Entrance(
 
     def get_all_fields(self):
         fields = super().get_all_fields()
-        fields.append(self.make_field('no_mobiles', type=bool))
-        for name in ('leave_msg', 'arrive_msg'):
+        for name in ('no_mobiles', 'locked', 'has_chime'):
+            fields.append(self.make_field(name, type=bool))
+        for name in (
+            'leave_msg', 'arrive_msg', 'code_msg', 'code_sound', 'lock_msg',
+            'lock_sound', 'unlock_msg', 'unlock_sound', 'chime_msg',
+            'chime_sound'
+        ):
             fields.append(self.make_field(name))
         return fields
