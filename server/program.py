@@ -199,7 +199,7 @@ def run_program(con, s, prog, **context):
     context.setdefault('self', prog)
     if prog.code not in codes:
         codes[prog.code] = compile(prog.code, prog.name, 'exec')
-    exec(codes[prog.code], globals(), context)
+    exec(codes[prog.code], {}, context)
 
 
 def build_context():
