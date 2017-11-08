@@ -27,7 +27,7 @@ class Entrance(
         default='%1N tr%1y %2n only to find it locked.'
     )
     locked_sound = Column(String(100), nullable=True)
-    coded = Column(Boolean, nullable=False, default=False)
+    coded = Column(Boolean, nullable=False, default=True)
     code_msg = Column(
         String(100), nullable=False, default='%1N fiddle%1s with %2n.'
     )
