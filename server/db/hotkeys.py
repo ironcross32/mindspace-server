@@ -32,7 +32,8 @@ class Hotkey(Base, NameMixin, DescriptionMixin, CodeMixin, PermissionsMixin):
 
     def get_all_fields(self):
         fields = super().get_all_fields()
-        for name in ('ctrl', 'shift', 'alt', 'reusable'):
+        fields.append(self.make_field('reusable', type=bool))
+        for name in ('ctrl', 'shift', 'alt'):
             fields.append(
                 self.make_field(
                     name, type={
