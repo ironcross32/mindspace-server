@@ -52,12 +52,12 @@ class Entrance(
     lock_sound = Column(String(100), nullable=True)
     other_unlock_msg = Column(
         String(100), nullable=False,
-        default='%1N %2is unlocked from the other side.'
+        default='%1N %1is unlocked from the other side.'
     )
     other_unlock_sound = Column(String(100), nullable=True)
     other_lock_msg = Column(
         String(100), nullable=False,
-        default='%1N %2is locked from the other side.'
+        default='%1N %1is locked from the other side.'
     )
     other_lock_sound = Column(String(100), nullable=True)
     chime_msg = Column(
