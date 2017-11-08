@@ -14,8 +14,10 @@ class Window(Base):
     open = Column(Boolean, nullable=False, default=False)
     overlooking_id = Column(Integer, ForeignKey('rooms.id'), nullable=False)
     overlooking = relationship('Room', backref='windows')
-    open_msg = Column(String(100), nullable=False, default='%N open%s %2n.')
-    close_msg = Column(String(100), nullable=False, default='%N close%s %2n.')
+    open_msg = Column(String(100), nullable=False, default='%1n|normal open%1s %2n.')
+    close_msg = Column(
+        String(100), nullable=False, default='%1n|normal close%1s %2n.'
+    )
     open_sound = Column(String(200), nullable=True)
     close_sound = Column(String(200), nullable=True)
 

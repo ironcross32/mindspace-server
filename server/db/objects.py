@@ -73,24 +73,24 @@ class Object(
     )
     pose = Column(String(20), nullable=True)
     follow_msg = Column(
-        String(200), nullable=False, default='%1N start%1s to follow %2n.'
+        String(200), nullable=False, default='%1n|normal start%1s to follow %2n.'
     )
     unfollow_msg = Column(
-        String(200), nullable=False, default='%1N stop%1s following %2n.'
+        String(200), nullable=False, default='%1n|normal stop%1s following %2n.'
     )
     ditch_msg = Column(
-        String(200), nullable=False, default='%1N ditch%1e %2n.'
+        String(200), nullable=False, default='%1n|normal ditch%1e %2n.'
     )
     start_use_msg = Column(
-        String(200), nullable=False, default='%1N start%1s using %2n.'
+        String(200), nullable=False, default='%1n|normal start%1s using %2n.'
     )
     stop_use_msg = Column(
-        String(200), nullable=False, default='%1N stop%1s using %2n.'
+        String(200), nullable=False, default='%1n|normal stop%1s using %2n.'
     )
-    get_msg = Column(String(200), nullable=False, default='%1N get%1s %2n.')
-    drop_msg = Column(String(200), nullable=False, default='%1N drop%1s %2n.')
+    get_msg = Column(String(200), nullable=False, default='%1n|normal get%1s %2n.')
+    drop_msg = Column(String(200), nullable=False, default='%1n|normal drop%1s %2n.')
     give_msg = Column(
-        String(200), nullable=False, default='%1N give%1s %2n to %3n.'
+        String(200), nullable=False, default='%1n|normal give%1s %2n to %3n.'
     )
     get_sound = Column(String(200), nullable=True)
     drop_sound = Column(String(200), nullable=True)
@@ -359,7 +359,7 @@ class Object(
         other_side = entrance.get_other_side()
         if other_side is None:
             recent_exit_id = self.id
-            msg = '%1N arrive%1s.'
+            msg = '%1n|normal arrive%1s.'
         else:
             if other_side.exit.ambience is not None:
                 other_side.sound(get_ambience(other_side.exit.ambience))

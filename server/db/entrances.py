@@ -17,56 +17,56 @@ class Entrance(
     __tablename__ = 'entrances'
     no_mobiles = Column(Boolean, nullable=False, default=False)
     leave_msg = Column(
-        String(100), nullable=False, default='%1N leave%1s through %2n.'
+        String(100), nullable=False, default='%1n|normal leave%1s through %2n.'
     )
     arrive_msg = Column(
-        String(100), nullable=False, default='%1N arrive%1s from %2n.'
+        String(100), nullable=False, default='%1n|normal arrive%1s from %2n.'
     )
     locked = Column(Boolean, nullable=False, default=False)
     locked_msg = Column(
         String(100), nullable=False,
-        default='%1N tr%1y %2n only to find it locked.'
+        default='%1n|normal tr%1y %2n only to find it locked.'
     )
     locked_sound = Column(String(100), nullable=True)
     lockable = Column(Boolean, nullable=False, default=False)
     other_locked_msg = Column(
         String(100), nullable=False,
-        default='%1N rattle%1s as someone on the other side tries to open it.'
+        default='%1n|normal rattle%1s as someone on the other side tries to open it.'
     )
     other_locked_sound = Column(String(100), nullable=True)
     enter_code_msg = Column(
-        String(100), nullable=False, default='%1N step%1s up to %2n.'
+        String(100), nullable=False, default='%1n|normal step%1s up to %2n.'
     )
     enter_code_sound = Column(String(100), nullable=True)
     correct_code_msg = Column(
-        String(100), nullable=False, default='%1N fiddle%1s with %2n.'
+        String(100), nullable=False, default='%1n|normal fiddle%1s with %2n.'
     )
     correct_code_sound = Column(String(100), nullable=True)
     incorrect_code_msg = Column(
         String(100), nullable=False,
-        default='%1N fiddle%1s with %2n which beep%2s loudly.'
+        default='%1n|normal fiddle%1s with %2n which beep%2s loudly.'
     )
     incorrect_code_sound = Column(String(100), nullable=True)
     unlock_msg = Column(
-        String(100), nullable=False, default='%1N unlock%1s %2n.'
+        String(100), nullable=False, default='%1n|normal unlock%1s %2n.'
     )
     unlock_sound = Column(String(100), nullable=True)
     lock_msg = Column(
-        String(100), nullable=False, default='%1N lock%1s %2n.'
+        String(100), nullable=False, default='%1n|normal lock%1s %2n.'
     )
     lock_sound = Column(String(100), nullable=True)
     other_unlock_msg = Column(
         String(100), nullable=False,
-        default='%1N %1is unlocked from the other side.'
+        default='%1n|normal %1is unlocked from the other side.'
     )
     other_unlock_sound = Column(String(100), nullable=True)
     other_lock_msg = Column(
         String(100), nullable=False,
-        default='%1N %1is locked from the other side.'
+        default='%1n|normal %1is locked from the other side.'
     )
     other_lock_sound = Column(String(100), nullable=True)
     chime_msg = Column(
-        String(100), nullable=False, default='%1N ring%1s the chime on %2n.'
+        String(100), nullable=False, default='%1n|normal ring%1s the chime on %2n.'
     )
     chime_sound = Column(
         String(100), nullable=False, default='ambiences/doorbell.wav'
