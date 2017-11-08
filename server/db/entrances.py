@@ -105,6 +105,8 @@ class Entrance(
             self.object.sound(sound)
 
     def get_other_side(self):
-        return self.object.__class__.query(
-            location_id=self.location_id, x=self.x, y=self.y, z=self.z
+        cls = self.object.__class__
+        return cls.query(
+            cls.exit_id.isnot(None), location_id=self.location_id, x=self.x,
+            y=self.y, z=self.z
         ).first()
