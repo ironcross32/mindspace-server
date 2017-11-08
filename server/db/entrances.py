@@ -22,6 +22,11 @@ class Entrance(
         String(100), nullable=False, default='%1N arrive%1s from %2n.'
     )
     locked = Column(Boolean, nullable=False, default=False)
+    locked_msg = Column(
+        String(100), nullable=False,
+        default='%1N tr%1y %2n only to find it locked.'
+    )
+    locked_sound = Column(String(100), nullable=True)
     code_msg = Column(
         String(100), nullable=False, default='%1N fiddle%1s with %2n.'
     )
@@ -49,7 +54,7 @@ class Entrance(
         for name in (
             'leave_msg', 'arrive_msg', 'code_msg', 'code_sound', 'lock_msg',
             'lock_sound', 'unlock_msg', 'unlock_sound', 'chime_msg',
-            'chime_sound'
+            'chime_sound', 'locked_msg', 'locked_sound'
         ):
             fields.append(self.make_field(name))
         return fields
