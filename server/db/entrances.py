@@ -28,10 +28,15 @@ class Entrance(
     )
     locked_sound = Column(String(100), nullable=True)
     lockable = Column(Boolean, nullable=False, default=False)
-    code_msg = Column(
+    correct_code_msg = Column(
         String(100), nullable=False, default='%1N fiddle%1s with %2n.'
     )
-    code_sound = Column(String(100), nullable=True)
+    correct_code_sound = Column(String(100), nullable=True)
+    incorrect_code_msg = Column(
+        String(100), nullable=False,
+        default='%1N fiddle%1s with %2n which beep%2s loudly.'
+    )
+    incorrect_code_sound = Column(String(100), nullable=True)
     unlock_msg = Column(
         String(100), nullable=False, default='%1N unlock%1s %2n.'
     )
@@ -53,9 +58,10 @@ class Entrance(
         for name in ('no_mobiles', 'locked', 'lockable', 'has_chime'):
             fields.append(self.make_field(name, type=bool))
         for name in (
-            'leave_msg', 'arrive_msg', 'code_msg', 'code_sound', 'lock_msg',
-            'lock_sound', 'unlock_msg', 'unlock_sound', 'chime_msg',
-            'chime_sound', 'locked_msg', 'locked_sound'
+            'leave_msg', 'arrive_msg', 'correct_code_msg',
+            'incorrect_code_msg', 'correct_code_sound', 'incorrect_code_sound',
+            'lock_msg', 'lock_sound', 'unlock_msg', 'unlock_sound',
+            'chime_msg', 'chime_sound', 'locked_msg', 'locked_sound'
         ):
             fields.append(self.make_field(name))
         return fields
