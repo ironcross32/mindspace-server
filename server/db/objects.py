@@ -30,6 +30,10 @@ class ObjectRandomSound(RandomSoundMixin, Base):
     """A random sound for objects."""
 
     __tablename__ = 'object_random_sounds'
+    recent_direction = Column(
+        Integer, ForeignKey('directions.id'), nullable=True
+    )
+    recent_direction = relationship('Direction', backref='recently_traveled')
     object_id = Column(Integer, ForeignKey('objects.id'), nullable=False)
     object = relationship('Object', backref='random_sounds')
 
