@@ -85,7 +85,7 @@ class Mobile(Base):
             elif value == getattr(loc, f'size_{name}'):
                 args.append(getattr(Direction, name) != 1.0)
         if obj.recent_direction_id is not None:
-            args.append(Direction.id != obj.obj.recent_direction.opposite_id)
+            args.append(Direction.id != obj.recent_direction.opposite_id)
         obj.recent_direction_id = None
         directions = Direction.query(*args, z=0.0).all()
         if directions:
