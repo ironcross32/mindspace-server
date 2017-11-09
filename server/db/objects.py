@@ -13,7 +13,8 @@ from .base import (
 from .session import Session
 from .communication import CommunicationChannel
 from ..protocol import (
-    object_sound, location, message, identify, delete, zone, random_sound
+    object_sound, location, message, identify, delete, zone, random_sound,
+    remember_quit
 )
 from .. import server
 from ..forms import Label, Field
@@ -221,6 +222,7 @@ class Object(
         if self.get_connection() is not None:
             old = connections.pop(self.id)
             old.player_id = None
+            remember_quit(old)
             old.disconnect('Reconnecting from somewhere else.')
         if con is not None:
             con.player_id = self.id
