@@ -41,7 +41,7 @@ class Object(
 ):
     """An object or player."""
     __tablename__ = 'objects'
-    recent_direction = Column(
+    recent_direction_id = Column(
         Integer, ForeignKey('directions.id'), nullable=True
     )
     recent_direction = relationship('Direction', backref='recently_traveled')
