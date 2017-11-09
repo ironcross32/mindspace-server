@@ -103,6 +103,12 @@ class Object(
     give_msg = Column(
         String(200), nullable=False, default='%1n|normal give%1s %2n to %3n.'
     )
+    knock_msg = Column(
+        String(100), nullable=False, default='%1n|normal knock%1s on %2n.'
+    )
+    knock_sound = Column(
+        String(100), nullable=True, default='objects/knock1.wav'
+    )
     get_sound = Column(String(200), nullable=True)
     drop_sound = Column(String(200), nullable=True)
     give_sound = Column(String(200), nullable=True)
@@ -166,7 +172,7 @@ class Object(
         for name in (
             'start_use_msg', 'stop_use_msg', 'get_msg', 'drop_msg', 'give_msg',
             'get_sound', 'drop_sound', 'give_sound', 'follow_msg',
-            'unfollow_msg', 'ditch_msg'
+            'unfollow_msg', 'ditch_msg', 'knock_msg', 'knock_sound'
         ):
             fields.append(self.make_field(name))
         for name in ('window', 'exit', 'mobile', 'player'):
