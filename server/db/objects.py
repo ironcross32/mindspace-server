@@ -377,12 +377,12 @@ class Object(
         """Move player and their followers through this object if it is an
         exit."""
         entrance = self.exit
-        assert entrance
+        assert entrance is not None
         con = player.get_connection()
         other_side = entrance.get_other_side()
         if other_side is None:
             recent_exit_id = self.id
-            msg = '%1n|normal arrive%1s.'
+            msg = '%1n arrive%1s.'
         else:
             if other_side.exit.ambience is not None:
                 other_side.sound(get_ambience(other_side.exit.ambience))
@@ -392,16 +392,7 @@ class Object(
             message, factory.get_strings(msg, [player, other_side])[-1],
             _who=other_side
         )
-        for follower in player.followers:
-            s = follower.is_staff
-            follower.message(
-                f'You follow {player.get_name(s)} through {self.get_name(s)}.'
-            )
-            entrance.location.broadcast_command(
-                message,
-                f'{follower.get_name()} arrives behind {player.get_name()}.',
-                _who=other_side
-            )
+        player.do_social(entrance.leave_msg, _others=[self])
         player.steps += 1
         player.location_id = entrance.location_id
         player.recent_exit_id = recent_exit_id
@@ -409,17 +400,19 @@ class Object(
         Session.add(player)
         for follower in player.followers:
             follower.steps += 1
+            follower.do_social(entrance.follow_msg, _others=[player, self])
+            entrance.location.broadcast_command(
+                message,
+                f'{follower.get_name()} arrives behind {player.get_name()}.',
+                _who=other_side
+            )
+            follower.steps += 1
             follower.location_id = player.location_id
             follower.recent_exit_id = recent_exit_id
             follower.coordinates = player.coordinates
             Session.add(follower)
         Session.commit()
         self.location.broadcast_command(delete, player.id)
-        self.location.broadcast_command(
-            message,
-            factory.get_strings(entrance.leave_msg, [player, self])[-1],
-            _who=self
-        )
         for follower in player.followers:
             self.location.broadcast_command(delete, follower.id)
             self.location.broadcast_command(

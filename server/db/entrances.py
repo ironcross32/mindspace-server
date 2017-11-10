@@ -16,6 +16,9 @@ class Entrance(
 
     __tablename__ = 'entrances'
     no_mobiles = Column(Boolean, nullable=False, default=False)
+    follow_msg = Column(
+        String(100), nullable=False, default='%1n follow%1s %2n through %3n.'
+    )
     leave_msg = Column(
         String(100), nullable=False, default='%1n|normal leave%1s through %2n.'
     )
@@ -80,13 +83,13 @@ class Entrance(
         for name in ('no_mobiles', 'locked', 'lockable', 'has_chime'):
             fields.append(self.make_field(name, type=bool))
         for name in (
-            'leave_msg', 'arrive_msg', 'enter_code_msg', 'enter_code_sound',
-            'correct_code_msg', 'incorrect_code_msg', 'correct_code_sound',
-            'incorrect_code_sound', 'lock_msg', 'lock_sound', 'unlock_msg',
-            'unlock_sound', 'other_lock_msg', 'other_lock_sound',
-            'other_unlock_msg', 'other_unlock_sound', 'chime_msg',
-            'chime_sound', 'locked_msg', 'locked_sound', 'other_locked_msg',
-            'other_locked_sound'
+            'leave_msg', 'arrive_msg', 'follow_msg', 'enter_code_msg',
+            'enter_code_sound', 'correct_code_msg', 'incorrect_code_msg',
+            'correct_code_sound', 'incorrect_code_sound', 'lock_msg',
+            'lock_sound', 'unlock_msg', 'unlock_sound', 'other_lock_msg',
+            'other_lock_sound', 'other_unlock_msg', 'other_unlock_sound',
+            'chime_msg', 'chime_sound', 'locked_msg', 'locked_sound',
+            'other_locked_msg', 'other_locked_sound'
         ):
             fields.append(self.make_field(name))
         return fields
