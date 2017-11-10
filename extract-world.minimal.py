@@ -3,13 +3,15 @@ import logging
 import os.path
 from time import time
 from zipfile import ZipFile
+from server.server import server  # noqa
 from server.db import (
     session, load_db, dump_db, Action, Advert, CommunicationChannel,
     CommunicationChannelBan, CommunicationChannelListener,
-    CommunicationChannelMessage, Direction, Entrance, Object, ObjectKey,
+    CommunicationChannelMessage, Direction, Entrance, Object, HotkeySecondary,
     Player, Revision, Room, Zone, ServerOptions, Rule, HelpTopic,
     HelpKeyword, HelpTopicKeyword, ObjectRandomSound, RoomRandomSound, Mobile,
-    Social
+    Social, MailMessage, ObjectAction, Orbit, RoomFloorType, Star, Starship,
+    StarshipEngine, StarshipSensors, Window
 )
 
 output_dir = 'world.minimal'
@@ -22,17 +24,14 @@ if __name__ == '__main__':
     logging.info('Loaded objects: %d.', n)
     with session() as s:
         logging.info('Deleting unnecessary stuff:')
-        for obj in s.query(ObjectKey):
-            logging.info('Deleting %r.', obj.hotkey)
-            s.delete(obj.hotkey)
-            logging.info('Deleting %r.', obj)
-            s.delete(obj)
         for cls in (
             Action, Advert, CommunicationChannel, CommunicationChannelBan,
             CommunicationChannelListener, CommunicationChannelMessage,
             Direction, Entrance, Object, Player, Revision, Room, Zone,
             ServerOptions, ObjectRandomSound, Rule, HelpTopic, HelpKeyword,
-            HelpTopicKeyword, RoomRandomSound, Social, Mobile
+            HelpTopicKeyword, RoomRandomSound, Social, Mobile, HotkeySecondary,
+            MailMessage, ObjectAction, Orbit, Star, Starship, StarshipEngine,
+            StarshipSensors, RoomFloorType, Window
         ):
             logging.info('Table: %s.', cls.__table__.name)
             n = s.query(cls).delete()
