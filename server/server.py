@@ -170,7 +170,6 @@ class MindspaceProtocol(NetstringReceiver):
         self.locked = False
         self.transport.setTcpNoDelay(True)
         self.shell = None
-        self.scan_index = 0
         self.walk_task = None
         self.player_id = None
         self.object_id = None

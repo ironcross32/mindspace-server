@@ -41,6 +41,11 @@ class Object(
 ):
     """An object or player."""
     __tablename__ = 'objects'
+    scanned_id = Column(Integer, ForeignKey('objects.id'), nullable=True)
+    scanned = relationship(
+        'Object', backref='scanned_by', foreign_keys=[scanned_id],
+        remote_side='Object.id'
+    )
     recent_direction_id = Column(
         Integer, ForeignKey('directions.id'), nullable=True
     )
