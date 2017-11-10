@@ -12,7 +12,6 @@ class Word(Base, OwnerMixin):
     __tablename__ = 'words'
     word = Column(
         String(
-            len('pneumonoultramicroscopicsilicovolcanoconiosis'),
-            nullable=False
-        )
+            len('pneumonoultramicroscopicsilicovolcanoconiosis')
+        ), nullable=False
     )
