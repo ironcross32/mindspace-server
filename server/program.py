@@ -4,6 +4,7 @@ import os
 import sys
 import datetime
 import logging
+import re
 from time import time, ctime
 from platform import platform, architecture, python_implementation
 from contextlib import redirect_stdout, redirect_stderr
@@ -177,6 +178,7 @@ ctx = dict(
     os=os,
     sys=sys,
     datetime=datetime,
+    re=re,
     sqlalchemy=sqlalchemy,
     server_info=server_info,
     server_options=db.ServerOptions.get,
