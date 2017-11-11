@@ -303,7 +303,9 @@ class Object(
         old_coordinates = self.coordinates
         self.do_social(self.teleport_msg)
         sound = get_sound(self.teleport_sound)
-        old_location.broadcast_command(random_sound, sound, *old_coordinates)
+        old_location.broadcast_command(
+            random_sound, sound, *old_coordinates, 1.0
+        )
         self.location.broadcast_command_selective(
             lambda obj: obj is not self, message,
             f'{self.get_name(False)} teleports in.'
