@@ -37,6 +37,14 @@ class TransitRoute(Base, NameMixin, CoordinatesMixin):
         String(100), nullable=False, default='{} arrives.'
     )
     board_other_sound = Column(String(100), nullable=True)
+    leave_msg = Column(
+        String(100), nullable=False, default='%1n disembark%1s from %2n.'
+    )
+    leave_sound = Column(String(100), nullable=True)
+    leave_other_msg = Column(
+        String(100), nullable=False, default='{} disembarks.'
+    )
+    disembark_other_sound = Column(String(100), nullable=True)
     next_move = Column(Float, nullable=True)
     next_stop_id = Column(
         Integer, ForeignKey('transit_stops.id'), nullable=True
@@ -48,3 +56,10 @@ class TransitRoute(Base, NameMixin, CoordinatesMixin):
     room = relationship(
         'Room', backref=backref('transit_route', uselist=False)
     )
+
+    def get_all_fields(self):
+        fields = super().get_all_fields()
+        for name in dir(self):
+            if name.endswith('_msg') or name.endswith('_sound'):
+                fields.append(self.make_field(name))
+        return fields
