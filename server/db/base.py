@@ -30,10 +30,7 @@ class _Base:
     id = Column(Integer, primary_key=True)
 
     def __str__(self):
-        if callable(getattr(self, 'get_name', None)):
-            return self.get_name(True)
-        else:
-            return f'{self.__class__.__name__} (#{self.id})'
+        return f'{getattr(self, "name", self.__class__.__name__)} (#{self.id})'
 
     def __repr__(self):
         res = f'{self.__class__.__name__} ('
@@ -299,7 +296,7 @@ class OwnerMixin:
 
 
 class CodeMixin:
-    code = Column(String(1000000), default=False)
+    code = Column(String(1000000), nullable=False, default='print("Code me.")')
 
     def set_code(self, code):
         """Compile the code to ensure it's all going to work."""

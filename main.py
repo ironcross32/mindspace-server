@@ -8,6 +8,7 @@ from server.server import server
 from server.db import load_db, dump_db, ServerOptions
 from server.program import build_context
 from server.log_handler import LogHandler
+from server.tasks import tasks_task, tasks_errback
 
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
 
@@ -20,6 +21,7 @@ parser.add_argument(
     '-l', '--log-file', type=FileType('w'), default='mindspace.log',
     help='Where to log server output'
 )
+
 
 if __name__ == '__main__':
     args = parser.parse_args()
@@ -35,10 +37,10 @@ if __name__ == '__main__':
         logging.critical('Invalid ID for server options: %d.', args.options_id)
     else:
         logging.info(repr(ServerOptions.get()))
-    from server import tasks  # noqa
     build_context()
     try:
         server.start_listening()
+        tasks_task.start(1.0, now=False).addErrback(tasks_errback)
     except error.CannotListenError as e:
         logging.critical('Listening failed.')
         logging.exception(e)

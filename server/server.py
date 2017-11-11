@@ -55,7 +55,6 @@ class Server:
         """Leave everything in one place."""
         self.started = None
         self.logged_players = set()
-        self.tasks = []
         self.connections = []
         self.tcp_factory = ServerFactory()
         self.udp_factory = UDPProtocol()
@@ -116,29 +115,6 @@ class Server:
         """Clear transfer logs so that clients can resume sending."""
         if hasattr(self.udp_factory, 'transferred'):
             self.udp_factory.transferred.clear()
-
-    def task(self, func=None, interval=1.0):
-        """Decorator to create a task."""
-
-        def inner(func):
-            t = task.LoopingCall(func)
-            t.start(interval, now=False).addBoth(self.callback(t))
-            self.tasks.append(t)
-            return t
-        if func is None:
-            return inner
-        else:
-            return inner(func)
-
-    def callback(self, task):
-        """task has had a problem."""
-
-        def inner(err):
-            logger.warning(
-                'Task %r threw an error: %s', task, err.getErrorMessage()
-            )
-            logger.exception(err.getTraceback())
-        return inner
 
 
 class UDPProtocol(protocol.DatagramProtocol):

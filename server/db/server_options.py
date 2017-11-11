@@ -20,7 +20,6 @@ class ServerOptions(Base, NameMixin):
     port = Column(Integer, nullable=False, default=6463)
     web_port = Column(Integer, nullable=False, default=6464)
     udp_port = Column(Integer, nullable=False, default=9000)
-    dump_interval = Column(Integer, nullable=False, default=3600)
     name_change_interval = Column(
         Interval, nullable=False, default=timedelta(days=30)
     )

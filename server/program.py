@@ -191,12 +191,15 @@ ctx = dict(
 def run_program(con, s, prog, **context):
     """Run a program with a sensible context."""
     context['s'] = s
-    context['con'] = con
-    player = con.get_player(db.Session)
-    context['player'] = player
+    if con is None:
+        player = None
+    else:
+        context['con'] = con
+        player = con.get_player(s)
+        context['player'] = player
     context.update(ctx)
     context['logger'] = logging.getLogger(
-        f'Program {prog.name} ({player.get_name(True)}'
+        f'{prog}{" (%s)" % player.get_name(True) if player else ""}'
     )
     context.setdefault('self', prog)
     if prog.code not in codes:
