@@ -46,7 +46,7 @@ from .orbits import Orbit
 from .stars import Star
 from .words import Word
 from .tasks import Task
-from .transits import TransitStop, Transit
+from .transits import TransitStop, TransitRoute
 
 logger = logging.getLogger(__name__)
 output_directory = 'world'
@@ -214,6 +214,6 @@ __all__ = (
     'Idea', 'IdeaComment', 'ChangelogEntry', 'MailMessage', 'LoggedCommand',
     'Credit', 'StarshipEngine', 'RoomFloorType', 'ObjectTypeActionSecondary',
     'ObjectTypeHotkeySecondary', 'ObjectTypeSecondary', 'ObjectType', 'Orbit',
-    'Starship', 'StarshipSensors', 'Star', 'Word', 'Task', 'Transit',
-    'TransitStop'
+    'Starship', 'StarshipSensors', 'Star', 'Word', 'Task', 'TransitStop',
+    'TransitRoute'
 )

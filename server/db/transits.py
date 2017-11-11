@@ -15,7 +15,7 @@ class TransitStop(Base, LocationMixin, CoordinatesMixin):
     transit = relationship('Transit', backref='stops')
 
 
-class Transit(Base, NameMixin):
+class TransitRoute(Base, NameMixin):
     """Holds 0 or more transit stops."""
 
     __tablename__ = 'transits'
