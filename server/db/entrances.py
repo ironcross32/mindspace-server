@@ -17,6 +17,9 @@ class Entrance(
     transit_id = Column(Integer, ForeignKey('transits.id'), nullable=True)
     transit = relationship('Transit', backref=backref('exit', uselist=False))
     no_mobiles = Column(Boolean, nullable=False, default=False)
+    cantuse_msg = Column(
+        String(100), nullable=False, default='You cannot go that way.'
+    )
     follow_msg = Column(
         String(100), nullable=False, default='%1n follow%1s %2n through %3n.'
     )
