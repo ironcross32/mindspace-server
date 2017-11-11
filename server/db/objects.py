@@ -376,7 +376,7 @@ class Object(
         entrance = self.exit
         assert entrance is not None
         if entrance.location is None:
-            player.message(entrance.cantuse_msg)
+            return player.message(entrance.cantuse_msg)
         con = player.get_connection()
         other_side = entrance.get_other_side()
         if other_side is None:
