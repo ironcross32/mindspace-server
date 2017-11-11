@@ -20,7 +20,6 @@ from ..forms import Label, Field
 from ..sound import get_sound, get_ambience
 from ..socials import factory
 
-teleport_sound = get_sound(os.path.join('exits', 'teleport.wav'))
 connections = {}
 
 
@@ -38,6 +37,14 @@ class Object(
 ):
     """An object or player."""
     __tablename__ = 'objects'
+    teleport_msg = Column(
+        String(100), nullable=False,
+        default='%1n vanish%1e in a column of light.'
+    )
+    teleport_sound = Column(
+        String(100), nullable=False,
+        default=os.path.join('exits', 'teleport.wav')
+    )
     transit_route_id = Column(
         Integer, ForeignKey('transit_routes.id'), nullable=True
     )
@@ -290,28 +297,17 @@ class Object(
             if self.location is not None:
                 self.location.broadcast_command(object_sound, *args, _who=self)
 
-    def teleport(self, location, coordinates, sound=None):
+    def teleport(self, location, coordinates):
         """Teleport this object to a new location."""
-        if sound is None:
-            sound = teleport_sound
-        location.broadcast_command(
-            message, f'{self.get_name()} appears.', _who=self
+        old_location = self.location
+        old_coordinates = self.coordinates
+        self.do_social(self.teleport_msg)
+        sound = get_sound(self.teleport_sound)
+        old_location.broadcast_command(random_sound, sound, *old_coordinates)
+        self.location.broadcast_command_selective(
+            lambda obj: obj is not self, message,
+            f'{self.get_name(False)} teleports in.'
         )
-        old = self.location
-        self.location = location
-        self.message(f'You appear at {location.get_name()}.')
-        old.broadcast_command(object_sound, self.id, sound, _who=self)
-        old.broadcast_command(
-            message, f'{self.get_name()} vanishes.', _who=self
-        )
-        old.broadcast_command(delete, self.id)
-        self.coordinates = coordinates
-        con = self.get_connection()
-        if con is not None:
-            for obj in old.objects:
-                delete(con, obj.id)
-        self.identify_location()
-        self.update_neighbours()
         self.sound(sound)
 
     def possible_communication_channels(self):
