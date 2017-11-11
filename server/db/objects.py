@@ -471,7 +471,9 @@ class Object(
         """Move this object to the specified location with the specified
         coordinates."""
         if self.location is not None:
-            self.location.broadcast_command(delete, self.id)
+            self.location.broadcast_command_selective(
+                lambda obj: obj is not self, delete, self.id
+            )
         self.location = location
         self.coordinates = coordinates
         if self.location is not None:
