@@ -2,11 +2,9 @@
 
 from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
-from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import Base, NameMixin, DescriptionMixin
 
 
-@attrs_sqlalchemy
 class ObjectTypeActionSecondary(Base):
     """Link actions to types."""
 
@@ -15,7 +13,6 @@ class ObjectTypeActionSecondary(Base):
     action_id = Column(Integer, ForeignKey('actions.id'), nullable=False)
 
 
-@attrs_sqlalchemy
 class ObjectTypeHotkeySecondary(Base):
     """Link hotkeys to actions."""
 
@@ -24,7 +21,6 @@ class ObjectTypeHotkeySecondary(Base):
     hotkey_id = Column(Integer, ForeignKey('hotkeys.id'), nullable=False)
 
 
-@attrs_sqlalchemy
 class ObjectTypeSecondary(Base):
     """Link objects to types."""
 
@@ -33,7 +29,6 @@ class ObjectTypeSecondary(Base):
     object_id = Column(Integer, ForeignKey('objects.id'), nullable=False)
 
 
-@attrs_sqlalchemy
 class ObjectType(Base, NameMixin, DescriptionMixin):
     """A sort of parent for objects."""
 

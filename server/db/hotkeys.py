@@ -2,13 +2,11 @@
 
 from sqlalchemy import Column, Boolean, Integer, ForeignKey
 from sqlalchemy.orm import relationship
-from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import (
     Base, NameMixin, DescriptionMixin, CodeMixin, PermissionsMixin
 )
 
 
-@attrs_sqlalchemy
 class HotkeySecondary(Base):
     """Link keys to object commands."""
 
@@ -17,7 +15,6 @@ class HotkeySecondary(Base):
     object_id = Column(Integer, ForeignKey('objects.id'), nullable=False)
 
 
-@attrs_sqlalchemy
 class Hotkey(Base, NameMixin, DescriptionMixin, CodeMixin, PermissionsMixin):
     """Respond to a hotkey."""
 

@@ -5,7 +5,6 @@ from sqlalchemy import (
     Column, Integer, ForeignKey, Boolean, Float, func, or_, and_, String
 )
 from sqlalchemy.orm import relationship, backref
-from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import (
     Base, CoordinatesMixin, NameMixin, AmbienceMixin, LocationMixin,
     DescriptionMixin, OwnerMixin, RandomSoundMixin, RandomSoundContainerMixin
@@ -25,7 +24,6 @@ teleport_sound = get_sound(os.path.join('exits', 'teleport.wav'))
 connections = {}
 
 
-@attrs_sqlalchemy
 class ObjectRandomSound(RandomSoundMixin, Base):
     """A random sound for objects."""
 
@@ -34,7 +32,6 @@ class ObjectRandomSound(RandomSoundMixin, Base):
     object = relationship('Object', backref='random_sounds')
 
 
-@attrs_sqlalchemy
 class Object(
     Base, NameMixin, CoordinatesMixin, AmbienceMixin, LocationMixin,
     DescriptionMixin, OwnerMixin, RandomSoundContainerMixin

@@ -4,7 +4,6 @@ import os
 import os.path
 from sqlalchemy import Column, String, Float, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import relationship, backref
-from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import (
     Base, CoordinatesMixin, NameMixin, DescriptionMixin, OwnerMixin,
     DirectionMixin
@@ -15,7 +14,6 @@ from ..sound import sounds_dir
 from ..util import distance_between
 
 
-@attrs_sqlalchemy
 class Zone(
     Base, CoordinatesMixin, NameMixin, DescriptionMixin, OwnerMixin,
     DirectionMixin

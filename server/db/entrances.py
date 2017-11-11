@@ -1,14 +1,12 @@
 """Provides the Entrance class."""
 
 from sqlalchemy import Column, Boolean, String
-from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import (
     Base, CoordinatesMixin, AmbienceMixin, LocationMixin, PasswordMixin
 )
 from ..sound import get_sound
 
 
-@attrs_sqlalchemy
 class Entrance(
     Base, CoordinatesMixin, AmbienceMixin, LocationMixin, PasswordMixin
 ):

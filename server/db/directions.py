@@ -3,7 +3,6 @@
 import logging
 from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
-from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import Base, CoordinatesMixin, NameMixin
 from .session import Session
 
@@ -11,7 +10,6 @@ from .session import Session
 logger = logging.getLogger(__name__)
 
 
-@attrs_sqlalchemy
 class Direction(Base, NameMixin, CoordinatesMixin):
     """A direction a player or vehicle can move in."""
 

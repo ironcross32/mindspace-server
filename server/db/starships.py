@@ -3,14 +3,12 @@
 import os.path
 from sqlalchemy import Column, Float, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
-from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import Base, NameMixin
 from ..distance import km, ly
 from ..sound import get_sound, NoSuchSound
 from ..protocol import hidden_sound
 
 
-@attrs_sqlalchemy
 class StarshipEngine(Base, NameMixin):
     """An engine for a starship."""
 
@@ -24,7 +22,6 @@ class StarshipEngine(Base, NameMixin):
         return fields
 
 
-@attrs_sqlalchemy
 class StarshipSensors(Base, NameMixin):
     """A sensor array for starships."""
 
@@ -32,7 +29,6 @@ class StarshipSensors(Base, NameMixin):
     distance = Column(Float, nullable=False, default=ly)
 
 
-@attrs_sqlalchemy
 class Starship(Base):
     """Make a Zone a starship."""
 

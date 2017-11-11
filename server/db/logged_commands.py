@@ -3,11 +3,9 @@
 import sys
 from msgpack import loads
 from sqlalchemy import Column, String, DateTime, func
-from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import Base, OwnerMixin
 
 
-@attrs_sqlalchemy
 class LoggedCommand(Base, OwnerMixin):
     """A logged string from a connection."""
 

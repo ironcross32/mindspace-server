@@ -5,10 +5,11 @@ import os.path
 import logging
 from glob import glob
 from inspect import isclass
+from sqlalchemy import inspect
 from yaml import dump, load
 from .engine import engine
 from .session import Session, session
-from .base import Base, dump_object
+from .base import Base
 from .rooms import Room, RoomRandomSound, RoomFloorType
 from .players import Player
 from .objects import Object, ObjectRandomSound
@@ -47,6 +48,20 @@ from .words import Word
 
 logger = logging.getLogger(__name__)
 output_directory = 'world'
+
+
+def dump_object(obj, columns):
+    d = {}
+    for name, column in columns.items():
+        value = getattr(obj, name)
+        if (
+            column.nullable is True and value is None
+        ) or (
+            column.default is not None and value == column.default.arg
+        ):
+            continue
+        d[name] = value
+    return d
 
 
 def load_db():
@@ -159,6 +174,7 @@ def dump_db(where=None):
                 'Failed to rename directory %s to %s:', where, old_name
             )
             logger.exception(e)
+            where += '.critical'
     logger.info('Dumping the database to directory %s.', where)
     os.makedirs(where)
     for cls in Base._decl_class_registry.values():
@@ -167,6 +183,7 @@ def dump_db(where=None):
         directory = os.path.join(where, cls.__name__)
         q = Session.query(cls)
         if q.count():
+            columns = inspect(cls).columns
             logger.info('Entering directory %s.', directory)
             if not os.path.isdir(directory):
                 logger.info('Creating directory.')
@@ -174,7 +191,7 @@ def dump_db(where=None):
             for obj in q:
                 path = os.path.join(directory, f'{obj.id}.yaml')
                 objects += 1
-                y = dump_object(obj)
+                y = dump_object(obj, columns)
                 with open(path, 'w') as f:
                     dump(y, stream=f)
             logger.info('Leaving directory %s.', directory)

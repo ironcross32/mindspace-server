@@ -5,7 +5,6 @@ import os.path
 from time import time
 from random import uniform, choice
 from sqlalchemy import Column, String, Float, Boolean
-from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import Base
 from .directions import Direction
 from .rooms import floor_types_dir
@@ -17,7 +16,6 @@ from ..sound import get_sound
 from ..util import walk
 
 
-@attrs_sqlalchemy
 class Mobile(Base):
     """Make an object mobile."""
 

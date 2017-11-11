@@ -3,7 +3,6 @@ attrs
 pyyaml
 msgpack-python
 sqlalchemy
-attrs-sqlalchemy
 passlib
 klein
 jinja2

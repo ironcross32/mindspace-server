@@ -2,11 +2,9 @@
 
 from sqlalchemy import Column, String, Boolean, Integer, ForeignKey
 from sqlalchemy.orm import relationship
-from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import Base
 
 
-@attrs_sqlalchemy
 class Window(Base):
     """A wiindow to be added to an object."""
 

@@ -5,11 +5,10 @@ import os.path
 from time import time
 from inspect import isclass
 from random import choice, uniform
-from functools import partial
 from passlib.hash import sha256_crypt as crypt
 from attr import asdict
 from sqlalchemy import (
-    Column, Integer, String, Float, ForeignKey, DateTime, Boolean
+    Column, Integer, String, Float, ForeignKey, DateTime, Boolean, inspect
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
@@ -25,27 +24,23 @@ ambiences_dir = os.path.join(sounds_dir, 'ambiences')
 random_sounds_dir = os.path.join(sounds_dir, 'random')
 
 
-def dump_object(obj):
-    """Get this object as a dict."""
-
-    def should_dump(self, attr, value):
-        """Decide if the attribute should be dumped or not."""
-        column = self.__table__.c[attr.name]
-        default = column.default
-        if default is not None:
-            return not value == default.arg
-        elif self.__table__.c[attr.name].nullable and value is None:
-            return False
-        else:
-            return True
-
-    return asdict(obj, filter=partial(should_dump, obj))
-
-
 class _Base:
     """The base class for declarative."""
 
     id = Column(Integer, primary_key=True)
+
+    def __str__(self):
+        if callable(getattr(self, 'get_name', None)):
+            return self.get_name(True)
+        else:
+            return f'{self.__class__.__name__} (#{self.id})'
+
+    def __repr__(self):
+        res = f'{self.__class__.__name__} ('
+        strings = []
+        for name in inspect(self.__class__).columns.keys():
+            strings.append(f'{name}={getattr(self, name)}')
+        return res + ', '.join(strings) + ')'
 
     def duplicate(self):
         """Return a new object that is just like this one."""

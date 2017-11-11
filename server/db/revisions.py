@@ -1,12 +1,10 @@
 """Provides the Revision class."""
 
 from sqlalchemy import Column, Integer, String, DateTime, func
-from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import Base
 from .session import Session
 
 
-@attrs_sqlalchemy
 class Revision(Base):
     """Old code."""
 

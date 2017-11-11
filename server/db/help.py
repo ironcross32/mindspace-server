@@ -2,11 +2,9 @@
 
 from sqlalchemy import Column, Integer, ForeignKey, or_, func
 from sqlalchemy.orm import relationship
-from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import Base, NameMixin, TextMixin, PermissionsMixin
 
 
-@attrs_sqlalchemy
 class HelpTopicKeyword(Base):
     """Connect help topics to keywords."""
 
@@ -15,7 +13,6 @@ class HelpTopicKeyword(Base):
     help_topic_id = Column(Integer, ForeignKey('help_topics.id'))
 
 
-@attrs_sqlalchemy
 class HelpKeyword(Base, NameMixin):
     """A keyword that can be applied to 0 or more topics."""
 
@@ -29,7 +26,6 @@ class HelpKeyword(Base, NameMixin):
         return cls(name=word)
 
 
-@attrs_sqlalchemy
 class HelpTopic(Base, NameMixin, TextMixin, PermissionsMixin):
     """A help topic."""
 

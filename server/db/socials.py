@@ -2,12 +2,10 @@
 
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
-from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import Base, NameMixin
 from ..forms import Label
 
 
-@attrs_sqlalchemy
 class Social(Base, NameMixin):
     """A social for a player to perform."""
 

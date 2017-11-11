@@ -2,13 +2,11 @@
 
 from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
-from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import (
     Base, NameMixin, DescriptionMixin, CodeMixin, PermissionsMixin
 )
 
 
-@attrs_sqlalchemy
 class ObjectAction(Base):
     """Link objects to actions."""
 
@@ -17,7 +15,6 @@ class ObjectAction(Base):
     action_id = Column(Integer, ForeignKey('actions.id'), nullable=False)
 
 
-@attrs_sqlalchemy
 class Action(Base, NameMixin, DescriptionMixin, CodeMixin, PermissionsMixin):
     """A custom action for an object."""
 

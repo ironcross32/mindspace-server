@@ -4,7 +4,6 @@ import os
 import os.path
 from sqlalchemy import Column, Float, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
-from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import (
     Base, SizeMixin, NameMixin, DescriptionMixin, AmbienceMixin,
     RandomSoundMixin, RandomSoundContainerMixin, CoordinatesMixin
@@ -18,7 +17,6 @@ floor_types_dir = os.path.join(sounds_dir, 'Footsteps')
 music_dir = os.path.join(sounds_dir, 'music')
 
 
-@attrs_sqlalchemy
 class RoomRandomSound(RandomSoundMixin, Base):
     """A random sound for rooms."""
 
@@ -27,7 +25,6 @@ class RoomRandomSound(RandomSoundMixin, Base):
     room = relationship('Room', backref='random_sounds')
 
 
-@attrs_sqlalchemy
 class RoomFloorType(Base, CoordinatesMixin, NameMixin):
     """An altered floor type for a room."""
 
@@ -36,7 +33,6 @@ class RoomFloorType(Base, CoordinatesMixin, NameMixin):
     room = relationship('Room', backref='floor_types')
 
 
-@attrs_sqlalchemy
 class Room(
     Base, NameMixin, DescriptionMixin, SizeMixin, AmbienceMixin,
     RandomSoundContainerMixin

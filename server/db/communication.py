@@ -3,7 +3,6 @@
 import os.path
 from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, func
 from sqlalchemy.orm import relationship
-from attrs_sqlalchemy import attrs_sqlalchemy
 from attr import attrs, attrib, Factory
 from .base import (
     Base, NameMixin, DescriptionMixin, OwnerMixin, CommunicationChannelMixin,
@@ -25,7 +24,6 @@ class TransmitionError(Exception):
     """There was an error transmitting."""
 
 
-@attrs_sqlalchemy
 class CommunicationChannelListener(Base, CommunicationChannelMixin):
     """Connects objects to channels."""
 
@@ -36,7 +34,6 @@ class CommunicationChannelListener(Base, CommunicationChannelMixin):
         )
 
 
-@attrs_sqlalchemy
 class CommunicationChannelBan(Base, CommunicationChannelMixin):
     """Ban someone from a channel."""
 
@@ -44,7 +41,6 @@ class CommunicationChannelBan(Base, CommunicationChannelMixin):
     object_id = Column(Integer, ForeignKey('objects.id'), nullable=False)
 
 
-@attrs_sqlalchemy
 class CommunicationChannel(
     Base, NameMixin, DescriptionMixin, PermissionsMixin
 ):
@@ -109,7 +105,6 @@ class CommunicationChannel(
         return m
 
 
-@attrs_sqlalchemy
 class CommunicationChannelMessage(Base, OwnerMixin, CommunicationChannelMixin):
     """A message to a channel."""
 

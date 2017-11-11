@@ -2,11 +2,9 @@
 
 from sqlalchemy import Column, Integer, ForeignKey, String, DateTime, func
 from sqlalchemy.orm import relationship
-from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import Base, OwnerMixin
 
 
-@attrs_sqlalchemy
 class IdeaVote(Base):
     """A vote for an idea."""
 
@@ -23,7 +21,6 @@ class IdeaVote(Base):
     )
 
 
-@attrs_sqlalchemy
 class Idea(Base, OwnerMixin):
     """An idea."""
 
@@ -50,7 +47,6 @@ class Idea(Base, OwnerMixin):
         return IdeaComment(text=text, idea=self, owner=obj, parent=parent)
 
 
-@attrs_sqlalchemy
 class IdeaComment(Base, OwnerMixin):
     """A comment on an idea."""
 

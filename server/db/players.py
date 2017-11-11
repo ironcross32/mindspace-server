@@ -2,13 +2,11 @@
 
 from random import randint
 from sqlalchemy import Column, Integer, Float, String, Boolean
-from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import Base, PermissionsMixin, PasswordMixin
 from ..protocol import options
 from ..forms import Label
 
 
-@attrs_sqlalchemy
 class Player(Base, PermissionsMixin, PasswordMixin):
     """Player options."""
     __tablename__ = 'players'

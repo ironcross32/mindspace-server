@@ -3,13 +3,11 @@
 import os.path
 from sqlalchemy import Column, Integer, ForeignKey, DateTime, func, Boolean
 from sqlalchemy.orm import relationship
-from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import Base, NameMixin, TextMixin, OwnerMixin
 from ..sound import get_sound
 from ..protocol import interface_sound
 
 
-@attrs_sqlalchemy
 class MailMessage(Base, NameMixin, TextMixin, OwnerMixin):
     """An out of character mail message."""
     __tablename__ = 'mail_messages'

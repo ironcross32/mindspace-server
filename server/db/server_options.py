@@ -3,12 +3,10 @@
 from datetime import timedelta
 from sqlalchemy import Column, Integer, Interval, String, ForeignKey
 from sqlalchemy.orm import relationship
-from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import Base, NameMixin
 from .session import Session
 
 
-@attrs_sqlalchemy
 class ServerOptions(Base, NameMixin):
     """Server options."""
 

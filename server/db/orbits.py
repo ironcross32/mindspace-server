@@ -2,12 +2,10 @@
 
 from sqlalchemy import Column, Float, Integer, ForeignKey
 from sqlalchemy.orm import relationship, backref
-from attrs_sqlalchemy import attrs_sqlalchemy
 from .base import Base
 from ..distance import au
 
 
-@attrs_sqlalchemy
 class Orbit(Base):
     """Set an object orbiting around a point."""
 
