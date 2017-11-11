@@ -25,7 +25,7 @@ class TransitStop(Base, LocationMixin, CoordinatesMixin):
         return fields
 
 
-class TransitRoute(Base, NameMixin):
+class TransitRoute(Base, NameMixin, CoordinatesMixin):
     """Holds 0 or more transit stops."""
 
     __tablename__ = 'transit_routes'
