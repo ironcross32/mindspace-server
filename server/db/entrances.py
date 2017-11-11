@@ -14,8 +14,12 @@ class Entrance(
     """An entrance to another room."""
 
     __tablename__ = 'entrances'
-    transit_id = Column(Integer, ForeignKey('transits.id'), nullable=True)
-    transit = relationship('Transit', backref=backref('exit', uselist=False))
+    transit_route_id = Column(
+        Integer, ForeignKey('transit_routes.id'), nullable=True
+    )
+    transit_route = relationship(
+        'TransitRoute', backref=backref('exit', uselist=False)
+    )
     no_mobiles = Column(Boolean, nullable=False, default=False)
     cantuse_msg = Column(
         String(100), nullable=False, default='You cannot go that way.'
