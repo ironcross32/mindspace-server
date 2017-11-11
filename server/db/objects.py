@@ -400,8 +400,8 @@ class Object(
         for follower in player.followers:
             follower.steps += 1
             follower.do_social(entrance.follow_msg, _others=[player, self])
-            entrance.location.broadcast_command(
-                message,
+            entrance.location.broadcast_command_selective(
+                lambda obj: obj not in player.followers, message,
                 f'{follower.get_name()} arrives behind {player.get_name()}.',
                 _who=other_side
             )
