@@ -44,7 +44,7 @@ class TransitRoute(Base, NameMixin, CoordinatesMixin):
     leave_other_msg = Column(
         String(100), nullable=False, default='{} disembarks.'
     )
-    disembark_other_sound = Column(String(100), nullable=True)
+    leave_other_sound = Column(String(100), nullable=True)
     next_move = Column(Float, nullable=True)
     next_stop_id = Column(
         Integer, ForeignKey('transit_stops.id'), nullable=True
