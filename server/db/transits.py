@@ -36,7 +36,7 @@ class TransitRoute(Base, NameMixin):
     next_stop = relationship(
         'TransitStop', backref='arriving', foreign_keys=[next_stop_id]
     )
-    room_id = Column(Integer, ForeignKey('rooms.id'), nullable=False)
+    room_id = Column(Integer, ForeignKey('rooms.id'), nullable=True)
     room = relationship(
         'Room', backref=backref('transit_route', uselist=False)
     )
