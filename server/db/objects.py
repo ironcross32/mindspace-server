@@ -189,7 +189,8 @@ class Object(
         for name in (
             'start_use_msg', 'stop_use_msg', 'get_msg', 'drop_msg', 'give_msg',
             'get_sound', 'drop_sound', 'give_sound', 'follow_msg',
-            'unfollow_msg', 'ditch_msg', 'knock_msg', 'knock_sound'
+            'unfollow_msg', 'ditch_msg', 'knock_msg', 'knock_sound',
+            'teleport_msg', 'teleport_sound'
         ):
             fields.append(self.make_field(name))
         for name in ('window', 'exit', 'mobile', 'player'):
