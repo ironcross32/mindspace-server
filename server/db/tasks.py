@@ -17,7 +17,7 @@ class Task(Base, NameMixin, DescriptionMixin, CodeMixin):
         fields.extend(
             [
                 self.make_field('disabled', type=bool),
-                self.make_field('run_interval', type=float)
+                self.make_field('interval', type=float)
             ]
         )
         return fields
