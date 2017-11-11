@@ -16,6 +16,12 @@ class TransitStop(Base, LocationMixin, CoordinatesMixin):
     )
     transit_route = relationship('TransitRoute', backref='stops')
 
+    def get_all_fields(self):
+        fields = super().get_all_fields()
+        for name in ('before_departure', 'after_departure'):
+            fields.append(self.make_field(name, type=int))
+        return fields
+
 
 class TransitRoute(Base, NameMixin):
     """Holds 0 or more transit stops."""
