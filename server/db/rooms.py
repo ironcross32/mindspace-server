@@ -83,7 +83,7 @@ class Room(
     @property
     def exits(self):
         """Return all the objects in this room that are exits."""
-        return [x for x in self.objects if x.is_exit is not None]
+        return [x for x in self.objects if x.is_exit]
 
     def broadcast_command(self, command, *args, _who=None, **kwargs):
         """Send a command to everyone in the room. If _who is not None only
