@@ -5,7 +5,7 @@ import sys
 import datetime
 import logging
 import re
-from time import time, ctime
+from time import time, ctime, strftime
 from platform import platform, architecture, python_implementation
 from contextlib import redirect_stdout, redirect_stderr
 from code import InteractiveConsole
@@ -184,7 +184,9 @@ ctx = dict(
     server_options=db.ServerOptions.get,
     SocialsError=SocialsError,
     socials=factory,
-    time=time, ctime=ctime
+    time=time,
+    ctime=ctime,
+    strftime=strftime
 )
 
 

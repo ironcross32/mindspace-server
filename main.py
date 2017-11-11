@@ -5,7 +5,7 @@ from time import time
 from argparse import ArgumentParser, FileType, ArgumentDefaultsHelpFormatter
 from twisted.internet import reactor, error
 from server.server import server
-from server.db import load_db, dump_db, ServerOptions
+from server.db import load_db, dump_db, ServerOptions, Task, session
 from server.program import build_context
 from server.log_handler import LogHandler
 from server.tasks import tasks_task, tasks_errback
@@ -46,6 +46,10 @@ if __name__ == '__main__':
         logging.exception(e)
         raise SystemExit
     logging.getLogger().addHandler(LogHandler())
+    with session() as s:
+        for t in Task.query():
+            t.next_run = time() + t.interval
+            s.add(t)
     reactor.run()
     started = time()
     n = dump_db()
