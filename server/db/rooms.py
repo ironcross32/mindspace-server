@@ -8,7 +8,6 @@ from .base import (
     Base, SizeMixin, NameMixin, DescriptionMixin, AmbienceMixin,
     RandomSoundMixin, RandomSoundContainerMixin, CoordinatesMixin
 )
-from .session import Session
 from ..protocol import hidden_sound, reverb_property_names
 from ..sound import get_sound, sounds_dir
 from ..forms import Label
@@ -85,9 +84,18 @@ class Room(
         """Return all the objects in this room that are exits."""
         return [x for x in self.objects if x.is_exit]
 
-    def broadcast_command(self, command, *args, _who=None, **kwargs):
+    def broadcast_command(self, *args, **kwargs):
         """Send a command to everyone in the room. If _who is not None only
         objects within self.max_distance will hear about it."""
+        return self.broadcast_command_selective(
+            lambda obj: True, *args, **kwargs
+        )
+
+    def broadcast_command_selective(
+        self, func, command, *args, _who=None, **kwargs
+    ):
+        """Send a command to any object for whom func(object) evaluates to
+        True. For further usage see the docstring for broadcast_command."""
         if _who is None:
             objects = self.objects
         else:
@@ -101,16 +109,8 @@ class Room(
                         getattr(_who, name) + md
                     )
                 )
-            objects = Session.query(Object).filter(*query_args)
+            objects = Object.query(*query_args)
         for obj in objects:
-            con = obj.get_connection()
-            if con is not None:
-                command(con, *args, **kwargs)
-
-    def broadcast_command_selective(self, func, command, *args, **kwargs):
-        """Send a command to any object for whom func(object) evaluates to
-        True."""
-        for obj in self.objects:
             con = obj.get_connection()
             if con is not None and func(obj):
                 command(con, *args, **kwargs)
