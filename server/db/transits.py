@@ -45,6 +45,26 @@ class TransitRoute(Base, NameMixin, CoordinatesMixin):
         String(100), nullable=False, default='{} disembarks.'
     )
     leave_other_sound = Column(String(100), nullable=True)
+    arrive_msg = Column(
+        String(100), nullable=False, default='%1n arrive%1s abruptly.'
+    )
+    arrive_sound = Column(String(100), nullable=True)
+    arrive_other_msg = Column(
+        String(100), nullable=False,
+        default='Now arriving into {}. Our next stop will be {} in '
+        'approximately {}.'
+    )
+    arrive_other_sound = Column(String(100), nullable=True)
+    depart_msg = Column(
+        String(100), nullable=False, default='%1n depart%1s.'
+    )
+    depart_sound = Column(String(100), nullable=True)
+    depart_other_msg = Column(
+        String(100), nullable=False,
+        default='Now departing {}. Our next stop will be {} in approximately '
+        '{}.'
+    )
+    depart_other_sound = Column(String(100), nullable=True)
     next_move = Column(Float, nullable=True)
     next_stop_id = Column(
         Integer, ForeignKey('transit_stops.id'), nullable=True
