@@ -1,6 +1,6 @@
 """Classes to make trains and the like work."""
 
-from sqlalchemy import Column, Integer, Float, ForeignKey
+from sqlalchemy import Column, Integer, Float, ForeignKey, String
 from sqlalchemy.orm import relationship, backref
 from .base import Base, NameMixin, CoordinatesMixin, LocationMixin
 
@@ -29,6 +29,14 @@ class TransitRoute(Base, NameMixin, CoordinatesMixin):
     """Holds 0 or more transit stops."""
 
     __tablename__ = 'transit_routes'
+    board_msg = Column(
+        String(100), nullable=False, default='%1n board%1s %2n.'
+    )
+    board_sound = Column(String(100), nullable=True)
+    board_other_msg = Column(
+        String(100), nullable=False, default='{} arrives.'
+    )
+    board_other_sound = Column(String(100), nullable=True)
     next_move = Column(Float, nullable=True)
     next_stop_id = Column(
         Integer, ForeignKey('transit_stops.id'), nullable=True
