@@ -185,7 +185,7 @@ class CoordinatesMixin:
     @classmethod
     def get_fields(cls, instance):
         return [
-            instance.make_field(name, type=float) for name in ('x', 'y', 'z')
+            instance.make_field(name, type=int) for name in ('x', 'y', 'z')
         ]
 
     @property
@@ -206,7 +206,7 @@ class SizeMixin:
     def get_fields(cls, instance):
         return [
             instance.make_field(
-                f'size_{name}', type=float
+                f'size_{name}', type=int
             ) for name in ('x', 'y', 'z')
         ]
 
@@ -427,7 +427,7 @@ class RandomSoundContainerMixin:
         fields = []
         fields.append(Label('Random Sounds'))
         for name in ('min_random_sound_interval', 'max_random_sound_interval'):
-            fields.append(self.make_field(name, type=float))
+            fields.append(self.make_field(name, type=int))
         return fields
 
 
