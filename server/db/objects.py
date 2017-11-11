@@ -38,6 +38,12 @@ class Object(
 ):
     """An object or player."""
     __tablename__ = 'objects'
+    transit_route_id = Column(
+        Integer, ForeignKey('transit_routes.id'), nullable=True
+    )
+    transit_route = relationship(
+        'TransitRoute', backref=backref('exit', uselist=False)
+    )
     scanned_id = Column(Integer, ForeignKey('objects.id'), nullable=True)
     scanned = relationship(
         'Object', backref='scanned_by', foreign_keys=[scanned_id],
@@ -146,7 +152,9 @@ class Object(
 
     def get_type(self):
         """Returns a human-readable type for this object."""
-        if self.is_player:
+        if self.is_transit:
+            return 'Transit'
+        elif self.is_player:
             if self.is_admin:
                 return 'Admin'
             elif self.is_builder:
@@ -198,6 +206,10 @@ class Object(
         else:
             if self.id in server.server.logged_players:
                 server.server.logged_players.remove(self.id)
+
+    @property
+    def is_transit(self):
+        return self.transit_route is not None
 
     @property
     def is_window(self):

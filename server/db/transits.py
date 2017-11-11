@@ -1,7 +1,7 @@
 """Classes to make trains and the like work."""
 
 from sqlalchemy import Column, Integer, Float, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from .base import Base, NameMixin, CoordinatesMixin, LocationMixin
 
 
@@ -35,4 +35,8 @@ class TransitRoute(Base, NameMixin):
     )
     next_stop = relationship(
         'TransitStop', backref='arriving', foreign_keys=[next_stop_id]
+    )
+    room_id = Column(Integer, ForeignKey('rooms.id'), nullable=False)
+    room = relationship(
+        'Room', backref=backref('transit_route', uselist=False)
     )
