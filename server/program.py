@@ -17,6 +17,7 @@ from sqlalchemy import exc
 from twisted.internet import reactor
 from emote_utils import SocialsError
 from . import db, server, protocol, menus, util, forms, sound, distance
+from .db import base
 from .socials import factory
 
 
@@ -186,7 +187,8 @@ ctx = dict(
     socials=factory,
     time=time,
     ctime=ctime,
-    strftime=strftime
+    strftime=strftime,
+    base=base
 )
 
 
