@@ -9,7 +9,7 @@ class Task(Base, NameMixin, DescriptionMixin, CodeMixin):
 
     __tablename__ = 'tasks'
     disabled = Column(Boolean, nullable=False, default=False)
-    run_interval = Column(Float, nullable=False, default=3600)
+    interval = Column(Float, nullable=False, default=3600)
     next_run = Column(Float, nullable=True)
 
     def get_all_fields(self):
