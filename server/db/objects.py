@@ -405,9 +405,8 @@ class Object(
         )
         player.do_social(entrance.leave_msg, _others=[self])
         player.steps += 1
-        player.location_id = entrance.location_id
+        player.move(entrance.location, entrance.coordinates)
         player.recent_exit_id = recent_exit_id
-        player.coordinates = entrance.coordinates
         Session.add(player)
         for follower in player.followers:
             follower.steps += 1
@@ -418,19 +417,15 @@ class Object(
                 _who=other_side
             )
             follower.steps += 1
-            follower.location_id = player.location_id
+            follower.move(player.location, player.coordinates)
             follower.recent_exit_id = recent_exit_id
-            follower.coordinates = player.coordinates
             Session.add(follower)
-        Session.commit()
-        self.location.broadcast_command(delete, player.id)
-        for follower in player.followers:
-            self.location.broadcast_command(delete, follower.id)
             self.location.broadcast_command(
                 message,
                 f'{follower.get_name()} leaves behind {player.get_name()}.',
                 _who=self
             )
+        Session.commit()
         if entrance.ambience is not None:
             sound = get_ambience(entrance.ambience)
             self.sound(sound)
@@ -471,3 +466,14 @@ class Object(
             if original is not None:
                 setattr(obj, thing, original.duplicate())
         return obj
+
+    def move(self, location, coordinates):
+        """Move this object to the specified location with the specified
+        coordinates."""
+        if self.location is not None:
+            self.location.broadcast_command(delete, self.id)
+        self.location = location
+        self.coordinates = coordinates
+        if self.location is not None:
+            self.update_neighbours()
+            self.identify_location()
