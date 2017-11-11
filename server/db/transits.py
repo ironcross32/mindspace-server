@@ -27,3 +27,4 @@ class TransitRoute(Base, NameMixin):
     """Holds 0 or more transit stops."""
 
     __tablename__ = 'transit_routes'
+    next_move = Column(Float, nullable=True)
