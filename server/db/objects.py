@@ -303,6 +303,7 @@ class Object(
         old_coordinates = self.coordinates
         self.do_social(self.teleport_msg)
         sound = get_sound(self.teleport_sound)
+        self.move(location, coordinates)
         old_location.broadcast_command(
             random_sound, sound, *old_coordinates, 1.0
         )
