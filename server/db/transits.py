@@ -14,7 +14,9 @@ class TransitStop(Base, LocationMixin, CoordinatesMixin):
     transit_route_id = Column(
         Integer, ForeignKey('transit_routes.id'), nullable=False
     )
-    transit_route = relationship('TransitRoute', backref='stops')
+    transit_route = relationship(
+        'TransitRoute', backref='stops', foreign_keys=[transit_route_id]
+    )
 
     def get_all_fields(self):
         fields = super().get_all_fields()
@@ -28,3 +30,9 @@ class TransitRoute(Base, NameMixin):
 
     __tablename__ = 'transit_routes'
     next_move = Column(Float, nullable=True)
+    next_stop_id = Column(
+        Integer, ForeignKey('transit_stops.id'), nullable=True
+    )
+    next_stop = relationship(
+        'TransitStop', backref='arriving', foreign_keys=[next_stop_id]
+    )
