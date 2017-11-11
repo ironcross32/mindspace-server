@@ -17,10 +17,12 @@ def do_tasks():
         Task.disabled.isnot(True),
         or_(Task.next_run.is_(None), Task.next_run <= now)
     ):
-        print(t)
-        logger.info('Running %r.', t)
+        logger.debug('Running %r.', t)
         try:
             run_program(None, Session, t)
+            t.next_run = now + t.interval
+            Session.add(t)
+            Session.commit()
         except Exception as e:
             Session.rollback()
             t.disabled = True
