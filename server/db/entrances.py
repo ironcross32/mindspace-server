@@ -1,6 +1,7 @@
 """Provides the Entrance class."""
 
-from sqlalchemy import Column, Boolean, String
+from sqlalchemy import Column, Boolean, String, Integer, ForeignKey
+from sqlalchemy.orm import relationship, backref
 from .base import (
     Base, CoordinatesMixin, AmbienceMixin, LocationMixin, PasswordMixin
 )
@@ -13,6 +14,8 @@ class Entrance(
     """An entrance to another room."""
 
     __tablename__ = 'entrances'
+    transit_id = Column(Integer, ForeignKey('transits.id'), nullable=True)
+    transit = relationship('Transit', backref=backref('exit', uselist=False))
     no_mobiles = Column(Boolean, nullable=False, default=False)
     follow_msg = Column(
         String(100), nullable=False, default='%1n follow%1s %2n through %3n.'

@@ -1,7 +1,7 @@
 """Classes to make trains and the like work."""
 
 from sqlalchemy import Column, Integer, Float, ForeignKey
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 from .base import Base, NameMixin, CoordinatesMixin, LocationMixin
 
 
@@ -19,5 +19,3 @@ class Transit(Base, NameMixin):
     """Holds 0 or more transit stops."""
 
     __tablename__ = 'transits'
-    object_id = Column(Integer, ForeignKey('objects.id'), nullable=False)
-    object = relationship('Object', backref=backref('transit', uselist=False))
