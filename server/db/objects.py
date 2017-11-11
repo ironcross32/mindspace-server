@@ -42,7 +42,7 @@ class Object(
         Integer, ForeignKey('transit_routes.id'), nullable=True
     )
     transit_route = relationship(
-        'TransitRoute', backref=backref('exit', uselist=False)
+        'TransitRoute', backref=backref('object', uselist=False)
     )
     scanned_id = Column(Integer, ForeignKey('objects.id'), nullable=True)
     scanned = relationship(
