@@ -5,7 +5,7 @@ import logging
 from random import randint
 from mindspace_protocol import MindspaceParser
 from .program import run_program, OK
-from .protocol import character_id, interface_sound, remember_quit
+from .protocol import character_id, interface_sound, remember_quit, message
 from .sound import get_sound
 from .db import Command, session, Player, ServerOptions, Object, MailMessage
 
@@ -39,6 +39,12 @@ login_parser = MindspaceParser()
 main_parser = MainParser()
 transmition_parser = MindspaceParser()
 transmition_parser.loads_kwargs['encoding'] = None
+
+
+@login_parser.command
+def key(con, *args, **kwargs):
+    """Player isn't logged in but they're sending keys anyways."""
+    message(con, 'You are not logged in.')
 
 
 @login_parser.command
