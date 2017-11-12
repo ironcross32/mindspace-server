@@ -26,7 +26,7 @@ class TransitStop(Base, LocationMixin, CoordinatesMixin):
 
     def total_time(self):
         """The total time taken up by this stop."""
-        return sum(self.before_departure, self.after_departure)
+        return sum([self.before_departure, self.after_departure])
 
 
 class TransitRoute(Base, NameMixin, CoordinatesMixin):
