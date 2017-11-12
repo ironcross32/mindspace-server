@@ -20,6 +20,11 @@ class Item:
         return [self.title, self.command, self.args, self.kwargs]
 
 
+class Label(Item):
+    def __init__(self, text):
+        return super().__init__(text, None)
+
+
 class CopyItem(Item):
     def __init__(self, text):
         return super().__init__(text, 'copy', args=[text])
