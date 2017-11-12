@@ -24,6 +24,10 @@ class TransitStop(Base, LocationMixin, CoordinatesMixin):
             fields.append(self.make_field(name, type=int))
         return fields
 
+    def total_time(self):
+        """The total time taken up by this stop."""
+        return sum(self.before_departure, self.after_departure)
+
 
 class TransitRoute(Base, NameMixin, CoordinatesMixin):
     """Holds 0 or more transit stops."""
