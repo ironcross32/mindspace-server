@@ -67,7 +67,7 @@ class TransitRoute(Base, NameMixin, CoordinatesMixin):
     depart_other_sound = Column(String(100), nullable=True)
     cant_leave_msg = Column(
         String(100), nullable=False,
-        default='%1n|normal tries %2n only to find it locked durin transit.'
+        default='%1n|normal tr%1y %2n only to find it locked durin transit.'
     )
     cant_leave_sound = Column(String(100), nullable=True)
     next_move = Column(Float, nullable=True)
