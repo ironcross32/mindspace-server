@@ -20,7 +20,7 @@ class Item:
         return [self.title, self.command, self.args, self.kwargs]
 
 
-class Label(Item):
+class LabelItem(Item):
     def __init__(self, text):
         return super().__init__(text, None)
 
