@@ -25,6 +25,15 @@ class PermissionError(Exception):
     """Someone did something naughty."""
 
 
+def check_location(player, obj):
+    """Ensure player is at obj.location."""
+    if player.location_id != obj.location_id:
+        player.message(
+            f'{obj.get_name(player.is_staff)} is nowhere to be seen.'
+        )
+        end()
+
+
 def valid_sensors(player):
     """Return (zone, starship) or exit."""
     zone = player.location.zone
