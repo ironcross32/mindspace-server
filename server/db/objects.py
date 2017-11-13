@@ -480,7 +480,7 @@ class Object(
             self.update_neighbours()
             self.identify_location()
 
-    def clear_followers(self):
+    def clear_following(self):
         """Stop this object from following anyone."""
         if self.following is not None:
             self.do_social(self.unfollow_msg, _others=[self.following])
