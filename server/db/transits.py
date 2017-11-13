@@ -40,6 +40,9 @@ class TransitRoute(Base, NameMixin, CoordinatesMixin):
     board_msg = Column(
         String(100), nullable=False, default='%1n board%1s %2n.'
     )
+    board_follow_msg = Column(
+        String(100), nullable=False, default='%1n|normal follow%1s %2n.'
+    )
     board_sound = Column(String(100), nullable=True)
     board_other_msg = Column(
         String(100), nullable=False, default='{} arrives.'
