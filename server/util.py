@@ -149,11 +149,7 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
         py += y
         pz += z
         if player.location.coordinates_ok((px, py, pz)):
-            if player.following is not None:
-                player.do_social(
-                    player.unfollow_msg, _others=[player.following]
-                )
-                player.following_id = None
+            player.clear_followers()
             player.last_walked = now
             direction = db.Direction.query(x=x, y=y, z=z).first()
             for obj in players:
