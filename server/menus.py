@@ -54,13 +54,7 @@ def objects_menu(
     con = player.get_connection()
     if con is None:
         return
-    args = [
-        getattr(
-            Object, name
-        ) == getattr(
-            player, name
-        ) for name in ('x', 'y', 'z', 'location_id')
-    ]
+    args = player.same_coordinates()
     args.append(Object.id != player.id)
     if not objects:
         args.append(Object.exit_id.isnot(None))
