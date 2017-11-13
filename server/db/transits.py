@@ -33,6 +33,10 @@ class TransitRoute(Base, NameMixin, CoordinatesMixin):
     """Holds 0 or more transit stops."""
 
     __tablename__ = 'transit_routes'
+    cant_peer_msg = Column(
+        String(100), nullable=False,
+        default="You can't see anything during transit."
+    )
     board_msg = Column(
         String(100), nullable=False, default='%1n board%1s %2n.'
     )
@@ -71,7 +75,7 @@ class TransitRoute(Base, NameMixin, CoordinatesMixin):
     depart_other_sound = Column(String(100), nullable=True)
     cant_leave_msg = Column(
         String(100), nullable=False,
-        default='%1n|normal tr%1y %2n only to find it locked durin transit.'
+        default='%1n|normal tr%1y %2n only to find it locked during transit.'
     )
     cant_leave_sound = Column(String(100), nullable=True)
     next_move = Column(Float, nullable=True)
