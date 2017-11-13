@@ -149,7 +149,7 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
         py += y
         pz += z
         if player.location.coordinates_ok((px, py, pz)):
-            player.clear_followers()
+            player.clear_following()
             player.last_walked = now
             direction = db.Direction.query(x=x, y=y, z=z).first()
             for obj in players:
@@ -195,6 +195,7 @@ class WalkTask(LoopingCall):
             obj = s.query(db.Object).get(self.id)
             if obj is None:
                 return self.stop()
+            obj.clear_following()
             kwargs = dict(observe_speed=False)
             self.interval = obj.speed
             for name in ('x', 'y', 'z'):
