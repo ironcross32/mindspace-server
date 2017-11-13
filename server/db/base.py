@@ -469,3 +469,11 @@ class PasswordMixin:
     def clear_password(self):
         """Effectively lock the account."""
         self.password = None
+
+
+class PauseMixin:
+    paused = Column(Boolean, nullable=False, default=False)
+
+    @classmethod
+    def get_fields(cls, instance):
+        return [instance.make_field('paused')]
