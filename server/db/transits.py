@@ -51,6 +51,9 @@ class TransitRoute(Base, NameMixin, CoordinatesMixin):
     leave_msg = Column(
         String(100), nullable=False, default='%1n disembark%1s from %2n.'
     )
+    leave_follow_msg = Column(
+        String(100), nullable=False, default='%1n|normal follow%1s %2n.'
+    )
     leave_sound = Column(String(100), nullable=True)
     leave_other_msg = Column(
         String(100), nullable=False, default='{} disembarks.'
