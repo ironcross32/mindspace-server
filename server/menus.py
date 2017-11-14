@@ -55,7 +55,12 @@ def objects_menu(
     if con is None:
         return
     args = player.same_coordinates()
-    args.append(Object.id != player.id)
+    args.extend(
+        [
+            Object.location_id == player.location_id,
+            Object.id != player.id
+        ]
+    )
     if not objects:
         args.append(Object.exit_id.isnot(None))
     if not exits:
