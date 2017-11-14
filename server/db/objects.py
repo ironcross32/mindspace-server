@@ -405,9 +405,9 @@ class Object(
         )
         player.do_social(entrance.leave_msg, _others=[self])
         player.steps += 1
-        player.move(entrance.location, entrance.coordinates)
-        name = player.location.get_name(player.is_staff)
+        name = entrance.location.get_name(player.is_staff)
         player.message(f'You arrive at {name.lower()}.')
+        player.move(entrance.location, entrance.coordinates)
         player.recent_exit_id = recent_exit_id
         Session.add(player)
         for follower in player.followers:
@@ -419,9 +419,9 @@ class Object(
                 _who=other_side
             )
             follower.steps += 1
-            follower.move(player.location, player.coordinates)
-            name = follower.location.get_name(follower.is_staff)
+            name = player.location.get_name(follower.is_staff)
             follower.message(f'You arrive at {name.lower()}.')
+            follower.move(player.location, player.coordinates)
             follower.recent_exit_id = recent_exit_id
             Session.add(follower)
             self.location.broadcast_command(
