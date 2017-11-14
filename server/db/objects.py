@@ -470,9 +470,18 @@ class Object(
     def move(self, location, coordinates):
         """Move this object to the specified location with the specified
         coordinates."""
+        con = self.get_connection()
         if self.location is not None:
+            exclusions = self.followers.copy()
+            exclusions.append(self)
+            if self.following_id is not None:
+                exclusions.append(self.following)
+            if con is not None:
+                for obj in self.location.objects:
+                    if obj not in exclusions:
+                        delete(con, obj.id)
             self.location.broadcast_command_selective(
-                lambda obj: obj is not self, delete, self.id
+                lambda obj: obj not in exclusions, delete, self.id
             )
         self.location = location
         self.coordinates = coordinates
