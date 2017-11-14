@@ -132,8 +132,8 @@ class UDPProtocol(protocol.DatagramProtocol):
         transmition_parser.handle_string(data, self, *source)
 
 
-class MindspaceProtocol(NetstringReceiver):
-    """Handle connections."""
+class ProtocolBase:
+    """Base class for mindspace protocol classes."""
 
     def handle_command(self, *args, **kwargs):
         """Handle a command as this connection."""
@@ -141,7 +141,7 @@ class MindspaceProtocol(NetstringReceiver):
         args = args[1:]
         return self.parser.handle_command(name, self, *args, **kwargs)
 
-    def connectionMade(self):
+    def on_connect(self):
         self.last_active = 0
         self.locked = False
         self.transport.setTcpNoDelay(True)
@@ -159,7 +159,7 @@ class MindspaceProtocol(NetstringReceiver):
         self.parser = login_parser
         message(self, ServerOptions.get().connect_msg)
 
-    def connectionLost(self, reason):
+    def on_disconnect(self, reason):
         self.shell = None
         if self.walk_task is not None:
             try:
@@ -209,9 +209,9 @@ class MindspaceProtocol(NetstringReceiver):
         if self.player_id is not None:
             return s.query(Object).get(self.player_id)
 
-    def stringReceived(self, string):
+    def handle_string(self, string):
         self.last_active = time()
-        if self.player_id in server.logged_players:
+        if self.logged:
             Session.add(LoggedCommand(string=string, owner_id=self.player_id))
             Session.commit()
         if self.locked:
@@ -227,6 +227,30 @@ class MindspaceProtocol(NetstringReceiver):
         """Prepare data and send it via self.sendString."""
         data = self.parser.prepare_data(name, *args, **kwargs)
         self.sendString(data)
+
+    @property
+    def logged(self):
+        return self.player_id in server.logged_players
+
+    @logged.setter
+    def logged(self, value):
+        if value:
+            server.logged_players.add(self)
+        else:
+            server.logged_players.remove(self)
+
+
+class MindspaceProtocol(NetstringReceiver, ProtocolBase):
+    """Handle connections."""
+
+    def connectionMade(self):
+        self.on_connect()
+
+    def connectionLost(self, reason):
+        self.on_disconnect(reason)
+
+    def stringReceived(self, string):
+        self.handle_string(string)
 
 
 class ServerFactory(protocol.ServerFactory):
