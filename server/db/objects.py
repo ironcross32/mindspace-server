@@ -405,6 +405,8 @@ class Object(
         )
         player.do_social(entrance.leave_msg, _others=[self])
         player.steps += 1
+        name = player.location.get_name(player.is_staff)
+        player.message(f'You arrive at {name.lower()}.')
         player.move(entrance.location, entrance.coordinates)
         player.recent_exit_id = recent_exit_id
         Session.add(player)
@@ -418,6 +420,8 @@ class Object(
             )
             follower.steps += 1
             follower.move(player.location, player.coordinates)
+            name = follower.location.get_name(follower.is_staff)
+            follower.message(f'You arrive at {name.lower()}.')
             follower.recent_exit_id = recent_exit_id
             Session.add(follower)
             self.location.broadcast_command(
@@ -431,10 +435,6 @@ class Object(
             self.sound(sound)
         else:
             sound = None
-        player.message(
-            'You arrive at '
-            f'{player.location.get_name(player.is_staff).lower()}.'
-        )
         for old_object in self.location.objects:
             if con is not None:
                 delete(con, old_object.id)
@@ -442,7 +442,6 @@ class Object(
                 c = follower.get_connection()
                 if c is not None:
                     delete(c, old_object.id)
-        player.identify_location()
         player.update_neighbours()
         for follower in player.followers:
             follower.identify_location()
