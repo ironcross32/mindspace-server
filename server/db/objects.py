@@ -405,9 +405,9 @@ class Object(
         )
         player.do_social(entrance.leave_msg, _others=[self])
         player.steps += 1
+        player.move(entrance.location, entrance.coordinates)
         name = player.location.get_name(player.is_staff)
         player.message(f'You arrive at {name.lower()}.')
-        player.move(entrance.location, entrance.coordinates)
         player.recent_exit_id = recent_exit_id
         Session.add(player)
         for follower in player.followers:
