@@ -15,7 +15,6 @@ from ..protocol import (
     object_sound, location, message, identify, delete, zone, random_sound,
     remember_quit
 )
-from .. import server
 from ..forms import Label, Field
 from ..sound import get_sound, get_ambience
 from ..socials import factory
@@ -205,15 +204,16 @@ class Object(
 
     @property
     def log_commands(self):
-        return self.id in server.server.logged_players
+        con = self.get_connection()
+        if con is None:
+            return False
+        else:
+            return con.logged
 
     @log_commands.setter
     def log_commands(self, value):
-        if value:
-            server.server.logged_players.add(self.id)
-        else:
-            if self.id in server.server.logged_players:
-                server.server.logged_players.remove(self.id)
+        con = self.get_connection()
+        con.logged = value
 
     @property
     def is_transit(self):
