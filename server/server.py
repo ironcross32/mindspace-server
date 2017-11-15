@@ -5,6 +5,7 @@ import os.path
 from time import time
 from datetime import datetime
 from random import choice, randint
+from json import dumps
 from autobahn.twisted.websocket import (
     WebSocketServerProtocol, WebSocketServerFactory
 )
@@ -239,8 +240,12 @@ class ProtocolBase:
 
     def send(self, name, *args, **kwargs):
         """Prepare data and send it via self.sendString."""
-        data = self.parser.prepare_data(name, *args, **kwargs)
-        self.sendString(data)
+        if isinstance(self, MindspaceWebSocketProtocol):
+            data = dumps(dict(name=name, args=args, kwargs=kwargs))
+            self.sendMessage(data.encode())
+        else:
+            data = self.parser.prepare_data(name, *args, **kwargs)
+            self.sendString(data)
 
     @property
     def logged(self):
