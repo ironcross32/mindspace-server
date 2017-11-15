@@ -183,7 +183,7 @@ class ProtocolBase:
                 pass  # Not running.
         if self in server.connections:
             server.connections.remove(self)
-        self.logger.info(reason.getErrorMessage())
+        self.logger.info(reason)
         if self.player_id is not None:
             with session() as s:
                 player = self.get_player(s)
@@ -269,6 +269,8 @@ class MindspaceWebSocketProtocol(WebSocketServerProtocol, ProtocolBase):
     def onMessage(self, payload, is_binary):
         if not is_binary:
             self.handle_string(payload)
+        else:
+            print(f'<binary {payload}>')
 
     def onClose(self, wasClean, code, reason):
         self.on_disconnect(reason)
@@ -290,7 +292,7 @@ class MindspaceProtocol(NetstringReceiver, ProtocolBase):
         self.on_connect()
 
     def connectionLost(self, reason):
-        self.on_disconnect(reason)
+        self.on_disconnect(reason.getErrorMessage())
 
     def stringReceived(self, string):
         self.handle_string(string)
