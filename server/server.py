@@ -238,15 +238,6 @@ class ProtocolBase:
                 logger.exception(e)
                 message(self, 'There was an error with your command.')
 
-    def send(self, name, *args, **kwargs):
-        """Prepare data and send it via self.sendString."""
-        if isinstance(self, MindspaceWebSocketProtocol):
-            data = dumps(dict(name=name, args=args, kwargs=kwargs))
-            self.sendMessage(data.encode())
-        else:
-            data = self.parser.prepare_data(name, *args, **kwargs)
-            self.sendString(data)
-
     @property
     def logged(self):
         return self.player_id in server.logged_players
@@ -262,6 +253,11 @@ class ProtocolBase:
 class MindspaceWebSocketProtocol(WebSocketServerProtocol, ProtocolBase):
     """A protocol to use with a web client."""
 
+    def send(self, name, *args, **kwargs):
+        """Prepare data and send it via self.sendString."""
+        data = dumps(dict(name=name, args=args, kwargs=kwargs))
+        self.sendMessage(data.encode())
+
     def onOpen(self):
         self.on_connect()
 
@@ -274,6 +270,11 @@ class MindspaceWebSocketProtocol(WebSocketServerProtocol, ProtocolBase):
 
 class MindspaceProtocol(NetstringReceiver, ProtocolBase):
     """Handle connections."""
+
+    def send(self, name, *args, **kwargs):
+        """Prepare data and send it via self.sendString."""
+        data = self.parser.prepare_data(name, *args, **kwargs)
+        self.sendString(data)
 
     def connectionMade(self):
         self.on_connect()
