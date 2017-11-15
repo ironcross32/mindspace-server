@@ -5,6 +5,9 @@ import os.path
 from time import time
 from datetime import datetime
 from random import choice, randint
+from autobahn.twisted.websocket import (
+    WebSocketServerProtocol, WebSocketServerFactory
+)
 from twisted.protocols.basic import NetstringReceiver
 from twisted.internet import reactor, protocol, endpoints, task
 from twisted.web.server import Site
@@ -104,6 +107,17 @@ class Server:
             lambda value: logger.info(
                 'Web server listening on %s:%d.', value.interface, value.port
             )
+        )
+        self.websocket_factory = WebSocketServerFactory(
+            f'ws://{o.interface}:{o.websocket_port}'
+        )
+        self.websocket_factory.protocol = MindspaceWebSocketProtocol
+        self.websocket_listener = reactor.listenTCP(
+            o.websocket_port, self.websocket_factory, interface=o.interface
+        )
+        logger.info(
+            'Listening for web sockets on %s:%d.',
+            self.websocket_listener.interface, self.websocket_listener.port
         )
         self.udp_factory = UDPProtocol()
         self.udp_listener = reactor.listenUDP(self.udp_port, self.udp_factory)
@@ -238,6 +252,19 @@ class ProtocolBase:
             server.logged_players.add(self)
         else:
             server.logged_players.remove(self)
+
+
+class MindspaceWebSocketProtocol(WebSocketServerProtocol, ProtocolBase):
+    """A protocol to use with a web client."""
+
+    def onOpen(self):
+        self.on_connect()
+
+    def onMessage(self, payload, is_binary):
+        print(f'{is_binary}: {payload}')
+
+    def onClose(self, wasClean, code, reason):
+        self.on_disconnect(reason)
 
 
 class MindspaceProtocol(NetstringReceiver, ProtocolBase):
