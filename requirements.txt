@@ -1,5 +1,6 @@
 service-identity
 twisted
+autobahn
 attrs
 pyyaml
 msgpack-python
