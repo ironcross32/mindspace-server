@@ -5,7 +5,7 @@ import os.path
 from time import time
 from datetime import datetime
 from random import choice, randint
-from json import dumps
+from json import dumps, loads
 from autobahn.twisted.websocket import (
     WebSocketServerProtocol, WebSocketServerFactory
 )
@@ -233,7 +233,7 @@ class ProtocolBase:
             message(self, 'Your connection has been locked.')
         else:
             try:
-                self.parser.handle_string(string, self)
+                self._handle_string(string)
             except Exception as e:
                 logger.exception(e)
                 message(self, 'There was an error with your command.')
@@ -253,6 +253,11 @@ class ProtocolBase:
 class MindspaceWebSocketProtocol(WebSocketServerProtocol, ProtocolBase):
     """A protocol to use with a web client."""
 
+    def _handle_string(self, string):
+        """Handle JSON string."""
+        name, args, kwargs = loads(string)
+        return self.parser.handle_command(name, self, *args, **kwargs)
+
     def send(self, name, *args, **kwargs):
         """Prepare data and send it via self.sendString."""
         data = dumps(dict(name=name, args=args, kwargs=kwargs))
@@ -269,7 +274,11 @@ class MindspaceWebSocketProtocol(WebSocketServerProtocol, ProtocolBase):
 
 
 class MindspaceProtocol(NetstringReceiver, ProtocolBase):
-    """Handle connections."""
+    """Handle connections from TCP clients."""
+
+    def _handle_string(self, string):
+        """Protocol-specific string handling."""
+        self.parser.handle_string(string, self)
 
     def send(self, name, *args, **kwargs):
         """Prepare data and send it via self.sendString."""
