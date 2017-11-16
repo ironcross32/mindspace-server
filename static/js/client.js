@@ -26,9 +26,7 @@ document.onkeydown = (e) => {
         }
         key = e.key.toUpperCase()
         if (!modifiers && key == "ESCAPE") {
-            for (div of [menu, form, text]) {
-                div.hidden = true
-            }
+            hide_elements()
         } else {
             send({name: "key", args: [key, modifiers]})
         }
@@ -96,15 +94,19 @@ form_hide.onclick = (e) => {
 }
 let form_ok = document.getElementById("form-ok")
 
-for (element of document.getElementsByClassName("hidden")) {
-    element.hidden = true
-}
+hide_elements()
 
 document.getElementById("disconnect").onclick = (e) => {
     if (connected) {
         send({name: "quit"})
     } else {
         alert("You are not connected.")
+    }
+}
+
+function hide_elements() {
+    for (element of document.getElementsByClassName("hidden")) {
+        element.hidden = true
     }
 }
 
