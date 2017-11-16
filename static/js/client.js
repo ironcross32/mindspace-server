@@ -81,6 +81,9 @@ let text_label = document.getElementById("text-label")
 let text_field = document.getElementById("text-field")
 
 let form = document.getElementById("form")
+
+form.onsubmit = (e) => {
+    
 let form_h = document.getElementById("form-h")
 let form_p = document.getElementById("form-p")
 let form_hide = document.getElementById("form-hide")
@@ -88,6 +91,13 @@ form_hide.onclick = (e) => {
     form.hidden = true
 }
 let form_ok = document.getElementById("form-ok")
+
+let form_command = {
+    name: null,
+    args: [],
+    kwargs: {}
+}
+let form_fields = {}
 
 hide_elements()
 
@@ -173,8 +183,54 @@ mindspace_functions = {
         let [title, fields, command, args, kwargs, ok, cancel] = obj.args
         form.hidden = false
         form_h.innerText = title
+        form_ok.innerText = ok
         form_hide.innerText = cancel
         form_hide.focus()
+        clear_element(form_p)
+        form_obj = {
+            name: command,
+            args: args,
+            kwargs: kwargs
+        }
+        form_fields = {}
+        for (data of fields) {
+            if (data.type == "Label") {
+                let e = document.createElement("h3")
+                e.innerText = data.values[0]
+            } else {
+                let [name, value, type, title, hidden] = data.values
+                let empty = ""
+                if (type == "text") {
+                    let e = ocument.createElement("textarea")
+                } else if (typeof(type) != "string") {
+                    let e = document.createElement("select")
+                    for (key in type) {
+                        let v = document.createElement("option")
+                        if (Array.isArray(type)) {
+                            v.value = type[key]
+                        } else {
+                            v.value = key
+                        }
+                        v.innerText = type[key]
+                        e.appendChild(v)
+                    }
+                } els {
+                    let e = document.createElement("input")
+                    if (type == "float" || type == "int") {
+                        e.type = "number"
+                        empty = 0
+                    } else {
+                        e.type = "text"
+                    }
+                }
+                e.value = value || empty
+                let l = document.createElement("label")
+                l.appendChild(e)
+                form_p.appendChild(l)
+                form_fields[name] = e
+            }
+            form_p.appendChild(e)
+        }
     },
     menu: (obj) => {
         let [title, items, escapable] = obj.args
