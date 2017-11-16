@@ -214,7 +214,7 @@ mindspace_functions = {
                         v.innerText = type[key]
                         e.appendChild(v)
                     }
-                } els {
+                } else {
                     let e = document.createElement("input")
                     if (type == "float" || type == "int") {
                         e.type = "number"
