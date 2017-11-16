@@ -147,7 +147,6 @@ mindspace_functions = {
     get_text: (obj) => {
         let [message, command, value, multiline, escapable, args, kwargs] = obj.args
         text.hidden = false
-        text_cancel.focus()
         text_label.innerText = message
         text_command.name = command
         text_command.args = args
@@ -163,9 +162,10 @@ mindspace_functions = {
         // Below code based on the first answer at:
         // https://stackoverflow.com/questions/3955229/remove-all-child-elements-of-a-dom-node-in-javascript
         while (text_field.firstChild) {
-            text_field.removeChild(myNode.firstChild);
+            text_field.removeChild(text_field.firstChild);
         }
         text_field.appendChild(e)
+        e.focus()
     },
     form: (obj) => {
         let [title, fields, command, args, kwargs, ok, cancel] = obj.args
