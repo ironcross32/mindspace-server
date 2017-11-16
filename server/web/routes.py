@@ -20,6 +20,12 @@ def sounds(request):
     return File('sounds')
 
 
+@app.route('/static/', branch=True)
+def static(request):
+    """Return the static directory."""
+    return File('static')
+
+
 @app.route('/help/')
 def help_index(request):
     """Return the main help page."""
