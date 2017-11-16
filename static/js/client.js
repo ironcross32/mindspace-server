@@ -17,7 +17,7 @@ document.onkeydown = (e) => {
                 "text", "password", "textarea"
             ]
         )
-    ) {
+    {
         modifiers = []
         for (name of ["ctrl", "shift", "alt"]) {
             if (e[`${name}Key`]) {
