@@ -12,9 +12,11 @@ let output = document.getElementById("output")
 document.onkeydown = (e) => {
     let current = document.activeElement
     if (
-        connected && current.type === undefined || current.type in [
-            "text", "password", "textarea"
-        ]
+        connected && current.type === undefined || !(
+            current.type in [
+                "text", "password", "textarea"
+            
+        )]
     ) {
         modifiers = []
         for (name of ["ctrl", "shift", "alt"]) {
