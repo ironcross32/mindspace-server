@@ -10,6 +10,7 @@ let output = document.getElementById("output")
 document.onkeydown = (e) => {
     let current = document.activeElement
     if (current.type === undefined || current.type == "input") {
+        write_special(current.type)
         modifiers = []
         for (name of ["ctrl", "shift", "alt"]) {
             if (e[`${name}Key`]) {
@@ -98,7 +99,7 @@ document.getElementById("disconnect").onclick = (e) => {
 
 function set_title(name) {
     let title = default_title
-    if (name === undefined) {
+    if (name !== undefined) {
         title = `${title} (${name})`
     }
     document.title = title
