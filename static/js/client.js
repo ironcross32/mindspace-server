@@ -27,6 +27,8 @@ document.onkeydown = (e) => {
         }
         key = e.key.toUpperCase()
         send({name: "key", args: [key, modifiers]})
+    } else {
+        write_special(current.type)
     }
 }
 
