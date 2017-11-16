@@ -24,11 +24,13 @@ document.onkeydown = (e) => {
         for (name of ["ctrl", "shift", "alt"]) {
             if (e[`${name}Key`]) {
                 modifiers.push(name)
+                write_special(name)
             }
         }
         key = e.key.toUpperCase()
         if (!modifiers && key == "ESCAPE") {
             hide_elements()
+            game.hidden = false
         } else {
             send({name: "key", args: [key, modifiers]})
         }
