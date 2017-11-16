@@ -7,18 +7,24 @@ letquitting = false
 let soc = null
 let output = document.getElementById("output")
 
-output.onkeydown = (e) => {
-    modifiers = []
-    for (name of ["ctrl", "shift", "alt"]) {
-        if (e[`${name}Key`]) {
-            modifiers.push(name)
+document.onkeydown = (e) => {
+    let current = document.activeElement
+    if (current.type === undefined || current.type == "input") {
+        modifiers = []
+        for (name of ["ctrl", "shift", "alt"]) {
+            if (e[`${name}Key`]) {
+                modifiers.push(name)
+            }
+        }
+        key = e.key.toUpperCase()
+        if (!modifiers && key == "ESCAPE") {
+            for (div of [menu, form, text]) {
+                div.hidden = true
+            }
+        } else {
+            send({name: "key", args: [key, modifiers]})
         }
     }
-    key = e.key.toUpperCase()
-    if (key != "F5" && key != "ALT") {
-        e.preventDefault()
-    }
-    send({name: "key", args: [key, modifiers]})
 }
 
 let connect_form = document.getElementById("connect-form")
@@ -149,16 +155,6 @@ mindspace_functions = {
             text_field.removeChild(myNode.firstChild);
         }
         text_field.appendChild(e)
-        if (escapable) {
-            text_form.onkeydown = (e) => {
-                if (e.key == "escape") {
-                    text.hidden = true
-                    e.preventDefault
-                }
-            }
-        } else {
-            text_form.onkeydown = null
-        }
     },
     form: (obj) => {
         let [title, fields, command, args, kwargs, ok, cancel] = obj.args
@@ -202,16 +198,6 @@ mindspace_functions = {
             }
             p.appendChild(i)
             menu_p.appendChild(p)
-        }
-        if (escapable) {
-            menu.onkeydown = (e) => {
-                if (e.key == "escape") {
-                    menu.hidden = true
-                    e.preventDefault()
-                }
-            }
-        } else {
-            menu.onkeydown = null
         }
     },
     remember_quit: (obj) => {
