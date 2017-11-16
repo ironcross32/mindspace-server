@@ -5,12 +5,17 @@ letquitting = false
 
 // Create a web socket.
 let soc = null
+let connected = false
+
 let output = document.getElementById("output")
 
 document.onkeydown = (e) => {
     let current = document.activeElement
-    if (current.type === undefined || current.type == "input") {
-        write_special(current.type)
+    if (
+        connected && current.type === undefined || current.type in [
+            "text", "password", "textarea"
+        ]
+    ) {
         modifiers = []
         for (name of ["ctrl", "shift", "alt"]) {
             if (e[`${name}Key`]) {
@@ -284,6 +289,7 @@ function create_socket(obj) {
     game.hidden = false
     soc = new WebSocket(`ws://${obj.hostname}:${obj.port}`)
     soc.onclose = (e) => {
+        connected = false
         connect.hidden = false
         set_title()
         if (e.wasClean) {
@@ -294,6 +300,7 @@ function create_socket(obj) {
         write_special(reason)
     }
     soc.onopen = (e) => {
+        connected = true
         output.innerHTML = ""
         write_special("Connection Open")
         send(
