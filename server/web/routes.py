@@ -1,5 +1,7 @@
 """The web server."""
 
+import os
+import os.path
 from twisted.web.static import File
 from werkzeug import abort
 from .app import app
@@ -85,3 +87,12 @@ def login(request):
 def credits(request):
     """Show credits."""
     return render_template(request, 'credits.html', credits=Credit.query())
+
+
+@app.route('/client/')
+def client(request):
+    """Show the web-based client."""
+    name = os.path.join('static', 'js', 'client.js')
+    stat = os.stat(name)
+    stamp = stat.st_mtime
+    return render_template(request, 'client.html', stamp=stamp)
