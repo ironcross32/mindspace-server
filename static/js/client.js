@@ -7,6 +7,7 @@ letquitting = false
 let soc = null
 let connected = false
 
+// Page elements.
 let output = document.getElementById("output")
 
 document.onkeydown = (e) => {
@@ -28,12 +29,7 @@ document.onkeydown = (e) => {
             }
         }
         key = e.key.toUpperCase()
-        if (!modifiers && key == "ESCAPE") {
-            hide_elements()
-            game.hidden = false
-        } else {
-            send({name: "key", args: [key, modifiers]})
-        }
+        send({name: "key", args: [key, modifiers]})
     }
 }
 
@@ -183,9 +179,6 @@ mindspace_functions = {
     },
     menu: (obj) => {
         let [title, items, escapable] = obj.args
-        for (element of [menu_h, menu_p]) {
-            element.innerText = ""
-        }
         menu.hidden = false
         menu_h.innerText = title
         menu_hide.focus()
