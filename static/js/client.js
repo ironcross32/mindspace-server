@@ -187,7 +187,7 @@ mindspace_functions = {
         form_hide.innerText = cancel
         form_hide.focus()
         clear_element(form_p)
-        form_obj = {
+        form_command = {
             name: command,
             args: args,
             kwargs: kwargs
@@ -220,7 +220,11 @@ mindspace_functions = {
                         e.type = "number"
                         empty = 0
                     } else {
-                        e.type = "text"
+                        if (hidden) {
+                            type = "password"
+                        } else {
+                            e.type = "text"
+                        }
                     }
                 }
                 e.value = value || empty
