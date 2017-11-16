@@ -25,7 +25,6 @@ document.onkeydown = (e) => {
         for (name of ["ctrl", "shift", "alt"]) {
             if (e[`${name}Key`]) {
                 modifiers.push(name)
-                write_special(name)
             }
         }
         key = e.key.toUpperCase()
