@@ -14,7 +14,7 @@ document.onkeydown = (e) => {
     let current = document.activeElement
     if (
         connected && [
-            undefined, "text", "password", "textarea"
+            "text", "password", "textarea"
         ].indexOf(current.type) == -1
     ) {
         modifiers = []
