@@ -13,11 +13,9 @@ let output = document.getElementById("output")
 document.onkeydown = (e) => {
     let current = document.activeElement
     if (
-        connected && !(
-            current.type in [
-                undefined, "text", "password", "textarea"
-            ]
-        )
+        connected && [
+            undefined, "text", "password", "textarea"
+        ].indexOf(current.type) == -1
     ) {
         modifiers = []
         for (name of ["ctrl", "shift", "alt"]) {
@@ -26,7 +24,6 @@ document.onkeydown = (e) => {
             }
         }
         key = e.key.toUpperCase()
-        write_special(`Key: ${current.type}.`)
         send({name: "key", args: [key, modifiers]})
     }
 }
