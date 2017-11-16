@@ -99,7 +99,11 @@ for (element of document.getElementsByClassName("hidden")) {
 }
 
 document.getElementById("disconnect").onclick = (e) => {
-    send({name: "quit"})
+    if (connected) {
+        send({name: "quit"})
+    } else {
+        alert("You are not connected.")
+    }
 }
 
 function set_title(name) {
