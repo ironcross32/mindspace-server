@@ -99,6 +99,14 @@ document.getElementById("disconnect").onclick = (e) => {
     }
 }
 
+function clear_element(e) {
+    // Below code based on the first answer at:
+    // https://stackoverflow.com/questions/3955229/remove-all-child-elements-of-a-dom-node-in-javascript
+    while (e.firstChild) {
+        e.removeChild(e.firstChild);
+    }
+}
+
 function hide_elements() {
     for (element of document.getElementsByClassName("hidden")) {
         element.hidden = true
@@ -157,11 +165,7 @@ mindspace_functions = {
         }
         e.value = value
         text_element = e
-        // Below code based on the first answer at:
-        // https://stackoverflow.com/questions/3955229/remove-all-child-elements-of-a-dom-node-in-javascript
-        while (text_field.firstChild) {
-            text_field.removeChild(text_field.firstChild);
-        }
+        clear_element(text_field)
         text_field.appendChild(e)
         e.focus()
     },
@@ -177,6 +181,7 @@ mindspace_functions = {
         menu.hidden = false
         menu_h.innerText = title
         menu_hide.focus()
+        clear_element(menu_p)
         for (item of items) {
             let [name, command, args, kwargs] = item
             p = document.createElement("p")
