@@ -1,4 +1,6 @@
 const field_names = ["hostname", "port", "web_port", "username", "password"]
+const default_title = document.title
+
 letquitting = false
 
 // Create a web socket.
@@ -89,11 +91,11 @@ document.getElementById("disconnect").onclick = (e) => {
 }
 
 function set_title(name) {
-    title = document.title.slice(0, document.title.search(/[|] /) + 2)
+    let title = default_title
     if (name === undefined) {
-        name = "Client"
+        title = `${title} (${name})`
     }
-    document.title = `${title}${name}`
+    document.title = title
 }
 
 function write_message(text) {
