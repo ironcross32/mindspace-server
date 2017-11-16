@@ -15,8 +15,8 @@ document.onkeydown = (e) => {
         connected && current.type === undefined || !(
             current.type in [
                 "text", "password", "textarea"
-            
-        )]
+            ]
+        )
     ) {
         modifiers = []
         for (name of ["ctrl", "shift", "alt"]) {
