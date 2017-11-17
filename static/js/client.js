@@ -2,18 +2,31 @@
 
 let field_names = ["hostname", "port", "web_port", "username", "password"]
 let default_title = document.title
+let location_name = null
 
 // The audio system:
 let audio = null
+let mixer = null
 let sounds = {}
 
-let ambience = null
-let zone_ambience = null
-let music = null
+let room_mixer = null
+let room_node = null
+let zone_mixer = null
+let zone_node = null
+let music_mixer = null
+let music_node = null
 
 let escape = null
 
 let quitting = false
+
+function stop_object_ambience(thing) {
+    if (thing.ambience !== null) {
+        thing.ambience.source.stop()
+        thing.ambience.source.disconnect(thing.ambience_mixer)
+        thing.ambience = null
+    }
+}
 
 function get_sound(path, sum) {
     return new Promise(
@@ -64,7 +77,6 @@ function get_source(sound) {
         } else {
             let source = audio.createBufferSource()
             source.buffer = sound.buffer
-            source.connect(audio.destination)
             resolve(source)
         }
     })
@@ -72,6 +84,7 @@ function get_source(sound) {
 
 function play_sound(path, sum) {
     get_sound(path, sum).then(get_source).then(source => {
+        source.connect(mixer)
         source.start(0)
     })
 }
@@ -435,32 +448,37 @@ let mindspace_functions = {
         let [id, x, y, z, ambience_sound, ambience_volume] = obj.args
         let thing = objects[id]
         if (thing === undefined) {
-            thing = {ambience_sound: null}
+            thing = {ambience_sound: null, ambience_mixer:null}
+            objects[id] = thing
         }
         thing.x = x
         thing.y = y
         thing.z = z
-        if (ambience_sound !== null) {
+        if (ambience_sound === null) {
+            stop_object_ambience(thing)
+        } else {
             let [path, sum] = ambience_sound
-            if (thing.ambience_sound !== null && (thing.ambience_sound.path != path || thing.ambience_sound.sum != sum)) {
-                thing.ambience_sound.source.stop()
-                thing.ambience_sound = null
-            }
-            get_sound(path, sum).then(get_source).then(source => {
-                if (thing.ambience_sound == null) {
-                    // Nobody has got here first.
-                    source.volume = ambience_volume
-                    source.loop = true
-                    source.start(0)
-                    thing.ambience_sound = {
-                        path: path,
-                        sum: sum,
-                        source: source
+            if (thing.ambience === null || thing.ambience.path != path || thing.ambience.sum != sum) {
+                stop_object_ambience(thing)
+                get_sound(path, sum).then(get_source).then(source => {
+                    if (thing.ambience == null) {
+                        // Nobody has got here first.
+                        if (thing.ambience_mixer === null) {
+                            thing.ambience_mixer = audio.createGain()
+                            thing.ambience_mixer.connect(audio.destination)
+                        }
+                        thing.ambience_mixer.gain.value = ambience_volume
+                        source.connect(thing.ambience_mixer)
+                        source.loop = true
+                        source.start(0)
+                        thing.ambience = {
+                            path: path,
+                            sum: sum,
+                            source: source
+                        }
                     }
-                } else {
-                    source.disconnect(audio.destination)
-                }
-            })
+                })
+            }
         }
     },
     interface_sound: obj => {
@@ -479,8 +497,9 @@ let mindspace_functions = {
         }
         write_message("I know about zone.")
     },
-    location: () => {
-        // let [name, ambience_sound, ambience_volume, music_sound, max_distance, reverb_options] = obj.args
+    location: obj => {
+        let [name, ambience_sound, ambience_volume, music_sound, max_distance, reverb_options] = obj.args
+        location_name = name
     },
     options: obj => {
         let [username, transmition_id, recording_threshold, sound_volume, ambience_volume, music_volume] = obj.args
