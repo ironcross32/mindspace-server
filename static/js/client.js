@@ -38,7 +38,7 @@ function create_ambience(obj, sound, volume, output) {
                 obj = {}
             }
             get_sound(path, sum).then(get_source).then(source => {
-                if (obj.mixer === null) {
+                if (obj.mixer === null || obj.mixer === undefined) {
                     create_main_mixer()
                     obj.mixer = audio.createGain()
                     obj.mixer.connect(output)
