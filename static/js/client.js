@@ -442,7 +442,10 @@ let mindspace_functions = {
     message: obj => {write_message(obj.args[0])},
     delete: obj => {
         let id = obj.args[0]
-        delete objects[id]
+        if (objects[id] !== undefined) {
+            stop_object_ambience(objects[id])
+            delete objects[id]
+        }
     },
     identify: obj => {
         let [id, x, y, z, ambience_sound, ambience_volume] = obj.args
