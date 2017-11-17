@@ -297,7 +297,7 @@ let mindspace_functions = {
                             step = 1.0
                             empty = 0.0
                         }
-                        console.log(`${name}: ${type} (${tep}).`)
+                        console.log(`${name}: ${type} (${step}).`)
                         e.step = step
                     } else {
                         if (hidden) {
