@@ -567,6 +567,7 @@ let mindspace_functions = {
                         }
                         source.loop = true
                         source.connect(room_mixer)
+                        source.start()
                     }
                 })
             }
@@ -579,8 +580,16 @@ let mindspace_functions = {
         player.transmition_id = transmition_id
         player.recording_threshold = recording_threshold
         player.sound_volume = sound_volume
-        player.ambience_volume - ambience_volume
+        if (mixer !== null) {
+            mixer.gain.value = sound_volume
+        }
+        player.ambience_volume = ambience_volume
+        if (room_mixer !== null) {
+            room_mixer.gain.value = ambience_volume
+        }
         player.music_volume = music_volume
+        if (music_mixer !== null) { music_mixer.gain.value = music_volume
+        }
     },
     mute_mic: () => {}
 }
