@@ -357,11 +357,11 @@ let mindspace_functions = {
         let e = document.createElement("textarea")
         e.value = text
         e.select()
+        e.focus()
         p.appendChild(e)
         let b = document.createElement("input")
         b.type = "button"
         b.value = "Copy"
-        b.focus()
         p.appendChild(b)
         d.appendChild(p)
         game.appendChild(d)
