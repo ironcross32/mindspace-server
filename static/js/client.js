@@ -621,6 +621,11 @@ function create_socket(obj) {
     soc = new WebSocket(`ws://${obj.hostname}:${obj.port}`)
     soc.onclose = (e) => {
         audio.close()
+        room = null
+        zone = null
+        music = null
+        sounds = {}
+        objects = {}
         if (quitting) {
             connected = false
             connect.hidden = false
