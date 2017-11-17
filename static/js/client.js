@@ -289,6 +289,7 @@ let mindspace_functions = {
                     e = document.createElement("input")
                     if (type == "float" || type == "int") {
                         e.type = "number"
+                        console.log(type)
                         if (type == "int") {
                             step = 1
                             empty = 0
