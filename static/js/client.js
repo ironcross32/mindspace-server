@@ -291,11 +291,11 @@ let mindspace_functions = {
                         e.type = "number"
                         let step = null
                         if (type == "int") {
-                            step = 1
-                            empty = 0
+                            step = "1"
+                            empty = "0"
                         } else {
-                            step = 1.0
-                            empty = 0.0
+                            step = "1.0"
+                            empty = "0.0"
                         }
                         console.log(`${name}: ${type} (${step}).`)
                         e.step = step
