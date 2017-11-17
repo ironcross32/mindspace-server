@@ -274,6 +274,7 @@ let mindspace_functions = {
     url: obj => {
         let [title, href] = obj.args
         url.hidden = false
+        escape = url
         url.innerText = title
         url.href = href
         url.focus()
