@@ -291,9 +291,11 @@ let mindspace_functions = {
                         e.type = "number"
                         let step = null
                         if (type == "int") {
+                            console.log("Integer.")
                             step = 1
                             empty = 0
                         } else {
+                            console.log("Float.")
                             step = 1.0
                             empty = 0.0
                         }
