@@ -12,45 +12,48 @@ let escape = null
 let quitting = false
 
 function get_sound(path, sum) {
-    if (sounds[path] !== undefined && sounds[path].sum == sum) {
-        let sound = sounds[path]
-        if (sound.downloading) {
-            return null
-        } else {
-            return sound
-        }
-    } else {
-        let sound = {
-            path: path,
-            sum: sum,
-            downloading: true
-        }
-        sounds[path] = sound
-        let hostname = document.getElementById("hostname").value
-        let port = document.getElementById("web_port").value
-        url = `http://${hostname}:${port}/${path}?${sum}`
-        // Below code modified from:
-        // https://www.html5rocks.com/en/tutorials/webaudio/intro/
-        let request = new XMLHttpRequest()
-        request.open("GET", url, true)
-        request.responseType = "arraybuffer"
-        // Decode asynchronously
-        request.onload = () => {
-            audio.decodeAudioData(
-                request.response, (buffer) => {
-                    let source = audio.createBufferSource()
-                    sound.source = source
-                    sound.downloading = false
-                    source.buffer = buffer
-                    source.connect(audio.destination)
-                }, () => {
-                    alert(`Unable to decode data from ${url}.`)
+    return new Promise(
+        (resolve, reject) => {
+            if (sounds[path] !== undefined && sounds[path].sum == sum) {
+                let sound = sounds[path]
+                if (sound.downloading) {
+                    return reject("Sound has not been downloaded.")
+                } else {
+                    return resolve(sound)
                 }
-            )
+            } else {
+                let sound = {
+                    path: path,
+                    sum: sum,
+                    downloading: true
+                }
+                sounds[path] = sound
+                let hostname = document.getElementById("hostname").value
+                let port = document.getElementById("web_port").value
+                url = `http://${hostname}:${port}/${path}?${sum}`
+                // Below code modified from:
+                // https://www.html5rocks.com/en/tutorials/webaudio/intro/
+                let request = new XMLHttpRequest()
+                request.open("GET", url)
+                request.responseType = "arraybuffer"
+                // Decode asynchronously
+                request.onerror = () => reject(`Failed to download sound from ${url}.`)
+                request.onload = () => {
+                    audio.decodeAudioData(request.response, (buffer) => {
+                        let source = audio.createBufferSource()
+                        sound.source = source
+                        sound.downloading = false
+                        source.buffer = buffer
+                        source.connect(audio.destination)
+                        resolve(sound)
+                    }, () => {
+                        reject(`Unable to decode data from ${url}.`)
+                    })
+                }
+                request.send()
+            }
         }
-        request.send()
-        return sound
-    }
+    )
 }
 
 function send(obj) {
@@ -259,8 +262,9 @@ let mindspace_functions = {
         if (thing === undefined) {
             send({name: "identify", args: [id]})
         } else {
-            let sound = get_sound(path, sum)
-            write_special(sound)
+            get_sound(path, sum).then((sound) => {
+                sound.source.start(0)
+            })
         }
     },
     hidden_sound: () => {
@@ -416,10 +420,9 @@ let mindspace_functions = {
     },
     interface_sound: obj => {
         let [path, sum] = obj.args
-        let sound = get_sound(path, sum)
-        if (sound !== null) {
+        get_sound(path, sum).then((sound) => {
             sound.source.start()
-        }
+        })
     },
     character_id: obj => {
         let id = obj.args[0]
