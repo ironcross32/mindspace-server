@@ -5,7 +5,6 @@ let default_title = document.title
 
 // The audio system:
 let audio = null
-let output = null
 let sounds = {}
 
 let escape = null
@@ -72,6 +71,7 @@ let connected = false
 
 // Page elements.
 
+let output = document.getElementById("output")
 document.onkeydown = (e) => {
     let current = document.activeElement
     if (
