@@ -28,6 +28,7 @@ function create_ambience(obj, sound, volume, output) {
     if (sound === null) {
         if (obj !== null) {
             obj.source.disconnect()
+            obj = {mixer: obj.mixer}
         }
     } else {
         let [path, sum] = sound
@@ -39,7 +40,6 @@ function create_ambience(obj, sound, volume, output) {
             }
             get_sound(path, sum).then(get_source).then(source => {
                 if (obj.mixer === null || obj.mixer === undefined) {
-                    create_main_mixer()
                     obj.mixer = audio.createGain()
                     obj.mixer.connect(output)
                 }
@@ -49,7 +49,7 @@ function create_ambience(obj, sound, volume, output) {
                 obj.source = source
                 source.loop = true
                 source.connect(obj.mixer)
-                source.start()
+                source.start(0)
             })
         }
     }
