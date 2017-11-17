@@ -362,7 +362,7 @@ let mindspace_functions = {
         b.type = "button"
         b.value = "Copy"
         b.focus()
-        b.click = () => {
+        b.onclick = () => {
             if (document.execCommand("copy")) {
                 write_message(`Copied ${text}`)
             } else {
