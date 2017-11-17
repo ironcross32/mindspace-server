@@ -28,7 +28,7 @@ function get_sound(path, sum) {
         sounds[path] = sound
         let hostname = document.getElementById("hostname").value
         let port = document.getElementById("web_port").value
-        url = `${hostname}:${port}/${path}?${sum}`
+        url = `http://${hostname}:${port}/${path}?${sum}`
         // Below code modified from:
         // https://www.html5rocks.com/en/tutorials/webaudio/intro/
         let request = new XMLHttpRequest()
