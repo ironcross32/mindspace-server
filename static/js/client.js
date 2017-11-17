@@ -20,6 +20,44 @@ let escape = null
 
 let quitting = false
 
+function create_mixer(volume, output) {
+    let g = audio.createGain()
+    if (volume !== null && volume !== undefined) {
+        g.gain.value = volume
+    }
+    if (output === undefined) {
+        output = audio.destination
+    }
+    if (output !== null) { // Optionally don't connect this node.
+        g.connect(output)
+    }
+    return g
+}
+
+function create_foom_mixer() {
+    if (room_mixer === null) {
+        room_mixer = create_mixer(player.ambience_volume)
+    }
+}
+
+function create_zone_mixer() {
+    if (zone_mixer === null) {
+        zone_mixer = create_mixer()
+    }
+}
+
+function create_music_mixer() {
+    if (music_mixer === null) {
+        music_mixer = create_mixer(player.music_volume)
+    }
+}
+
+function create_main_mixer() {
+    if (mixer === null) {
+        mixer = create_mixer(player.sound_volume)
+    }
+}
+
 function stop_object_ambience(thing) {
     if (thing.ambience !== null) {
         thing.ambience.source.stop()
@@ -84,6 +122,7 @@ function get_source(sound) {
 
 function play_sound(path, sum) {
     get_sound(path, sum).then(get_source).then(source => {
+        create_mixer()
         source.connect(mixer)
         source.start(0)
     })
@@ -467,10 +506,10 @@ let mindspace_functions = {
                     if (thing.ambience == null) {
                         // Nobody has got here first.
                         if (thing.ambience_mixer === null) {
-                            thing.ambience_mixer = audio.createGain()
-                            thing.ambience_mixer.connect(audio.destination)
+                            thing.ambience_mixer = create_mixer(ambience_volume)
+                        } else {
+                            thing.ambience_mixer.gain.value = ambience_volume
                         }
-                        thing.ambience_mixer.gain.value = ambience_volume
                         source.connect(thing.ambience_mixer)
                         source.loop = true
                         source.start(0)
