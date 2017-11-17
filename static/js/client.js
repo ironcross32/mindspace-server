@@ -280,9 +280,7 @@ let mindspace_functions = {
         if (thing === undefined) {
             send({name: "identify", args: [id]})
         } else {
-            get_sound(path, sum).then((sound) => {
-                sound.source.start(0)
-            })
+            play_sound(path, sum)
         }
     },
     hidden_sound: () => {
