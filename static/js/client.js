@@ -194,6 +194,8 @@ document.onkeydown = (e) => {
     }
 }
 
+let copy_text = document.getElementById("copy-text")
+
 let connect_form = document.getElementById("connect-form")
 let connect = document.getElementById("connect")
 
@@ -347,6 +349,18 @@ let player = {
 }
 
 let mindspace_functions = {
+    copy: obj => {
+        text = obj.args[0]
+        copy_text.hidden = false
+        copy_text.innerText = text
+        copy_text.select()
+        if (document.execCommand("copy")) {
+            write_message(`Copied ${text}`)
+        } else {
+            write_special(`Failed to copy ${text}`)
+        }
+        copy_text.hide()
+    },
     random_sound: obj => {
         let [path, sum] = obj.args
         play_sound(path, sum)
