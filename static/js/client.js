@@ -2,23 +2,57 @@
 
 let field_names = ["hostname", "port", "web_port", "username", "password"]
 let default_title = document.title
-let location_name = null
 
 // The audio system:
 let audio = null
 let mixer = null
 let sounds = {}
 
+let reverb = {}
 let room_mixer = null
-let room_ambience = null
-let zone_mixer = null
-let zone_ambience = null
-let music_mixer = null
-let music_ambience = null
+let room = null
+let zone = null
+let music = null
 
 let escape = null
 
 let quitting = false
+
+function create_ambience(obj, sound, volume, output) {
+    if (volume === undefined) {
+        volume = 1.0
+    }
+    if (output === undefined) {
+        output = audio.destination
+    }
+    if (sound === null) {
+        if (obj !== null) {
+            obj.source.disconnect()
+        }
+    } else {
+        let [path, sum] = sound
+        if (obj === null || obj.path != path || obj.sum !== sum) {
+            if (obj !== null) {
+                obj.source.disconnect()
+            }
+            get_sound(path, sum).then(get_source).then(source => {
+                if (obj.mixer === null) {
+                    create_main_mixer()
+                    obj.mixer = audio.createGain()
+                    obj.mixer.connect(output)
+                }
+                obj.mixer.gain.value = volume
+                obj.path = path,
+                obj.sum = sum,
+                obj.source = source
+                source.loop = true
+                source.connect(obj.mixer)
+                source.start()
+            })
+        }
+    }
+    return obj
+}
 
 function create_mixer(volume, output) {
     let g = audio.createGain()
@@ -34,24 +68,6 @@ function create_mixer(volume, output) {
     return g
 }
 
-function create_room_mixer() {
-    if (room_mixer === null) {
-        room_mixer = create_mixer(player.ambience_volume)
-    }
-}
-
-function create_zone_mixer() {
-    if (zone_mixer === null) {
-        zone_mixer = create_mixer()
-    }
-}
-
-function create_music_mixer() {
-    if (music_mixer === null) {
-        music_mixer = create_mixer(player.music_volume)
-    }
-}
-
 function create_main_mixer() {
     if (mixer === null) {
         mixer = create_mixer(player.sound_volume)
@@ -61,7 +77,6 @@ function create_main_mixer() {
 function stop_object_ambience(thing) {
     if (thing.ambience !== null && thing.ambience !== undefined) {
         if (thing.ambience.source !== null && thing.ambience.source !== undefined) {
-            thing.ambience.source.stop()
             thing.ambience.source.disconnect()
         }
         thing.ambience = null
@@ -543,35 +558,14 @@ let mindspace_functions = {
     },
     location: obj => {
         let [name, ambience_sound, ambience_volume, music_sound, max_distance, reverb_options] = obj.args
-        location_name = name
-        if (ambience_sound !== null) {
-            let [path, sum] = ambience_sound
-            if (room_ambience === null || room_ambience.path != path || room_ambience.sum !== sum) {
-                if (room_ambience !== null) {
-                    room_ambience.source.disconnect()
-                }
-                room_ambience = null
-                get_sound(path, sum).then(get_source).then(source => {
-                    if (room_ambience === null) {
-                        // Nobody has gotten here first.
-                        if (room_mixer === null) {
-                            create_main_mixer()
-                            create_room_mixer(ambience_volume, mixer)
-                        } else {
-                            room_mixer.gain.value = ambience_volume
-                        }
-                        room_ambience = {
-                            path: path,
-                            sum: sum,
-                            source: source
-                        }
-                        source.loop = true
-                        source.connect(room_mixer)
-                        source.start()
-                    }
-                })
-            }
+        reverb.options = reverb_options
+        reverb.max_distance = max_distance
+        if (room_mixer === null) {
+            room_mixer = create_mixer(player.ambience_volume)
         }
+        music = create_ambience(music, music_sound, player.music_volume)
+        room = create_ambience(room, ambience_sound, ambience_volume, room_mixer)
+        room.name = name
     },
     options: obj => {
         let [username, transmition_id, recording_threshold, sound_volume, ambience_volume, music_volume] = obj.args
@@ -584,11 +578,12 @@ let mindspace_functions = {
             mixer.gain.value = sound_volume
         }
         player.ambience_volume = ambience_volume
-        if (room_mixer !== null) {
-            room_mixer.gain.value = ambience_volume
+        if (room !== null) {
+            room.mixer.gain.value = ambience_volume
         }
         player.music_volume = music_volume
-        if (music_mixer !== null) { music_mixer.gain.value = music_volume
+        if (music !== null) {
+            music.mixer.gain.value = music_volume
         }
     },
     mute_mic: () => {}
