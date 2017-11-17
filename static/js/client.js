@@ -124,7 +124,7 @@ function get_source(sound) {
 
 function play_sound(path, sum) {
     get_sound(path, sum).then(get_source).then(source => {
-        create_mixer()
+        create_main_mixer()
         source.connect(mixer)
         source.start(0)
     })
