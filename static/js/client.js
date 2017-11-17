@@ -348,7 +348,7 @@ let player = {
 
 let mindspace_functions = {
     copy: obj => {
-        text = obj.args[0]
+        let text = obj.args[0]
         let d = document.createElement("div")
         let h = document.createElement("h2")
         h.innerText = "Copy Text"
