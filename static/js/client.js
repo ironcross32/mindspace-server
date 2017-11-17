@@ -47,6 +47,9 @@ document.onkeydown = (e) => {
             escape.hide()
             escape = null
         } else {
+            if (key == "TAB" || key[0] == "F") {
+                e.preventDefault()
+            }
             send({name: "key", args: [key, modifiers]})
         }
     }
@@ -113,6 +116,7 @@ form.onsubmit = (e) => {
     }
     form_command.args.push(data)
     send(form_command)
+    form.hidden = true
 }
 
 let form_h = document.getElementById("form-h")
