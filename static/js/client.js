@@ -60,8 +60,10 @@ function create_main_mixer() {
 
 function stop_object_ambience(thing) {
     if (thing.ambience !== null) {
-        thing.ambience.source.stop()
-        thing.ambience.source.disconnect(thing.ambience_mixer)
+        if (thing.ambience.source !== null) {
+            thing.ambience.source.stop()
+            thing.ambience.source.disconnect(thing.ambience_mixer)
+        }
         thing.ambience = null
     }
 }
