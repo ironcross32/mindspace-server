@@ -622,6 +622,7 @@ function create_socket(obj) {
     soc.onclose = (e) => {
         audio.close()
         room = null
+        room_mixer = null
         zone = null
         music = null
         sounds = {}
