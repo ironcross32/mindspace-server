@@ -354,13 +354,16 @@ let mindspace_functions = {
         copy_text.hidden = false
         copy_text.innerText = text
         copy_text.select()
+        let old = document.activeElement()
+        copy_text.focus()
         setTimeout(() => {
             if (document.execCommand("copy")) {
                 write_message(`Copied ${text}`)
             } else {
                 write_special(`Failed to copy ${text}`)
             }
-            copy_text.hide()
+            copy_text.hidden = true
+            old.focus()
         }, 10)
     },
     random_sound: obj => {
