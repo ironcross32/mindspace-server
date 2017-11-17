@@ -44,10 +44,9 @@ document.onkeydown = (e) => {
         }
         let key = e.key.toUpperCase()
         if (!modifiers.count && key == "ESCAPE" && escape !== null) {
-            escape.hide()
+            escape.hidden = true
             escape = null
         } else {
-            write_special(`${JSON.stringify(modifiers)}: ${key}.`)
             if (key == "TAB" || key[0] == "F") {
                 e.preventDefault()
             }
