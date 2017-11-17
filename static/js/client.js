@@ -34,6 +34,8 @@ function create_ambience(obj, sound, volume, output) {
         if (obj === null || obj.path != path || obj.sum !== sum) {
             if (obj !== null) {
                 obj.source.disconnect()
+            } else {
+                obj = {}
             }
             get_sound(path, sum).then(get_source).then(source => {
                 if (obj.mixer === null) {
