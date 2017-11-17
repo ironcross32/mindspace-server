@@ -1,7 +1,26 @@
-const field_names = ["hostname", "port", "web_port", "username", "password"]
-const default_title = document.title
+/* global Cookies */
 
-letquitting = false
+let field_names = ["hostname", "port", "web_port", "username", "password"]
+let default_title = document.title
+
+let escape = null
+
+let quitting = false
+
+function get_sound(path, sum) {
+    return {path: path, sum: sum}
+}
+
+function send(obj) {
+    if (obj.args === undefined) {
+        obj.args = []
+    }
+    if (obj.kwargs === undefined) {
+        obj.kwargs = {}
+    }
+    let l = [obj.name, obj.args, obj.kwargs]
+    soc.send(JSON.stringify(l))
+}
 
 // Create a web socket.
 let soc = null
@@ -17,22 +36,27 @@ document.onkeydown = (e) => {
             "text", "password", "textarea"
         ].indexOf(current.type) == -1
     ) {
-        modifiers = []
-        for (name of ["ctrl", "shift", "alt"]) {
+        let modifiers = []
+        for (let name of ["ctrl", "shift", "alt"]) {
             if (e[`${name}Key`]) {
                 modifiers.push(name)
             }
         }
-        key = e.key.toUpperCase()
-        send({name: "key", args: [key, modifiers]})
+        let key = e.key.toUpperCase()
+        if (!modifiers.count && key == "ESCAPE" && escape !== null) {
+            escape.hide()
+            escape = null
+        } else {
+            send({name: "key", args: [key, modifiers]})
+        }
     }
 }
 
 let connect_form = document.getElementById("connect-form")
 let connect = document.getElementById("connect")
 
-for (name of field_names) {
-    value = Cookies.get(name)
+for (let name of field_names) {
+    let value = Cookies.get(name)
     if (value !== undefined) {
         document.getElementById(name).value = value
     }
@@ -41,26 +65,25 @@ for (name of field_names) {
 let game = document.getElementById("game")
 let url = document.getElementById("url")
 
-url.onclick = (e) => {
+url.onclick = () => {
     url.hidden = true
 }
 
 let menu = document.getElementById("menu")
 let menu_h = document.getElementById("menu-h")
-let menu_p = document.getElementById("menu-p")
+let menu_div = document.getElementById("menu-div")
 let menu_hide = document.getElementById("menu-hide")
-menu_hide.onclick = (e) => {
+menu_hide.onclick = () => {
     menu.hidden = true
 }
 
 let text = document.getElementById("text")
 
 let text_cancel = document.getElementById("text-cancel")
-text_cancel.onclick = (e) => {
+text_cancel.onclick = () => {
     text.hidden = true
 }
 
-let text_h = document.getElementById("text-h")
 let text_form = document.getElementById("text-form")
 let text_element = null
 
@@ -82,12 +105,19 @@ let text_field = document.getElementById("text-field")
 
 let form = document.getElementById("form")
 
-form.onsubmit = (e) => {
-    
+form.onsubmit = () => {
+    let data = {}
+    for (let name in form_fields) {
+        data[name] = form_fields[name].value
+    }
+    form_command.args.push(data)
+    send(form_command)
+}
+
 let form_h = document.getElementById("form-h")
 let form_p = document.getElementById("form-p")
 let form_hide = document.getElementById("form-hide")
-form_hide.onclick = (e) => {
+form_hide.onclick = () => {
     form.hidden = true
 }
 let form_ok = document.getElementById("form-ok")
@@ -101,7 +131,7 @@ let form_fields = {}
 
 hide_elements()
 
-document.getElementById("disconnect").onclick = (e) => {
+document.getElementById("disconnect").onclick = () => {
     if (connected) {
         send({name: "quit"})
     } else {
@@ -109,16 +139,29 @@ document.getElementById("disconnect").onclick = (e) => {
     }
 }
 
+function menu_button(e) {
+    escape = null
+    let i = e.target
+    send(
+        {
+            name: i.command,
+            args: JSON.parse(i.args),
+            kwargs: JSON.parse(i.kwargs)
+        }
+    )
+    menu.hidden = true
+}
+
 function clear_element(e) {
     // Below code based on the first answer at:
     // https://stackoverflow.com/questions/3955229/remove-all-child-elements-of-a-dom-node-in-javascript
     while (e.firstChild) {
-        e.removeChild(e.firstChild);
+        e.removeChild(e.firstChild)
     }
 }
 
 function hide_elements() {
-    for (element of document.getElementsByClassName("hidden")) {
+    for (let element of document.getElementsByClassName("hidden")) {
         element.hidden = true
     }
 }
@@ -132,7 +175,7 @@ function set_title(name) {
 }
 
 function write_message(text) {
-    e = document.createElement("p")
+    let e = document.createElement("p")
     e.innerText = text
     output.appendChild(e)
 }
@@ -141,17 +184,35 @@ function write_special(text) {
     write_message(`--- ${text} ---`)
 }
 
-// All the objects the client knows about.
-objects = {}
+// All the objects the client knows about:
+let objects = {}
 
-mindspace_functions = {
-    random_sound: (obj) => {
+// The current player object:
+let player = {
+    name: null,
+    transmition_id: null,
+    recording_threshold: null,
+    sound_volume: null,
+    ambience_volume: null,
+    music_volume: null
+}
+
+let mindspace_functions = {
+    random_sound: () => {
     },
     object_sound: (obj) => {
         let [id, path, sum] = obj.args
+        let thing = objects[id]
+        if (thing === undefined) {
+            send({name: "identify", args: [id]})
+        } else {
+            let sound = get_sound(path, sum)
+            write_special(sound)
+        }
     },
-    hidden_sound: (obj) => {
-        let [path, sum, x, y, z, is_dry] = obj.args
+    hidden_sound: () => {
+        // let [path, sum, x, y, z, is_dry] = obj.args
+        // sound = get_sound(path, sum)
     },
     url: (obj) => {
         let [title, href] = obj.args
@@ -163,10 +224,14 @@ mindspace_functions = {
     get_text: (obj) => {
         let [message, command, value, multiline, escapable, args, kwargs] = obj.args
         text.hidden = false
+        if (escapable) {
+            escape = text
+        }
         text_label.innerText = message
         text_command.name = command
         text_command.args = args
         text_command.kwargs = kwargs
+        let e = null
         if (multiline) {
             e = document.createElement("textarea")
         } else {
@@ -184,7 +249,10 @@ mindspace_functions = {
         form.hidden = false
         form_h.innerText = title
         form_ok.innerText = ok
-        form_hide.innerText = cancel
+        if (cancel !== null) {
+            form_hide.innerText = cancel
+            escape = form
+        }
         form_hide.focus()
         clear_element(form_p)
         form_command = {
@@ -193,18 +261,20 @@ mindspace_functions = {
             kwargs: kwargs
         }
         form_fields = {}
-        for (data of fields) {
+        for (let data of fields) {
+            let i = null
             if (data.type == "Label") {
-                let e = document.createElement("h3")
-                e.innerText = data.values[0]
+                i = document.createElement("h3")
+                i.innerText = data.values[0]
             } else {
                 let [name, value, type, title, hidden] = data.values
                 let empty = ""
+                let e = null
                 if (type == "text") {
-                    let e = ocument.createElement("textarea")
+                    e = document.createElement("textarea")
                 } else if (typeof(type) != "string") {
-                    let e = document.createElement("select")
-                    for (key in type) {
+                    e = document.createElement("select")
+                    for (let key in type) {
                         let v = document.createElement("option")
                         if (Array.isArray(type)) {
                             v.value = type[key]
@@ -215,68 +285,64 @@ mindspace_functions = {
                         e.appendChild(v)
                     }
                 } else {
-                    let e = document.createElement("input")
+                    e = document.createElement("input")
                     if (type == "float" || type == "int") {
                         e.type = "number"
                         empty = 0
                     } else {
                         if (hidden) {
-                            type = "password"
+                            e.type = "password"
                         } else {
                             e.type = "text"
                         }
                     }
                 }
                 e.value = value || empty
-                let l = document.createElement("label")
-                l.appendChild(e)
-                form_p.appendChild(l)
+                i = document.createElement("label")
+                let s = document.createElement("span")
+                s.innerText = `${title} `
+                i.appendChild(s)
+                i.appendChild(e)
                 form_fields[name] = e
             }
-            form_p.appendChild(e)
+            form_p.appendChild(i)
         }
     },
     menu: (obj) => {
         let [title, items, escapable] = obj.args
         menu.hidden = false
+        if (escapable) {
+            escape = menu
+        }
         menu_h.innerText = title
         menu_hide.focus()
-        clear_element(menu_p)
-        for (item of items) {
+        clear_element(menu_div)
+        for (let item of items) {
             let [name, command, args, kwargs] = item
-            p = document.createElement("p")
+            let i = null
             if (command) {
-                i = document.createElement("input")
-                i.type = "button"
-                i.value = name
-                i.command = command
-                i.args = JSON.stringify(args)
-                i.kwargs = JSON.stringify(kwargs)
-                i.onclick = (e) => {
-                    i = e.target
-                    send(
-                        {
-                            name: i.command,
-                            args: JSON.parse(i.args),
-                            kwargs: JSON.parse(i.kwargs)
-                        }
-                    )
-                    menu.hidden = true
-                }
+                i = document.createElement("p")
+                let e = document.createElement("input")
+                e.type = "button"
+                e.value = name
+                e.command = command
+                e.args = JSON.stringify(args)
+                e.kwargs = JSON.stringify(kwargs)
+                e.onclick = menu_button
+                i.appendChild(e)
             } else {
-                i = document.createElement("h2")
-                i.text = name
+                i = document.createElement("h3")
+                i.innerText = name
             }
-            p.appendChild(i)
-            menu_p.appendChild(p)
+            menu_div.appendChild(i)
         }
     },
-    remember_quit: (obj) => {
+    remember_quit: () => {
         quitting = true
     },
     message: (obj) => {write_message(obj.args[0])},
     delete: (obj) => {
-        id = obj.args[0]
+        let id = obj.args[0]
         delete objects[id]
     },
     identify: (obj) => {
@@ -289,36 +355,35 @@ mindspace_functions = {
     },
     interface_sound: (obj) => {
         let [path, sum] = obj.args
-        write_message(`Interface sound: ${path}.`)
+        let sound = get_sound(path, sum)
+        write_message(`Interface sound: ${sound}.`)
     },
     character_id: (obj) => {
-        id = obj.args[0]
+        let id = obj.args[0]
         write_message(`Character: #${id}.`)
     },
     zone: (obj) => {
         let [ambience_sound, background_rate, background_volume] = obj.args
+        if (ambience_sound !== null) {
+            let sound = get_sound(...ambience_sound)
+            write_special(`Zone sound: ${sound}: ${background_rate}, ${background_volume}.`)
+        }
         write_message("I know about zone.")
     },
-    location: (obj) => {
-        let [name, ambience_sound, ambience_volume, music_sound, max_distance, reverb_options] = obj.args
-        write_message("I know about location.")
+    location: () => {
+        // let [name, ambience_sound, ambience_volume, music_sound, max_distance, reverb_options] = obj.args
     },
     options: (obj) => {
         let [username, transmition_id, recording_threshold, sound_volume, ambience_volume, music_volume] = obj.args
         set_title(username)
+        player.name = username
+        player.transmition_id = transmition_id
+        player.recording_threshold = recording_threshold
+        player.sound_volume = sound_volume
+        player.ambience_volume - ambience_volume
+        player.music_volume = music_volume
     },
-    mute_mic: (obj) => {void(0)}
-}
-
-function send(obj) {
-    if (obj.args === undefined) {
-        obj.args = []
-    }
-    if (obj.kwargs === undefined) {
-        obj.kwargs = {}
-    }
-    let l = [obj.name, obj.args, obj.kwargs]
-    soc.send(JSON.stringify(l))
+    mute_mic: () => {}
 }
 
 set_title()
@@ -327,7 +392,7 @@ connect_form.onsubmit = (e) => {
     e.preventDefault()
     let obj = {}
     let ok = true
-    for (name of field_names) {
+    for (let name of field_names) {
         let field = document.getElementById(name)
         if (!field.value) {
             alert(`You must specify a ${name.replace("_", " ")}.`)
@@ -345,28 +410,29 @@ connect_form.onsubmit = (e) => {
     return false
 }
 
-function writeMessage(text) {
-    document.getElementById("output").innerHTML += `<p>${text}</p>`
-}
-
 function create_socket(obj) {
     connect.hidden = true
     game.hidden = false
     soc = new WebSocket(`ws://${obj.hostname}:${obj.port}`)
     soc.onclose = (e) => {
-        connected = false
-        connect.hidden = false
-        set_title()
-        if (e.wasClean) {
-            reason = "Connection was closed cleanly."
+        if (quitting) {
+            connected = false
+            connect.hidden = false
+            set_title()
+            let reason = null
+            if (e.wasClean) {
+                reason = "Connection was closed cleanly."
+            } else {
+                reason = e.reason
+            }
+            write_special(reason)
         } else {
-            reason = e.reason
+            create_socket(obj)
         }
-        write_special(reason)
     }
-    soc.onopen = (e) => {
+    soc.onopen = () => {
         connected = true
-        output.innerHTML = ""
+        clear_element(output)
         write_special("Connection Open")
         send(
             {
