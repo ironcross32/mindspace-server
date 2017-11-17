@@ -3,17 +3,16 @@
 {% block header %}Mindspace Web Client{% endblock %}
 {% block body %}
 <div id="connect">
-<h2>Connect</h2>
+<h2>Login</h2>
 <form id="connect-form">
-<p>Hostname: <input id="hostname" type="text" value="code-metropolis.com"></p>
-<p>Port: <input id="port" type="number" min=1 max=65535 value=6465></p>
-<p>Web Port: <input id="web_port" type="number" min=1 max=65535 value=6464></p>
 <p>Username: <input id="username" type="text"></p>
 <p>Password: <input id="password" type="password"></p>
 <p><input type="submit" value="Connect"></p>
 </form>
 </div>
 <div class="hidden" id="game">
+<div aria-live="polite" id="output"></div>
+<p><input type="button" id="disconnect" value="Disconnect"></p>
 <p><a class="hidden" id="url" target="_blank">No URL yet</a></p>
 <div class="hidden" id="menu">
 <p><input type="button" id="menu-hide" value="Close"></p>
@@ -36,8 +35,6 @@
 <p><input id="form-ok" type="submit" value="OK"></p>
 </form>
 </div>
-<div aria-live="polite" id="output"></div>
-<p><input type="button" id="disconnect" value="Disconnect"></p>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
