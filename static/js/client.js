@@ -10,11 +10,11 @@ let mixer = null
 let sounds = {}
 
 let room_mixer = null
-let room_node = null
+let room_ambience = null
 let zone_mixer = null
-let zone_node = null
+let zone_ambience = null
 let music_mixer = null
-let music_node = null
+let music_ambience = null
 
 let escape = null
 
@@ -34,7 +34,7 @@ function create_mixer(volume, output) {
     return g
 }
 
-function create_foom_mixer() {
+function create_room_mixer() {
     if (room_mixer === null) {
         room_mixer = create_mixer(player.ambience_volume)
     }
@@ -62,7 +62,7 @@ function stop_object_ambience(thing) {
     if (thing.ambience !== null && thing.ambience !== undefined) {
         if (thing.ambience.source !== null && thing.ambience.source !== undefined) {
             thing.ambience.source.stop()
-            thing.ambience.source.disconnect(thing.ambience_mixer)
+            thing.ambience.source.disconnect()
         }
         thing.ambience = null
     }
@@ -544,6 +544,31 @@ let mindspace_functions = {
     location: obj => {
         let [name, ambience_sound, ambience_volume, music_sound, max_distance, reverb_options] = obj.args
         location_name = name
+        if (ambience_sound !== null) {
+            let [path, sum] = ambience_sound
+            if (room_ambience === null || room_ambience.path != path || room_ambience.sum !== sum) {
+                if (room_ambience !== null) {
+                    room_ambience.source.disconnect()
+                }
+                room_ambience = null
+                get_sound(path, sum).then(get_source).then(source => {
+                    if (room_ambience === null) {
+                        // Nobody has gotten here first.
+                        if (room_mixer === null) {
+                            room_mixer = create_room_mixer()
+                        }
+                        room_mixer.gain.value = ambience_volume
+                        room_ambience = {
+                            path: path,
+                            sum: sum,
+                            source: source
+                        }
+                        source.loop = true
+                        source.connect(room_mixer)
+                    }
+                })
+            }
+        }
     },
     options: obj => {
         let [username, transmition_id, recording_threshold, sound_volume, ambience_volume, music_volume] = obj.args
