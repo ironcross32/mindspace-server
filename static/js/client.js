@@ -294,7 +294,7 @@ let mindspace_functions = {
                             step = "1"
                             empty = "0"
                         } else {
-                            step = "1.0"
+                            step = "0.1"
                             empty = "0.0"
                         }
                         console.log(`${name}: ${type} (${step}).`)
