@@ -354,7 +354,7 @@ let mindspace_functions = {
         copy_text.hidden = false
         copy_text.innerText = text
         copy_text.select()
-        let old = document.activeElement()
+        let old = document.activeElement
         copy_text.focus()
         setTimeout(() => {
             if (document.execCommand("copy")) {
