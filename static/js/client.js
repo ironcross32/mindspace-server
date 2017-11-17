@@ -47,6 +47,7 @@ document.onkeydown = (e) => {
             escape.hide()
             escape = null
         } else {
+            write_special(`${JSON.stringify(modifiers)}: ${key}.`)
             if (key == "TAB" || key[0] == "F") {
                 e.preventDefault()
             }
