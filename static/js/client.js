@@ -362,17 +362,17 @@ let mindspace_functions = {
         b.type = "button"
         b.value = "Copy"
         b.focus()
+        p.appendChild(b)
+        d.appendChild(p)
+        game.appendChild(d)
         b.onclick = () => {
             if (document.execCommand("copy")) {
                 write_message(`Copied ${text}`)
             } else {
                 write_special(`Failed to copy ${text}`)
             }
-            document.body.removeChild(d)
+            game.removeChild(d)
         }
-        p.appendChild(b)
-        d.appendChild(p)
-        document.body.appendChild(d)
     },
     random_sound: obj => {
         let [path, sum] = obj.args
