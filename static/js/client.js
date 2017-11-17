@@ -113,6 +113,7 @@ form.onsubmit = (e) => {
     let data = {}
     for (let name in form_fields) {
         data[name] = form_fields[name].value
+        console.log(`${name} = ${form_fields[name].value}.`)
     }
     form_command.args.push(data)
     send(form_command)
@@ -301,7 +302,6 @@ let mindspace_functions = {
                             step = "0.1"
                             empty = "0.0"
                         }
-                        console.log(`${name}: ${type} (${step}).`)
                         e.step = step
                     } else {
                         if (hidden) {
