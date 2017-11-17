@@ -43,7 +43,6 @@ function get_sound(path, sum) {
                     sound.downloading = false
                     source.buffer = buffer
                     source.connect(audio.destination)
-                    source.start(0)
                 }, () => {
                     alert(`Unable to decode data from ${url}.`)
                 }
@@ -417,7 +416,9 @@ let mindspace_functions = {
     interface_sound: (obj) => {
         let [path, sum] = obj.args
         let sound = get_sound(path, sum)
-        write_message(`Interface sound: ${sound}.`)
+        if (sound !== null) {
+            sound.source.start()
+        }
     },
     character_id: (obj) => {
         let id = obj.args[0]
