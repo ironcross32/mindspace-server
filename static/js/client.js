@@ -329,6 +329,9 @@ function write_message(text) {
     let e = document.createElement("p")
     e.innerText = text
     output.appendChild(e)
+    while (output.children.length > 10) {
+        output.removeChild(output.firstChild)
+    }
 }
 
 function write_special(text) {
