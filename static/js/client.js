@@ -580,7 +580,7 @@ let mindspace_functions = {
             mixer.gain.value = sound_volume
         }
         player.ambience_volume = ambience_volume
-        if (room !== null) {
+        if (room !== null && room.mixer !== undefined) {
             room.mixer.gain.value = ambience_volume
         }
         player.music_volume = music_volume
