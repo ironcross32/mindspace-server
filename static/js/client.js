@@ -7,6 +7,10 @@ let default_title = document.title
 let audio = null
 let sounds = {}
 
+let ambience = null
+let zone_ambience = null
+let music = null
+
 let escape = null
 
 let quitting = false
@@ -429,11 +433,35 @@ let mindspace_functions = {
     },
     identify: obj => {
         let [id, x, y, z, ambience_sound, ambience_volume] = obj.args
-        objects[id] = {
-            x: x, y: y, z: z, ambience_sound: ambience_sound,
-            ambience_volue: ambience_volume
+        let thing = objects[id]
+        if (thing === undefined) {
+            thing = {ambience_sound: null}
         }
-        write_message(`Identify #${id}.`)
+        thing.x = x
+        thing.y = y
+        thing.z = z
+        if (ambience_sound !== null) {
+            let [path, sum] = ambience_sound
+            if (thing.ambience_sound !== null && (thing.ambience_sound.path != path || thing.ambience_sound.sum != sum)) {
+                thing.ambience_sound.source.stop()
+                thing.ambience_sound = null
+            }
+            get_sound(path, sum).then(get_source).then(source => {
+                if (thing.ambience_sound == null) {
+                    // Nobody has got here first.
+                    source.volume = ambience_volume
+                    source.loop = true
+                    source.start(0)
+                    thing.ambience_sound = {
+                        path: path,
+                        sum: sum,
+                        source: source
+                    }
+                } else {
+                    source.disconnect(audio.destination)
+                }
+            })
+        }
     },
     interface_sound: obj => {
         let [path, sum] = obj.args
