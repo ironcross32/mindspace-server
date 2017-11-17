@@ -3,12 +3,56 @@
 let field_names = ["hostname", "port", "web_port", "username", "password"]
 let default_title = document.title
 
+// The audio system:
+let audio = null
+let output = null
+let sounds = {}
+
 let escape = null
 
 let quitting = false
 
 function get_sound(path, sum) {
-    return {path: path, sum: sum}
+    if (sounds[path] !== undefined && sounds[path].sum == sum) {
+        let sound = sounds[path]
+        if (sound.downloading) {
+            return null
+        } else {
+            return sound
+        }
+    } else {
+        let sound = {
+            path: path,
+            sum: sum,
+            downloading: true
+        }
+        sounds[path] = sound
+        let hostname = document.getElementById("hostname").value
+        let port = document.getElementById("web_port").value
+        url = `${hostname}:${port}${path}?${sum}`
+        // Below code modified from:
+        // https://www.html5rocks.com/en/tutorials/webaudio/intro/
+        let request = new XMLHttpRequest()
+        request.open("GET", url, true)
+        request.responseType = "arraybuffer"
+        // Decode asynchronously
+        request.onload = () => {
+            audio.decodeAudioData(
+                request.response, (buffer) => {
+                    let source = audio.createBufferSource()
+                    sound.source = source
+                    sound.downloading = false
+                    source.buffer = buffer
+                    source.connect(audio.destination)
+                    source.start(0)
+                }, () => {
+                    alert(`Unable to decode data from ${url}.`)
+                }
+            )
+        }
+        request.send()
+        return sound
+    }
 }
 
 function send(obj) {
@@ -27,7 +71,6 @@ let soc = null
 let connected = false
 
 // Page elements.
-let output = document.getElementById("output")
 
 document.onkeydown = (e) => {
     let current = document.activeElement
@@ -433,6 +476,7 @@ function create_socket(obj) {
     game.hidden = false
     soc = new WebSocket(`ws://${obj.hostname}:${obj.port}`)
     soc.onclose = (e) => {
+        audio.close()
         if (quitting) {
             connected = false
             connect.hidden = false
@@ -441,7 +485,7 @@ function create_socket(obj) {
             if (e.wasClean) {
                 reason = "Connection was closed cleanly."
             } else {
-                reason = e.reason
+                reason = `Connection failed: ${e.reason}.`
             }
             write_special(reason)
         } else {
@@ -450,6 +494,8 @@ function create_socket(obj) {
     }
     soc.onopen = () => {
         connected = true
+        let AudioContext = window.AudioContext || window.webkitAudioContext
+        audio = new AudioContext()
         clear_element(output)
         write_special("Connection Open")
         send(
