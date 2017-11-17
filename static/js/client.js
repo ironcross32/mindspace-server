@@ -25,10 +25,10 @@ function create_mixer(volume, output) {
     if (volume !== null && volume !== undefined) {
         g.gain.value = volume
     }
-    if (output === undefined) {
-        output = audio.destination
-    }
     if (output !== null) { // Optionally don't connect this node.
+        if (output === undefined) {
+            output = audio.destination
+        }
         g.connect(output)
     }
     return g
@@ -555,7 +555,7 @@ let mindspace_functions = {
                     if (room_ambience === null) {
                         // Nobody has gotten here first.
                         if (room_mixer === null) {
-                            room_mixer = create_room_mixer()
+                            create_room_mixer()
                         }
                         room_mixer.gain.value = ambience_volume
                         room_ambience = {
