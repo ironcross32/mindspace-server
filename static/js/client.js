@@ -112,8 +112,12 @@ form.onsubmit = (e) => {
     e.preventDefault()
     let data = {}
     for (let name in form_fields) {
-        data[name] = form_fields[name].value
-        console.log(`${name} = ${form_fields[name].value}.`)
+        let field = form_fields[name]
+        let value = field.value
+        if (field.type == "select-one" && !value) {
+            value = null
+        }
+        data[name] = value
     }
     form_command.args.push(data)
     send(form_command)
