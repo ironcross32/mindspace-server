@@ -290,10 +290,13 @@ let mindspace_functions = {
                     if (type == "float" || type == "int") {
                         e.type = "number"
                         if (type == "int") {
+                            step = 1
                             empty = 0
                         } else {
+                            step = 1.0
                             empty = 0.0
                         }
+                        e.step = step
                     } else {
                         if (hidden) {
                             e.type = "password"
