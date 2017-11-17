@@ -104,7 +104,7 @@ function get_sound(path, sum) {
                     downloading: true
                 }
                 sounds[path] = sound
-                url = `${window.location.href.split(window.location.pathname)}/${path}?${sum}`
+                url = `${window.location.href.split(window.location.pathname)[0]}/${path}?${sum}`
                 // Below code modified from:
                 // https://www.html5rocks.com/en/tutorials/webaudio/intro/
                 let request = new XMLHttpRequest()
