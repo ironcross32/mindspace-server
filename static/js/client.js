@@ -27,7 +27,9 @@ function create_ambience(obj, sound, volume, output) {
     }
     if (sound === null) {
         if (obj !== null) {
-            obj.source.disconnect()
+            if (obj.source !== null && obj.source !== undefined) {
+                obj.source.disconnect()
+            }
             obj = {mixer: obj.mixer}
         }
     } else {
