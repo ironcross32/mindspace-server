@@ -122,7 +122,6 @@ form.onsubmit = (e) => {
     form_command.args.push(data)
     send(form_command)
     form.hidden = true
-    console.log(JSON.stringify(form_command))
 }
 
 let form_h = document.getElementById("form-h")
