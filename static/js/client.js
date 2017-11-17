@@ -358,8 +358,10 @@ let mindspace_functions = {
         e.value = text
         e.select()
         p.appendChild(e)
-        let b = document.createElement("button")
+        let b = document.createElement("input")
+        b.type = "button"
         b.value = "Copy"
+        b.focus()
         b.click = () => {
             if (document.execCommand("copy")) {
                 write_message(`Copied ${text}`)
