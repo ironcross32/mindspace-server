@@ -551,12 +551,11 @@ let mindspace_functions = {
         write_message(`Character: #${id}.`)
     },
     zone: obj => {
-        let [ambience_sound, background_rate, background_volume] = obj.args
-        if (ambience_sound !== null) {
-            let sound = get_sound(...ambience_sound)
-            write_special(`Zone sound: ${sound}: ${background_rate}, ${background_volume}.`)
+        let [ambience_sound, ambience_rate, ambience_volume] = obj.args
+        zone = create_ambience(zone, ambience_sound, ambience_volume)
+        if (zone !== null) {
+            zone.source.playbackRate.volume = ambience_rate
         }
-        write_message("I know about zone.")
     },
     location: obj => {
         let [name, ambience_sound, ambience_volume, music_sound, max_distance, reverb_options] = obj.args
