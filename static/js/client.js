@@ -252,7 +252,7 @@ let player = {
 let mindspace_functions = {
     random_sound: () => {
     },
-    object_sound: (obj) => {
+    object_sound: obj => {
         let [id, path, sum] = obj.args
         let thing = objects[id]
         if (thing === undefined) {
@@ -266,14 +266,14 @@ let mindspace_functions = {
         // let [path, sum, x, y, z, is_dry] = obj.args
         // sound = get_sound(path, sum)
     },
-    url: (obj) => {
+    url: obj => {
         let [title, href] = obj.args
         url.hidden = false
         url.innerText = title
         url.href = href
         url.focus()
     },
-    get_text: (obj) => {
+    get_text: obj => {
         let [message, command, value, multiline, escapable, args, kwargs] = obj.args
         text.hidden = false
         if (escapable) {
@@ -296,7 +296,7 @@ let mindspace_functions = {
         text_field.appendChild(e)
         e.focus()
     },
-    form: (obj) => {
+    form: obj => {
         let [title, fields, command, args, kwargs, ok, cancel] = obj.args
         form.hidden = false
         form_h.innerText = title
@@ -368,7 +368,7 @@ let mindspace_functions = {
             form_p.appendChild(i)
         }
     },
-    menu: (obj) => {
+    menu: obj => {
         let [title, items, escapable] = obj.args
         menu.hidden = false
         if (escapable) {
@@ -400,12 +400,12 @@ let mindspace_functions = {
     remember_quit: () => {
         quitting = true
     },
-    message: (obj) => {write_message(obj.args[0])},
-    delete: (obj) => {
+    message: obj => {write_message(obj.args[0])},
+    delete: obj => {
         let id = obj.args[0]
         delete objects[id]
     },
-    identify: (obj) => {
+    identify: obj => {
         let [id, x, y, z, ambience_sound, ambience_volume] = obj.args
         objects[id] = {
             x: x, y: y, z: z, ambience_sound: ambience_sound,
@@ -413,18 +413,18 @@ let mindspace_functions = {
         }
         write_message(`Identify #${id}.`)
     },
-    interface_sound: (obj) => {
+    interface_sound: obj => {
         let [path, sum] = obj.args
         let sound = get_sound(path, sum)
         if (sound !== null) {
             sound.source.start()
         }
     },
-    character_id: (obj) => {
+    character_id: obj => {
         let id = obj.args[0]
         write_message(`Character: #${id}.`)
     },
-    zone: (obj) => {
+    zone: obj => {
         let [ambience_sound, background_rate, background_volume] = obj.args
         if (ambience_sound !== null) {
             let sound = get_sound(...ambience_sound)
@@ -435,7 +435,7 @@ let mindspace_functions = {
     location: () => {
         // let [name, ambience_sound, ambience_volume, music_sound, max_distance, reverb_options] = obj.args
     },
-    options: (obj) => {
+    options: obj => {
         let [username, transmition_id, recording_threshold, sound_volume, ambience_volume, music_volume] = obj.args
         set_title(username)
         player.name = username
