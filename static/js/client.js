@@ -105,7 +105,8 @@ let text_field = document.getElementById("text-field")
 
 let form = document.getElementById("form")
 
-form.onsubmit = () => {
+form.onsubmit = (e) => {
+    e.preventDefault()
     let data = {}
     for (let name in form_fields) {
         data[name] = form_fields[name].value
