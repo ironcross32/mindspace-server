@@ -61,7 +61,8 @@ function send(obj) {
         obj.kwargs = {}
     }
     let l = [obj.name, obj.args, obj.kwargs]
-    soc.send(JSON.stringify(l))
+    let value = JSON.stringify(l)
+    soc.send(value)
 }
 
 // Create a web socket.
