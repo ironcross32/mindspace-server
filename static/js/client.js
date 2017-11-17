@@ -1,6 +1,6 @@
 /* global Cookies */
 
-let field_names = ["hostname", "port", "web_port", "username", "password"]
+let field_names = ["username", "password"]
 let default_title = document.title
 
 // The audio system:
@@ -104,9 +104,7 @@ function get_sound(path, sum) {
                     downloading: true
                 }
                 sounds[path] = sound
-                let hostname = document.getElementById("hostname").value
-                let port = document.getElementById("web_port").value
-                url = `http://${hostname}:${port}/${path}?${sum}`
+                url = `${window.location.href.split(window.location.pathname)}/${path}?${sum}`
                 // Below code modified from:
                 // https://www.html5rocks.com/en/tutorials/webaudio/intro/
                 let request = new XMLHttpRequest()
@@ -625,7 +623,7 @@ set_title()
 
 connect_form.onsubmit = (e) => {
     e.preventDefault()
-    let obj = {}
+    let obj = {port: 6464}
     let ok = true
     for (let name of field_names) {
         let field = document.getElementById(name)
@@ -648,7 +646,7 @@ connect_form.onsubmit = (e) => {
 function create_socket(obj) {
     connect.hidden = true
     game.hidden = false
-    soc = new WebSocket(`ws://${obj.hostname}:${obj.port}`)
+    soc = new WebSocket(`ws://${window.location.hostname}:6465`)
     soc.onclose = (e) => {
         audio.close()
         room = null
