@@ -352,16 +352,28 @@ let player = {
 let mindspace_functions = {
     copy: obj => {
         text = obj.args[0]
+        let d = document.createElement("div")
+        let h = document.createElement("h2")
+        h.innerText = "Copy Text"
+        d.appendChild(h)
+        let p = document.createElement("p")
         let e = document.createElement("textarea")
-        document.body.appendChild(e)
         e.value = text
         e.select()
-        if (document.execCommand("copy")) {
-            write_message(`Copied ${text}`)
-        } else {
-            write_special(`Failed to copy ${text}`)
+        p.appendChild(e)
+        let b = document.createElement("button")
+        b.value = "Copy"
+        b.click = () => {
+            if (document.execCommand("copy")) {
+                write_message(`Copied ${text}`)
+            } else {
+                write_special(`Failed to copy ${text}`)
+            }
+            document.body.removeChild(d)
         }
-        document.body.removeChild(e)
+        p.appendChild(b)
+        d.appendChild(p)
+        document.body.appendChild(d)
     },
     random_sound: obj => {
         let [path, sum] = obj.args
