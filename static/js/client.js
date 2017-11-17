@@ -562,8 +562,9 @@ let mindspace_functions = {
         reverb.options = reverb_options
         reverb.max_distance = max_distance
         if (room_mixer === null) {
-            room_mixer = create_mixer(player.ambience_volume)
+            room_mixer = create_mixer()
         }
+        room_mixer.gain.value = player.ambience_volume
         music = create_ambience(music, music_sound, player.music_volume)
         room = create_ambience(room, ambience_sound, ambience_volume, room_mixer)
         room.name = name
