@@ -555,9 +555,11 @@ let mindspace_functions = {
                     if (room_ambience === null) {
                         // Nobody has gotten here first.
                         if (room_mixer === null) {
-                            create_room_mixer()
+                            create_main_mixer()
+                            create_room_mixer(ambience_volume, mixer)
+                        } else {
+                            room_mixer.gain.value = ambience_volume
                         }
-                        room_mixer.gain.value = ambience_volume
                         room_ambience = {
                             path: path,
                             sum: sum,
