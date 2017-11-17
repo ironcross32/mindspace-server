@@ -40,11 +40,8 @@ function get_sound(path, sum) {
                 request.onerror = () => reject(`Failed to download sound from ${url}.`)
                 request.onload = () => {
                     audio.decodeAudioData(request.response, (buffer) => {
-                        let source = audio.createBufferSource()
-                        sound.source = source
                         sound.downloading = false
-                        source.buffer = buffer
-                        source.connect(audio.destination)
+                        sound.buffer = buffer
                         resolve(sound)
                     }, () => {
                         reject(`Unable to decode data from ${url}.`)
@@ -54,6 +51,25 @@ function get_sound(path, sum) {
             }
         }
     )
+}
+
+function get_source(sound) {
+    return new Promise((resolve, reject) => {
+        if (sound.downloading) {
+            reject("Sound has not yet been downloaded.")
+        } else {
+            let source = audio.createBufferSource()
+            source.buffer = sound.buffer
+            source.connect(audio.destination)
+            resolve(source)
+        }
+    })
+}
+
+function play_sound(path, sum) {
+    get_sound(path, sum).then(get_source).then(source => {
+        source.start(0)
+    })
 }
 
 function send(obj) {
@@ -254,7 +270,9 @@ let player = {
 }
 
 let mindspace_functions = {
-    random_sound: () => {
+    random_sound: obj => {
+        let [path, sum] = obj.args
+        play_sound(path, sum)
     },
     object_sound: obj => {
         let [id, path, sum] = obj.args
@@ -421,9 +439,7 @@ let mindspace_functions = {
     },
     interface_sound: obj => {
         let [path, sum] = obj.args
-        get_sound(path, sum).then((sound) => {
-            sound.source.start()
-        })
+        play_sound(path, sum)
     },
     character_id: obj => {
         let id = obj.args[0]
