@@ -33,7 +33,7 @@ document.onkeydown = (e) => {
     let current = document.activeElement
     if (
         connected && [
-            "text", "password", "textarea"
+            "text", "password", "textarea", "number", "select-one"
         ].indexOf(current.type) == -1
     ) {
         let modifiers = []
@@ -289,7 +289,11 @@ let mindspace_functions = {
                     e = document.createElement("input")
                     if (type == "float" || type == "int") {
                         e.type = "number"
-                        empty = 0
+                        if (type == "int") {
+                            empty = 0
+                        } else {
+                            empty = 0.0
+                        }
                     } else {
                         if (hidden) {
                             e.type = "password"
