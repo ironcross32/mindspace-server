@@ -344,29 +344,27 @@ for (let button of document.querySelectorAll(".key-special")) {
 }
 
 document.onkeydown = (e) => {
-    if (e.key === undefined) {
+    let current = document.activeElement
+    if (e.key === undefined || (connected && [
+        "text", "password", "textarea", "number", "select-one"
+    ].includes(current.type))) {
         return
     }
-    let current = document.activeElement
-    if (connected && [
-        "text", "password", "textarea", "number", "select-one"
-    ].includes(current.type)) {
-        let modifiers = []
-        for (let name of ["ctrl", "shift", "alt"]) {
-            if (e[`${name}Key`]) {
-                modifiers.push(name)
-            }
+    let modifiers = []
+    for (let name of ["ctrl", "shift", "alt"]) {
+        if (e[`${name}Key`]) {
+            modifiers.push(name)
         }
-        let key = e.key.toUpperCase()
-        if (!modifiers.count && key == "ESCAPE" && escape !== null) {
-            escape.hidden = true
-            escape = null
-        } else {
-            if (key == "TAB" || key[0] == "F") {
-                e.preventDefault()
-            }
-            send({name: "key", args: [key, modifiers]})
+    }
+    let key = e.key.toUpperCase()
+    if (!modifiers.count && key == "ESCAPE" && escape !== null) {
+        escape.hidden = true
+        escape = null
+    } else {
+        if (key == "TAB" || key[0] == "F") {
+            e.preventDefault()
         }
+        send({name: "key", args: [key, modifiers]})
     }
 }
 
