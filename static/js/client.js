@@ -259,7 +259,7 @@ form.onsubmit = (e) => {
     let data = {}
     for (let name in form_fields) {
         let field = form_fields[name]
-        let value = field.value
+        let value = field.value or null
         if (field.type == "select-one" && (value == "null" || !value)) {
             value = null
         }
