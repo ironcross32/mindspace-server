@@ -201,6 +201,100 @@ function unlock_audio() {
 
 window.addEventListener("touchstart", unlock_audio, false)
 
+let keyboard  = document.getElementById("keyboard")
+let modifiers = {}
+
+function create_key(id, value, type) {
+    if (value === undefined) {
+        value = id.toUpperCase()
+    }
+    if (type === undefined) {
+        type = "standard"
+    } else if (type == "special") {
+        id = JSON.stringify(id)
+    }
+    let k = document.createElement("input")
+    k.className = `key ${type}`
+    k.id = id
+    k.value = value
+    if (type == "modifier") {
+        let l = document.createElement("label")
+        let s = document.createElement("span")
+        s.innerText = value
+        l.appendChild(s)
+        k.type = "checkbox"
+        modifiers[id] = k
+        l.appendChild(k)
+        k = l
+    } else {
+        k.type = "button"
+    }
+    return k
+}
+
+function create_modifier(id, value) {
+    return create_key(id, value, "modifier")
+}
+
+function create_td(key) {
+    // Add a key to a <td> element."""
+    let t = document.createElement("td")
+    t.appendChild(key)
+    return t
+}
+
+function add_keys(row, keys) {
+    // Row should be a <tr> element.
+    for (let key of keys) {
+        let k = create_key(key)
+        let t = create_td(k)
+        row.appendChild(t)
+    }
+}
+
+function row() {
+    return document.createElement("tr")
+}
+
+{
+    let r = row()
+    add_keys(r, ["ESCAPE", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "DELETE"])
+    keyboard.appendChild(r)
+    r = row()
+    add_keys(r, ["NONE", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "BACKSPACE"])
+    keyboard.appendChild(r)
+    r = row()
+    add_keys(r, ["TAB", "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "[", "]", "ENTER"])
+    keyboard.appendChild(r)
+    r = row()
+    add_keys(r, ["A", "S", "D", "F", "G", "H", "J", "K", "L", ";", "'", "#", "HOME", "PAGEDOWN"])
+    keyboard.appendChild(r)
+    r = row()
+    r.appendChild(create_td(create_modifier("shift", "SHIFT")))
+    add_keys(r, ["\\", "Z", "X", "C", "V", "B", "N", "M", ",", ".", "/", "END", "PAGEDOWN"])
+    keyboard.appendChild(r)
+    r = row()
+    r.appendChild(create_td(create_modifier("ctrl")))
+    r.appendChild(create_td(create_modifier("alt")))
+    for (let [key, value] of [
+        ["SPACE", "SPACE"],
+        ["I", "North"],
+        ["O", "Northeast"],
+        ["L", "East"],
+        [".", "Southeast"],
+        [",", "South"],
+        ["M", "Southwest"],
+        ["J", "West"],
+        ["U", "Northwest"],
+        ["F1", "Help"],
+        ["TAB", "Next Item"]
+    ]) {
+        r.appendChild(create_td(create_key(key, value)))
+    }
+    r.appendChild(create_td(create_key({name: "key", args: ["TAB", ["shift"]]}, "Previous Item", "special")))
+    keyboard.appendChild(r)
+}
+
 document.onkeydown = (e) => {
     let current = document.activeElement
     if (
@@ -437,6 +531,7 @@ let mindspace_functions = {
     },
     hidden_sound: (obj) => {
         let [path, sum, x, y, z, is_dry] = obj.args
+        is_dry === is_dry // Just to shut up eslint.
         get_sound(path, sum).then(get_source).then(source => {
             let p = audio.getPanner()
             let g = audio.createGain()
