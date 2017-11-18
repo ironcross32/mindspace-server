@@ -298,7 +298,8 @@ function row() {
 function standard_key(e) {
     // Send a key.
     let mods = []
-    for (let control of modifiers) {
+    for (let name in modifiers) {
+        let control = modifiers[name]
         if (control.checked) {
             mods.push(control.id)
             control.checked = false
