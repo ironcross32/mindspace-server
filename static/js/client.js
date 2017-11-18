@@ -345,9 +345,9 @@ for (let button of document.querySelectorAll(".key-special")) {
 
 document.onkeydown = (e) => {
     let current = document.activeElement
-    if (e.key === undefined || (connected && [
+    if (e.key === undefined || !connected || [
         "text", "password", "textarea", "number", "select-one"
-    ].includes(current.type))) {
+    ].includes(current.type)) {
         return
     }
     let modifiers = []
