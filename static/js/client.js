@@ -744,6 +744,7 @@ let mindspace_functions = {
         if (thing === undefined) {
             thing = {ambience: null, panner: audio.createPanner()}
             create_main_mixer()
+            thing.panner.panningModel = "HRTF"
             thing.panner.connect(mixer)
             // thing.panner.maxDistance.value = player.max_distance
             objects[id] = thing
