@@ -19,40 +19,50 @@ let escape = null
 
 let quitting = false
 
-function create_ambience(obj, sound, volume) {
+function create_ambience(obj, sound, volume, output) {
+    if (output === undefined) {
+        // Let's use the main ambience mixer.
+        output = ambience_mixer
+    }
+    if (output === null) {
+        // Ambience mixer hasn't been created yet.
+        ambience_mixer = audio.createGain()
+        ambience_mixer.connect(audio.destination)
+        ambience_mixer.gain.value = player.ambience_volume
+    }
     if (volume === undefined) {
-        volume = 1.0
+        volume = 1.0 // Full volume.
     }
     if (sound === null) {
+        // Silence any existing ambience.
         if (obj !== null) {
+            // There's an object of some kind.
             if (obj.source !== null && obj.source !== undefined) {
-                obj.source.disconnect()
+                // And it has a source; it's been playing.
+                delete obj.source // Automatically disconnects.
             }
-            obj = {mixer: obj.mixer}
+            obj = {mixer: obj.mixer} // Default object.
         }
     } else {
+        // We have a sound to play.
         let [path, sum] = sound
         if (obj === null || obj.path != path || obj.sum !== sum) {
+            // Empty object or path and / or sum don't match.
             if (obj !== null) {
+                // Could be an old ambience.
                 if (obj.source !== undefined) {
-                    obj.source.disconnect()
+                    // There is a sound.
+                    delete obj.source
                 }
             } else {
-                obj = {}
+                // Object === null.
+                obj = {} // Default object.
             }
             get_sound(path, sum).then(get_source).then(source => {
-                if (ambience_mixer === null) {
-                    ambience_mixer = audio.createGain()
-                    ambience_mixer.connect(audio.destination)
-                    ambience_mixer.gain.value = player.ambience_volume
-                }
                 if (obj.mixer === null || obj.mixer === undefined) {
+                    // Let's build us a mixer.
                     obj.mixer = audio.createGain()
-                    if (obj.panner === undefined) {
-                        obj.mixer.connect(ambience_mixer)
-                    } else {
-                        obj.mixer.connect(obj.panner)
-                    }
+                    obj.mixer.connect(output)
                 }
                 obj.mixer.gain.value = volume
                 obj.path = path,
@@ -740,10 +750,11 @@ let mindspace_functions = {
             objects[id] = thing
         }
         if (id == character_id) {
+            // Set player perspective.
             audio.listener.setPosition(x, y, z)
         }
         thing.panner.setPosition(x, y, z)
-        thing.ambience = create_ambience(thing.ambience, ambience_sound, ambience_volume)
+        thing.ambience = create_ambience(thing.ambience, ambience_sound, ambience_volume, thing.panner)
     },
     interface_sound: obj => {
         let [path, sum] = obj.args
