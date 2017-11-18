@@ -393,7 +393,7 @@ let mindspace_functions = {
             send({name: "identify", args: [id]})
         } else {
             get_sound(path, sum).then(get_source).then(source => {
-                source.connect(obj.panner)
+                source.connect(thing.panner)
                 source.start()
             })
         }
