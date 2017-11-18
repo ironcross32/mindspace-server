@@ -532,7 +532,7 @@ let mindspace_functions = {
         }
         menu_h.innerText = title
         menu_ul.title = title
-        menu_hide.focus()
+        menu_ul.focus()
         clear_element(menu_ul)
         let n = 0
         for (let item of items) {
