@@ -350,7 +350,7 @@ document.onkeydown = (e) => {
     let current = document.activeElement
     if (connected && [
         "text", "password", "textarea", "number", "select-one"
-    ].contains(current.type)) {
+    ].includes(current.type)) {
         let modifiers = []
         for (let name of ["ctrl", "shift", "alt"]) {
             if (e[`${name}Key`]) {
