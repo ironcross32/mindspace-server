@@ -319,6 +319,20 @@ for (let button of document.querySelectorAll(".key-standard")) {
     button.onclick = standard_key
 }
 
+function special_key(e) {
+    // Send a special key.
+    if (!connected) {
+        return
+    }
+    let button = e.target
+    let command = JSON.parse(button.id)
+    send(command)
+}
+
+for (let button of document.querySelectorAll(".key-special")) {
+    button.onclick = special_key
+}
+
 document.onkeydown = (e) => {
     let current = document.activeElement
     if (
