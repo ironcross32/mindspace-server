@@ -176,7 +176,7 @@ let connected = false
 
 let output = document.getElementById("output")
 
-// Below code modifiers from:
+// Below code to make Web Audio work on iOS modified from:
 // https://paulbakaus.com/tutorials/html5/web-audio-on-ios/
 
 let audio_unlocked = false
