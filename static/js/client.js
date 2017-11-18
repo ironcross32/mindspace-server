@@ -301,6 +301,7 @@ function standard_key(e) {
     for (let control of modifiers) {
         if (control.checked) {
             mods.push(control.id)
+            control.checked = false
         }
     }
     let button = e.target
