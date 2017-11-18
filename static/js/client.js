@@ -175,6 +175,32 @@ let connected = false
 // Page elements.
 
 let output = document.getElementById("output")
+
+// Below code modifiers from:
+// https://paulbakaus.com/tutorials/html5/web-audio-on-ios/
+
+let audio_unlocked = false
+
+function unlock_audio() {
+    if(audio_unlocked) {
+        return
+    }
+    // create empty buffer and play it
+    let buffer = audio.createBuffer(1, 1, 22050)
+    let source = audio.createBufferSource()
+    source.buffer = buffer
+    source.connect(audio.destination)
+    source.start()
+    // by checking the play state after some time, we know if we're really unlocked
+    setTimeout(function() {
+        if((source.playbackState === source.PLAYING_STATE || source.playbackState === source.FINISHED_STATE)) {
+            audio_unlocked = true
+        }
+    }, 0)
+}
+
+window.addEventListener("touchstart", unlock_audio, false)
+
 document.onkeydown = (e) => {
     let current = document.activeElement
     if (
