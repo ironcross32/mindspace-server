@@ -580,8 +580,10 @@ let mindspace_functions = {
         let [name, ambience_sound, ambience_volume, music_sound, max_distance, reverb_options] = obj.args
         reverb.options = reverb_options
         player.max_distance = max_distance
-        for (let id in objects) {
-            objects[id].panner.maxDistance.value = max_distance
+        if (objects !== null) {
+            for (let id in objects) {
+                objects[id].panner.maxDistance.value = max_distance
+            }
         }
         room = create_ambience(room, ambience_sound, ambience_volume)
         music = create_ambience(music, music_sound, player.music_volume)
