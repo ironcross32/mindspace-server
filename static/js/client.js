@@ -492,7 +492,7 @@ function write_message(text) {
     let e = document.createElement("p")
     e.innerText = text
     output.appendChild(e)
-    output.scrollTop = output.scrollHeight
+    document.body.scrollTop = document.body.scrollHeight
 }
 
 function write_special(text) {
