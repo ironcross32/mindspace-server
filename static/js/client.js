@@ -552,7 +552,7 @@ let mindspace_functions = {
             g.connect(mixer)
             p.connect(g)
             p.setPosition(x, y, z)
-            p.maxDistance = player.max_distance
+            // p.maxDistance = player.max_distance
             source.connect(p)
             source.start()
         })
@@ -578,7 +578,7 @@ let mindspace_functions = {
             g.connect(mixer)
             p.connect(g)
             p.setPosition(x, y, z)
-            p.maxDistance = player.max_distance
+            // p.maxDistance = player.max_distance
             source.connect(p)
             source.start()
         })
@@ -764,9 +764,11 @@ let mindspace_functions = {
         reverb.options = reverb_options
         player.max_distance = max_distance
         if (objects !== null) {
+            /*
             for (let id in objects) {
                 objects[id].panner.maxDistance = max_distance
             }
+            */
         }
         room = create_ambience(room, ambience_sound, ambience_volume)
         music = create_ambience(music, music_sound, player.music_volume)
