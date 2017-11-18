@@ -385,7 +385,7 @@ let mindspace_functions = {
     random_sound: obj => {
         let [path, sum, x, y, z, volume] = obj.args
         get_sound(path, sum).then(get_source).then(source => {
-            let p = audio.getPanner()
+            let p = audio.createPanner()
             let g = audio.createGain()
             g.gain.value = volume
             g.connect(mixer)
