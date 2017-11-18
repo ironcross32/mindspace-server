@@ -740,6 +740,7 @@ let mindspace_functions = {
     },
     identify: obj => {
         let [id, x, y, z, ambience_sound, ambience_volume] = obj.args
+        write_message(`Identify #${id}.`)
         let thing = objects[id]
         if (thing === undefined) {
             thing = {ambience: null, panner: audio.createPanner()}
@@ -763,6 +764,7 @@ let mindspace_functions = {
     },
     character_id: obj => {
         character_id = obj.args[0]
+        write_message(`Character id: ${character_id}.`)
     },
     zone: obj => {
         let [ambience_sound, ambience_rate, ambience_volume] = obj.args
