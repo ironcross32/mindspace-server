@@ -350,7 +350,8 @@ let player = {
     recording_threshold: null,
     sound_volume: null,
     ambience_volume: null,
-    music_volume: null
+    music_volume: null,
+    max_distance: 150
 }
 
 let mindspace_functions = {
@@ -552,6 +553,7 @@ let mindspace_functions = {
             thing = {ambience: null, panner: audio.createPanner()}
             create_main_mixer()
             thing.panner.connect(mixer)
+            thing.panner.maxDistance.value = player.max_distance
             objects[id] = thing
         }
         if (id == character_id) {
@@ -577,7 +579,10 @@ let mindspace_functions = {
     location: obj => {
         let [name, ambience_sound, ambience_volume, music_sound, max_distance, reverb_options] = obj.args
         reverb.options = reverb_options
-        reverb.max_distance = max_distance
+        player.max_distance = max_distance
+        for (let thing of objects) {
+            thing.panner.maxDistance.value = max_distance
+        }
         room = create_ambience(room, ambience_sound, ambience_volume)
         music = create_ambience(music, music_sound, player.music_volume)
         if (room !== null) {
