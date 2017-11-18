@@ -214,7 +214,7 @@ function create_key(id, value, type) {
         id = JSON.stringify(id)
     }
     let k = document.createElement("input")
-    k.className = `key ${type}`
+    k.className = `key-${type}`
     k.id = id
     k.value = value
     if (type == "modifier") {
