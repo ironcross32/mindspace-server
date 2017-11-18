@@ -33,7 +33,9 @@ function create_ambience(obj, sound, volume) {
         let [path, sum] = sound
         if (obj === null || obj.path != path || obj.sum !== sum) {
             if (obj !== null) {
-                obj.source.disconnect()
+                if (obj.source !== undefined) {
+                    obj.source.disconnect()
+                }
             } else {
                 obj = {}
             }
