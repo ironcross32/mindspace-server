@@ -49,9 +49,9 @@ function create_ambience(obj, sound, volume) {
                 if (obj.mixer === null || obj.mixer === undefined) {
                     obj.mixer = audio.createGain()
                     if (obj.panner === undefined) {
-                        obj.mixer.connect(obj.panner)
-                    } else {
                         obj.mixer.connect(ambience_mixer)
+                    } else {
+                        obj.mixer.connect(obj.panner)
                     }
                 }
                 obj.mixer.gain.value = volume
