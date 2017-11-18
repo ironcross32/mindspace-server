@@ -546,7 +546,7 @@ let mindspace_functions = {
             stop_object_ambience(thing)
         } else {
             let [path, sum] = ambience_sound
-            if (thing.ambience === null || thing.ambience.path != path || thing.ambience.sum != sum) {
+            if (thing.ambience === null || thing.ambience === undefined || thing.ambience.path != path || thing.ambience.sum != sum) {
                 stop_object_ambience(thing)
                 get_sound(path, sum).then(get_source).then(source => {
                     if (thing.ambience == null) {
