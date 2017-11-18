@@ -649,6 +649,7 @@ function create_socket(obj) {
     soc = new WebSocket(`ws://${window.location.hostname}:6465`)
     soc.onclose = (e) => {
         audio.close()
+        mixer = null
         room = null
         room_mixer = null
         zone = null
