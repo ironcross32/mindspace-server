@@ -582,6 +582,7 @@ let mindspace_functions = {
         player.max_distance = max_distance
         if (objects !== null) {
             for (let id in objects) {
+                console.log(`#${id}: ${max_distance}.`)
                 objects[id].panner.maxDistance.value = max_distance
             }
         }
