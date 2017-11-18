@@ -97,15 +97,6 @@ function create_main_mixer() {
     }
 }
 
-function stop_object_ambience(thing) {
-    if (thing.ambience !== null && thing.ambience !== undefined) {
-        if (thing.ambience.source !== null && thing.ambience.source !== undefined) {
-            thing.ambience.source.disconnect()
-        }
-        thing.ambience = null
-    }
-}
-
 function get_sound(path, sum) {
     return new Promise(
         (resolve, reject) => {
@@ -734,7 +725,7 @@ let mindspace_functions = {
     delete: obj => {
         let id = obj.args[0]
         if (objects[id] !== undefined) {
-            stop_object_ambience(objects[id])
+            obj.panner.disconnect()
             delete objects[id]
         }
     },
