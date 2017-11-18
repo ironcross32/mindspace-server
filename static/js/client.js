@@ -532,7 +532,6 @@ let mindspace_functions = {
         }
         menu_h.innerText = title
         menu_ul.title = title
-        menu_ul.focus()
         clear_element(menu_ul)
         let n = 0
         for (let item of items) {
@@ -549,6 +548,9 @@ let mindspace_functions = {
                 i.args = JSON.stringify(args)
                 i.kwargs = JSON.stringify(kwargs)
                 i.onclick = menu_button
+                if (!n) {
+                    i.focus()
+                }
             } else {
                 i = document.createElement("h3")
                 i.innerText = name
