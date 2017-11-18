@@ -220,7 +220,7 @@ url.onclick = () => {
 
 let menu = document.getElementById("menu")
 let menu_h = document.getElementById("menu-h")
-let menu_div = document.getElementById("menu-div")
+let menu_ul = document.getElementById("menu-ul")
 let menu_hide = document.getElementById("menu-hide")
 menu_hide.onclick = () => {
     menu.hidden = true
@@ -531,26 +531,30 @@ let mindspace_functions = {
             escape = menu
         }
         menu_h.innerText = title
+        menu_ul.title = title
         menu_hide.focus()
-        clear_element(menu_div)
+        clear_element(menu_ul)
+        let n = 0
         for (let item of items) {
             let [name, command, args, kwargs] = item
+            let li = document.createElement("li")
             let i = null
             if (command) {
-                i = document.createElement("p")
-                let e = document.createElement("input")
-                e.type = "button"
-                e.value = name
-                e.command = command
-                e.args = JSON.stringify(args)
-                e.kwargs = JSON.stringify(kwargs)
-                e.onclick = menu_button
-                i.appendChild(e)
+                i = document.createElement("input")
+                i.tabindex = n
+                i.type = "button"
+                i.role="menuitem"
+                i.value = name
+                i.command = command
+                i.args = JSON.stringify(args)
+                i.kwargs = JSON.stringify(kwargs)
+                i.onclick = menu_button
             } else {
                 i = document.createElement("h3")
                 i.innerText = name
             }
-            menu_div.appendChild(i)
+            li.appendChild(i)
+            menu_ul.appendChild(li)
         }
     },
     remember_quit: () => {
