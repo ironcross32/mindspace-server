@@ -383,8 +383,18 @@ let mindspace_functions = {
         }
     },
     random_sound: obj => {
-        let [path, sum] = obj.args
-        play_sound(path, sum)
+        let [path, sum, x, y, z, volume] = obj.args
+        get_sound(path, sum).then(get_source).then(source => {
+            let p = audio.getPanner()
+            let g = audio.createGain()
+            g.gain.value = volume
+            g.connect(mixer)
+            p.connect(g)
+            p.setPosition(x, y, z)
+            p.maxDistance = player.max_distance
+            source.connect(p)
+            source.start()
+        })
     },
     object_sound: obj => {
         let [id, path, sum] = obj.args
