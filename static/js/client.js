@@ -9,7 +9,7 @@ let mixer = null
 let sounds = {}
 
 let reverb = {}
-let room_mixer = null
+let ambience_mixer = null
 let room = null
 let zone = null
 let music = null
@@ -18,12 +18,9 @@ let escape = null
 
 let quitting = false
 
-function create_ambience(obj, sound, volume, output) {
+function create_ambience(obj, sound, volume) {
     if (volume === undefined) {
         volume = 1.0
-    }
-    if (output === undefined) {
-        output = audio.destination
     }
     if (sound === null) {
         if (obj !== null) {
@@ -41,9 +38,14 @@ function create_ambience(obj, sound, volume, output) {
                 obj = {}
             }
             get_sound(path, sum).then(get_source).then(source => {
+                if (ambience_mixer === null) {
+                    ambience_mixer = audio.createGain()
+                    ambience_mixer.connect(audio.destination)
+                    ambience_mixer.gain.value = player.ambience_volume
+                }
                 if (obj.mixer === null || obj.mixer === undefined) {
                     obj.mixer = audio.createGain()
-                    obj.mixer.connect(output)
+                    obj.mixer.connect(ambience_mixer)
                 }
                 obj.mixer.gain.value = volume
                 obj.path = path,
@@ -589,12 +591,7 @@ let mindspace_functions = {
         let [name, ambience_sound, ambience_volume, music_sound, max_distance, reverb_options] = obj.args
         reverb.options = reverb_options
         reverb.max_distance = max_distance
-        if (room_mixer === null) {
-            room_mixer = audio.createGain()
-            room_mixer.connect(audio.destination)
-        }
-        room_mixer.gain.value = player.ambience_volume
-        room = create_ambience(room, ambience_sound, ambience_volume, room_mixer)
+        room = create_ambience(room, ambience_sound, ambience_volume)
         music = create_ambience(music, music_sound, player.music_volume)
         if (room !== null) {
             room.name = name
@@ -611,8 +608,8 @@ let mindspace_functions = {
             mixer.gain.value = sound_volume
         }
         player.ambience_volume = ambience_volume
-        if (room_mixer !== null) {
-            room_mixer.gain.value = ambience_volume
+        if (ambience_mixer !== null) {
+            ambience_mixer.gain.value = ambience_volume
         }
         player.music_volume = music_volume
         if (music !== null && music.mixer !== undefined) {
@@ -654,7 +651,7 @@ function create_socket(obj) {
         audio.close()
         mixer = null
         room = null
-        room_mixer = null
+        ambience_mixer = null
         zone = null
         music = null
         sounds = {}
