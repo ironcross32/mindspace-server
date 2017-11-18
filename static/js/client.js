@@ -43,16 +43,16 @@ function create_ambience(obj, sound, volume) {
             get_sound(path, sum).then(get_source).then(source => {
                 if (ambience_mixer === null) {
                     ambience_mixer = audio.createGain()
-                    if (obj.panner === undefined) {
-                        ambience_mixer.connect(audio.destination)
-                    } else {
-                        ambience_mixer.connect(obj.panner)
-                    }
+                    ambience_mixer.connect(audio.destination)
                     ambience_mixer.gain.value = player.ambience_volume
                 }
                 if (obj.mixer === null || obj.mixer === undefined) {
                     obj.mixer = audio.createGain()
-                    obj.mixer.connect(ambience_mixer)
+                    if (obj.panner === undefined) {
+                        obj.mixer.connect(obj.panner)
+                    } else {
+                        obj.mixer.connect(ambience_mixer)
+                    }
                 }
                 obj.mixer.gain.value = volume
                 obj.path = path,
@@ -736,7 +736,7 @@ let mindspace_functions = {
             thing = {ambience: null, panner: audio.createPanner()}
             create_main_mixer()
             thing.panner.connect(mixer)
-            thing.panner.maxDistance.value = player.max_distance
+            // thing.panner.maxDistance.value = player.max_distance
             objects[id] = thing
         }
         if (id == character_id) {
