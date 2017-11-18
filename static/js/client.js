@@ -2,6 +2,7 @@
 
 let field_names = ["username", "password"]
 let default_title = document.title
+let character_id = null
 
 // The audio system:
 let audio = null
@@ -42,7 +43,11 @@ function create_ambience(obj, sound, volume) {
             get_sound(path, sum).then(get_source).then(source => {
                 if (ambience_mixer === null) {
                     ambience_mixer = audio.createGain()
-                    ambience_mixer.connect(audio.destination)
+                    if (obj.panner === undefined) {
+                        ambience_mixer.connect(audio.destination)
+                    } else {
+                        ambience_mixer.connect(obj.panner)
+                    }
                     ambience_mixer.gain.value = player.ambience_volume
                 }
                 if (obj.mixer === null || obj.mixer === undefined) {
@@ -541,12 +546,15 @@ let mindspace_functions = {
         let [id, x, y, z, ambience_sound, ambience_volume] = obj.args
         let thing = objects[id]
         if (thing === undefined) {
-            thing = {ambience: null}
+            thing = {ambience: null, panner: audio.createPanner()}
+            create_main_mixer()
+            thing.panner.connect(mixer)
             objects[id] = thing
         }
-        thing.x = x
-        thing.y = y
-        thing.z = z
+        if (id == character_id) {
+            audio.listener.setPosition(x, y, z)
+        }
+        thing.panner.setPosition(x, y, z)
         thing.ambience = create_ambience(thing.ambience, ambience_sound, ambience_volume)
     },
     interface_sound: obj => {
@@ -554,8 +562,7 @@ let mindspace_functions = {
         play_sound(path, sum)
     },
     character_id: obj => {
-        let id = obj.args[0]
-        write_message(`Character: #${id}.`)
+        character_id = obj.args[0]
     },
     zone: obj => {
         let [ambience_sound, ambience_rate, ambience_volume] = obj.args
@@ -652,6 +659,7 @@ function create_socket(obj) {
         connected = true
         let AudioContext = window.AudioContext || window.webkitAudioContext
         audio = new AudioContext()
+        audio.listener.setOrientation(0, 1, 0, 0, 0, 1)
         clear_element(output)
         write_special("Connection Open")
         send(
