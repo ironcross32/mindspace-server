@@ -409,9 +409,17 @@ let mindspace_functions = {
         }
     },
     hidden_sound: (obj) => {
-        // let [path, sum, x, y, z, is_dry] = obj.args
-        let [path, sum] = obj.args.slice(0, 1)
-        play_sound(path, sum)
+        let [path, sum, x, y, z, is_dry] = obj.args
+        get_sound(path, sum).then(get_source).then(source => {
+            let p = audio.getPanner()
+            let g = audio.createGain()
+            g.connect(mixer)
+            p.connect(g)
+            p.setPosition(x, y, z)
+            p.maxDistance = player.max_distance
+            source.connect(p)
+            source.start()
+        })
     },
     url: obj => {
         let [title, href] = obj.args
