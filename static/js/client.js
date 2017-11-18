@@ -297,6 +297,9 @@ function row() {
 
 function standard_key(e) {
     // Send a key.
+    if (!connected) {
+        return
+    }
     let mods = []
     for (let name in modifiers) {
         let control = modifiers[name]
