@@ -295,6 +295,25 @@ function row() {
     keyboard.appendChild(r)
 }
 
+function standard_key(e) {
+    // Send a key.
+    let mods = []
+    for (let control of modifiers) {
+        if (control.checked) {
+            mods.push(control.id)
+        }
+    }
+    let button = e.target
+    send({
+        name: "key",
+        args: [button.id, mods]
+    })
+}
+
+for (let button of document.querySelectorAll(".key-standard")) {
+    button.onclick = standard_key
+}
+
 document.onkeydown = (e) => {
     let current = document.activeElement
     if (
