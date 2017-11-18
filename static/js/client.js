@@ -725,7 +725,7 @@ let mindspace_functions = {
     delete: obj => {
         let id = obj.args[0]
         if (objects[id] !== undefined) {
-            obj.panner.disconnect()
+            objects[id].panner.disconnect()
             delete objects[id]
         }
     },
