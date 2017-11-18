@@ -539,7 +539,7 @@ let mindspace_functions = {
         let [id, x, y, z, ambience_sound, ambience_volume] = obj.args
         let thing = objects[id]
         if (thing === undefined) {
-            thing = {}
+            thing = {ambience: null}
             objects[id] = thing
         }
         thing.x = x
