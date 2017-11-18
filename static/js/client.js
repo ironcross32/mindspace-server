@@ -546,32 +546,6 @@ let mindspace_functions = {
         thing.y = y
         thing.z = z
         thing.ambience = create_ambience(thing.ambience, ambience_sound, ambience_volume)
-        if (ambience_sound === null) {
-            stop_object_ambience(thing)
-        } else {
-            let [path, sum] = ambience_sound
-            if (thing.ambience === null || thing.ambience === undefined || thing.ambience.path != path || thing.ambience.sum != sum) {
-                stop_object_ambience(thing)
-                get_sound(path, sum).then(get_source).then(source => {
-                    if (thing.ambience == null) {
-                        // Nobody has got here first.
-                        if (thing.ambience_mixer === null) {
-                            thing.ambience_mixer = create_mixer(ambience_volume)
-                        } else {
-                            thing.ambience_mixer.gain.value = ambience_volume
-                        }
-                        source.connect(thing.ambience_mixer)
-                        source.loop = true
-                        source.start(0)
-                        thing.ambience = {
-                            path: path,
-                            sum: sum,
-                            source: source
-                        }
-                    }
-                })
-            }
-        }
     },
     interface_sound: obj => {
         let [path, sum] = obj.args
