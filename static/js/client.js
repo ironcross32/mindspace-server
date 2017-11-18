@@ -385,9 +385,10 @@ let mindspace_functions = {
             play_sound(path, sum)
         }
     },
-    hidden_sound: () => {
+    hidden_sound: (obj) => {
         // let [path, sum, x, y, z, is_dry] = obj.args
-        // sound = get_sound(path, sum)
+        let [path, sum] = obj.args.slice(0, 1)
+        play_sound(path, sum)
     },
     url: obj => {
         let [title, href] = obj.args
