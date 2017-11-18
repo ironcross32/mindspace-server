@@ -202,7 +202,7 @@ function unlock_audio() {
 
 window.addEventListener("touchstart", unlock_audio, false)
 
-let keyboard  = document.getElementById("keyboard")
+let keyboard = document.getElementById("keyboard")
 let modifiers = {}
 
 function create_key(id, value, type) {
@@ -333,6 +333,19 @@ function special_key(e) {
 for (let button of document.querySelectorAll(".key-special")) {
     button.onclick = special_key
 }
+
+let hide_keyboard_button = document.getElementById("hide-keyboard")
+
+function hide_keyboard(value) {
+    value = value || false
+    keyboard.hidden = value
+    hide_keyboard_button.value = `${value ? "Show" : "Hide"} Keyboard`
+    Cookies.set("hide_keyboard", value, {expires: 30})
+}
+
+hide_keyboard(Cookies.get("hide_keyboard"))
+
+hide_keyboard_button.onclick = () => hide_keyboard(!keyboard.hidden)
 
 document.onkeydown = (e) => {
     let current = document.activeElement
@@ -817,7 +830,7 @@ connect_form.onsubmit = (e) => {
             ok = false
             break
         } else {
-            Cookies.set(name, field.value, {expires: 30, path: "/"})
+            Cookies.set(name, field.value, {expires: 30})
             obj[name] = field.value
         }
     }
