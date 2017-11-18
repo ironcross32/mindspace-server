@@ -492,7 +492,9 @@ function write_message(text) {
     let e = document.createElement("p")
     e.innerText = text
     output.appendChild(e)
-    game.scrollTop = game.scrollHeight
+    // Below code copied from:
+    // https://stackoverflow.com/questions/11715646/scroll-automatically-to-the-bottom-of-the-page
+    window.scrollTo(0,document.body.scrollHeight)
 }
 
 function write_special(text) {
