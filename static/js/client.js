@@ -595,7 +595,9 @@ let mindspace_functions = {
         room_mixer.gain.value = player.ambience_volume
         room = create_ambience(room, ambience_sound, ambience_volume, room_mixer)
         music = create_ambience(music, music_sound, player.music_volume)
-        room.name = name
+        if (room !== null) {
+            room.name = name
+        }
     },
     options: obj => {
         let [username, transmition_id, recording_threshold, sound_volume, ambience_volume, music_volume] = obj.args
