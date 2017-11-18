@@ -539,12 +539,13 @@ let mindspace_functions = {
         let [id, x, y, z, ambience_sound, ambience_volume] = obj.args
         let thing = objects[id]
         if (thing === undefined) {
-            thing = {ambience_sound: null, ambience_mixer:null}
+            thing = {}
             objects[id] = thing
         }
         thing.x = x
         thing.y = y
         thing.z = z
+        thing.ambience = create_ambience(thing.ambience, ambience_sound, ambience_volume)
         if (ambience_sound === null) {
             stop_object_ambience(thing)
         } else {
