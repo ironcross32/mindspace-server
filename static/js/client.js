@@ -533,14 +533,14 @@ let mindspace_functions = {
         menu_h.innerText = title
         menu_ul.title = title
         clear_element(menu_ul)
-        let n = 0
+        menu_hide.focus()
         for (let item of items) {
             let [name, command, args, kwargs] = item
             let li = document.createElement("li")
             let i = null
             if (command) {
                 i = document.createElement("input")
-                i.tabindex = n
+                i.tabindex = 0
                 i.type = "button"
                 i.role="menuitem"
                 i.value = name
@@ -548,9 +548,6 @@ let mindspace_functions = {
                 i.args = JSON.stringify(args)
                 i.kwargs = JSON.stringify(kwargs)
                 i.onclick = menu_button
-                if (!n) {
-                    i.focus()
-                }
             } else {
                 i = document.createElement("h3")
                 i.innerText = name
