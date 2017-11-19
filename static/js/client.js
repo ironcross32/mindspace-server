@@ -445,7 +445,7 @@ form.onsubmit = (e) => {
         let field = form_fields[name]
         let value = null
         if (field.type == "select-one") {
-            value = JSON.parse(field.value)
+            value = field.values[field.value]
         } else {
             value = field.value || null
         }
@@ -710,6 +710,7 @@ let mindspace_functions = {
                 let e = null
                 if (typeof(type) != "string") {
                     e = document.createElement("select")
+                    e.values = {}
                     for (let key in type) {
                         let v = document.createElement("option")
                         let val = null
@@ -721,7 +722,8 @@ let mindspace_functions = {
                         if (val == value || val === value) {
                             v.selected = true
                         }
-                        v.value = JSON.stringify(val)
+                        v.value = val
+                        e.values[v.value] = val
                         let text = type[key]
                         if (text === null) {
                             text= "Nothing"
