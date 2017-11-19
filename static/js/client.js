@@ -451,7 +451,7 @@ form.onsubmit = (e) => {
         } else {
             value = field.value || null
         }
-        console.log(`${name} => ${value}`)
+        console.log(`${name} => ${typeof(value)} -> ${value}`)
         data[name] = value
     }
     form_command.args.push(data)
