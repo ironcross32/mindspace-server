@@ -476,4 +476,4 @@ class PauseMixin:
 
     @classmethod
     def get_fields(cls, instance):
-        return [instance.make_field('paused')]
+        return [instance.make_field('paused', type=bool)]
