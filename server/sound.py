@@ -31,6 +31,8 @@ class Sound:
             self.sum = md5(f.read()).hexdigest()
 
     def dump(self):
+        if os.path.sep != '/':
+            self.path = self.path.replace(os.path.sep, '/')
         return [self.path, self.sum]
 
 

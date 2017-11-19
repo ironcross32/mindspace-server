@@ -14,6 +14,7 @@ from ..forms import Label
 
 floor_types_dir = os.path.join(sounds_dir, 'Footsteps')
 music_dir = os.path.join(sounds_dir, 'music')
+impulses_dir = os.path.join(sounds_dir, 'impulses')
 
 
 class RoomRandomSound(RandomSoundMixin, Base):
@@ -40,6 +41,8 @@ class Room(
 
     __tablename__ = 'rooms'
     music = Column(String(100), nullable=True)
+    convolver = Column(String(100), nullable=True)
+    convolver_volume = Column(Float, nullable=False, default=1.0)
     mul = Column(Float, nullable=False, default=1.0)
     max_distance = Column(Float, nullable=False, default=100.0)
     visibility = Column(Float, nullable=False, default=1500.0)
@@ -59,7 +62,7 @@ class Room(
             fields.append(self.make_field(name, type=float))
         fields.extend(RandomSoundContainerMixin.get_all_fields(self))
         fields.append(Label('Background'))
-        for name in ('music', 'floor_type'):
+        for name in ('music', 'floor_type', 'convolver'):
             fields.append(
                 self.make_field(
                     name, type=getattr(
@@ -67,6 +70,7 @@ class Room(
                     )()
                 )
             )
+        fields.append(self.make_field('convolver_volume', type=float))
         for name in reverb_property_names:
             fields.append(
                 self.make_field(name, type=float)
@@ -75,6 +79,11 @@ class Room(
 
     def music_choices(self):
         return [None] + sorted(os.listdir(music_dir))
+
+    def convolver_choices(self):
+        return [None] + sorted(
+            [x for x in os.listdir(impulses_dir)if x.endswith('.m4a')]
+        )
 
     def floor_type_choices(self):
         return [None] + sorted(os.listdir(floor_types_dir))

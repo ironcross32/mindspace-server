@@ -50,6 +50,7 @@ def location(con, obj):
     )
     if obj.description is not None:
         message(con, obj.description)
+    convolver(con, obj.convolver, obj.convolver_volume)
 
 
 def object_sound(con, id, sound):
@@ -155,3 +156,12 @@ def zone(con, zone):
 def random_sound(con, sound, x, y, z, volume):
     """Send a random sound to the client."""
     con.send('random_sound', *sound.dump(), x, y, z, volume)
+
+
+def convolver(con, filename, volume):
+    """Tell con about a Convolver instance."""
+    if filename is None:
+        c = None
+    else:
+        c = get_sound(os.path.join('impulses', filename)).dump()
+    con.send('convolver', c, volume)

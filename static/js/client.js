@@ -1,4 +1,4 @@
-/* global Cookies */
+/* global Cookies, reverbjs */
 
 let field_names = ["username", "password"]
 let default_title = document.title
@@ -7,7 +7,12 @@ let character_id = null
 // The audio system:
 let audio = null
 let mixer = null
+let environment = null
 let sounds = {}
+let convolvers = {}
+let convolver = null
+let convolver_url = null
+let convolver_mixer = null
 
 let reverb = {}
 let ambience_mixer = null
@@ -20,15 +25,17 @@ let escape = null
 let quitting = false
 
 function create_ambience(obj, sound, volume, output) {
+    create_environment()
     if (output === undefined) {
-        // Let's use the main ambience mixer.
-        output = ambience_mixer
+        // Let's use the main output.
+        output = environment
     }
     if (output === null) {
         // Ambience mixer hasn't been created yet.
         ambience_mixer = audio.createGain()
-        ambience_mixer.connect(audio.destination)
+        ambience_mixer.connect(environment)
         ambience_mixer.gain.value = player.ambience_volume
+        output = ambience_mixer
     }
     if (volume === undefined) {
         volume = 1.0 // Full volume.
@@ -39,7 +46,7 @@ function create_ambience(obj, sound, volume, output) {
             // There's an object of some kind.
             if (obj.source !== null && obj.source !== undefined) {
                 // And it has a source; it's been playing.
-                delete obj.source // Automatically disconnects.
+                obj.source.disconnect()
             }
             obj = {mixer: obj.mixer} // Default object.
         }
@@ -52,7 +59,7 @@ function create_ambience(obj, sound, volume, output) {
                 // Could be an old ambience.
                 if (obj.source !== undefined) {
                     // There is a sound.
-                    delete obj.source
+                    obj.source.disconnect()
                 }
             } else {
                 // Object === null.
@@ -94,6 +101,12 @@ function create_mixer(volume, output) {
 function create_main_mixer() {
     if (mixer === null) {
         mixer = create_mixer(player.sound_volume)
+    }
+}
+
+function create_environment() {
+    if (environment === null) {
+        environment = create_mixer()
     }
 }
 
@@ -151,8 +164,8 @@ function get_source(sound) {
 
 function play_sound(path, sum) {
     get_sound(path, sum).then(get_source).then(source => {
-        create_main_mixer()
-        source.connect(mixer)
+        create_environment()
+        source.connect(environment)
         source.start(0)
     })
 }
@@ -528,7 +541,45 @@ let player = {
     max_distance: 150
 }
 
+function set_convolver(url, node, volume) {
+    if (convolver_mixer === null) {
+        convolver_mixer = audio.createGain()
+        convolver_mixer.connect(audio.destination)
+    }
+    if (url == convolver_url) {
+        node.connect(convolver_mixer)
+        convolver_mixer.gain.value = volume
+        mixer.connect(node)
+        if (node !== convolver) {
+            if (convolver !== null) {
+                mixer.disconnect(convolver)
+                convolver.disconnect(convolver_mixer)
+            }
+            convolver = node
+        }
+    }
+    convolvers[url] = node
+}
+
 let mindspace_functions = {
+    convolver: obj => {
+        let [sound, volume] = obj.args
+        if (sound === null) {
+            if (convolver !== null) {
+                convolver.disconnect(convolver_mixer)
+            }
+        } else {
+            let [path, sum] = sound
+            convolver_url = `${window.location.href.split(window.location.pathname)[0]}/${path}?${sum}`
+            if (convolver_url in convolvers) {
+                set_convolver(convolver_url, convolvers[convolver_url], volume)
+            } else {
+                audio.createReverbFromUrl(convolver_url, node => {
+                    set_convolver(convolver_url, node, volume)
+                })
+            }
+        }
+    },
     copy: obj => {
         let text = obj.args[0]
         let d = document.createElement("div")
@@ -664,9 +715,14 @@ let mindspace_functions = {
                         } else {
                             v.value = key
                         }
-                        v.innerText = type[key]
+                        let val = type[key]
+                        if (val === null) {
+                            val = "Nothing"
+                        }
+                        v.innerText = val
                         e.appendChild(v)
                     }
+                    e.value = value
                 } else {
                     e = document.createElement("input")
                     if (type == "float" || type == "int") {
@@ -687,8 +743,8 @@ let mindspace_functions = {
                             e.type = "text"
                         }
                     }
+                    e.value = value || empty
                 }
-                e.value = value || empty
                 i = document.createElement("label")
                 let s = document.createElement("span")
                 s.innerText = `${title} `
@@ -772,23 +828,21 @@ let mindspace_functions = {
     },
     zone: obj => {
         let [ambience_sound, ambience_rate, ambience_volume] = obj.args
-        zone = create_ambience(zone, ambience_sound, ambience_volume)
+        zone = create_ambience(zone, ambience_sound, ambience_volume, ambience_mixer)
         if (zone !== null) {
-            zone.source.playbackRate.volume = ambience_rate
+            zone.source.playbackRate.value = ambience_rate
         }
     },
     location: obj => {
         let [name, ambience_sound, ambience_volume, music_sound, max_distance, reverb_options] = obj.args
         reverb.options = reverb_options
         player.max_distance = max_distance
-        if (objects !== null) {
-            /*
-            for (let id in objects) {
-                objects[id].panner.maxDistance = max_distance
-            }
-            */
+        /*
+        for (let id in objects) {
+            objects[id].panner.maxDistance = max_distance
         }
-        room = create_ambience(room, ambience_sound, ambience_volume)
+        */
+        room = create_ambience(room, ambience_sound, ambience_volume, ambience_mixer)
         music = create_ambience(music, music_sound, player.music_volume)
         if (room !== null) {
             room.name = name
@@ -801,8 +855,8 @@ let mindspace_functions = {
         player.transmition_id = transmition_id
         player.recording_threshold = recording_threshold
         player.sound_volume = sound_volume
-        if (mixer !== null) {
-            mixer.gain.value = sound_volume
+        if (environment !== null) {
+            environment.gain.value = sound_volume
         }
         player.ambience_volume = ambience_volume
         if (ambience_mixer !== null) {
@@ -845,12 +899,17 @@ function create_socket(obj) {
     game.hidden = false
     soc = new WebSocket(`ws://${window.location.hostname}:6465`)
     soc.onclose = (e) => {
-        audio.close()
+        if (audio !== null) {
+            audio.close()
+            audio = null
+        }
         mixer = null
         room = null
         ambience_mixer = null
         zone = null
         music = null
+        environment = null
+        convolver = null
         sounds = {}
         objects = {}
         if (quitting) {
@@ -872,6 +931,7 @@ function create_socket(obj) {
         connected = true
         let AudioContext = window.AudioContext || window.webkitAudioContext
         audio = new AudioContext()
+        reverbjs.extend(audio)
         audio.listener.setOrientation(0, 1, 0, 0, 0, 1)
         clear_element(output)
         write_special("Connection Open")
