@@ -708,6 +708,7 @@ let mindspace_functions = {
                 let [name, value, type, title, hidden] = data.values
                 let e = null
                 if (typeof(type) != "string") {
+                    console.log(JSON.stringify(type))
                     e = document.createElement("select")
                     e.values = {}
                     for (let key in type) {
