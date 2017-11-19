@@ -446,6 +446,8 @@ form.onsubmit = (e) => {
         let value = null
         if (field.type == "select-one") {
             value = field.values[field.value]
+        } else if (field.type == "checkbox") {
+            value = field.checked
         } else {
             value = field.value || null
         }
