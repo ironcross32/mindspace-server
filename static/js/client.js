@@ -726,7 +726,7 @@ let mindspace_functions = {
                         v.innerText = text
                         e.appendChild(v)
                     }
-                    e.value = value
+                    e.value = JSON.stringify(value)
                 } else {
                     let empty = ""
                     if (type == "text") {
