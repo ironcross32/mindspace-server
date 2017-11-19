@@ -702,7 +702,6 @@ let mindspace_functions = {
                 i.innerText = data.values[0]
             } else {
                 let [name, value, type, title, hidden] = data.values
-                let empty = ""
                 let e = null
                 if (typeof(type) != "string") {
                     e = document.createElement("select")
@@ -722,27 +721,31 @@ let mindspace_functions = {
                     }
                     e.value = value
                 } else {
+                    let empty = ""
                     if (type == "text") {
                         e = document.createElement("textarea")
                     } else {
                         e = document.createElement("input")
-                    }
-                    if (type == "float" || type == "int") {
-                        e.type = "number"
-                        let step = null
-                        if (type == "int") {
-                            step = "1"
-                            empty = "0"
+                        if (type == "float" || type == "int") {
+                            e.type = "number"
+                            let step = null
+                            if (type == "int") {
+                                step = "1"
+                                empty = "0"
+                            } else {
+                                step = "0.01"
+                                empty = "0.0"
+                            }
+                            e.step = step
+                        } else if (type == "bool") {
+                            e.type = "checkbox"
+                            empty = false
                         } else {
-                            step = "0.01"
-                            empty = "0.0"
-                        }
-                        e.step = step
-                    } else {
-                        if (hidden) {
-                            e.type = "password"
-                        } else {
-                            e.type = "text"
+                            if (hidden) {
+                                e.type = "password"
+                            } else {
+                                e.type = "text"
+                            }
                         }
                     }
                     e.value = value || empty
