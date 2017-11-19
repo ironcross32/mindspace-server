@@ -718,6 +718,9 @@ let mindspace_functions = {
                         } else {
                             val = key
                         }
+                        if (val == value || val === value) {
+                            v.selected = true
+                        }
                         v.value = JSON.stringify(val)
                         let text = type[key]
                         if (text === null) {
@@ -726,7 +729,6 @@ let mindspace_functions = {
                         v.innerText = text
                         e.appendChild(v)
                     }
-                    e.value = JSON.stringify(value)
                 } else {
                     let empty = ""
                     if (type == "text") {
