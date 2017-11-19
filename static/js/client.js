@@ -726,7 +726,7 @@ let mindspace_functions = {
                             text= "Nothing"
                         }
                         v.value = text
-                        e.values[v.value] = val
+                        e.values[v.value] = key
                         v.innerText = text
                         e.appendChild(v)
                     }
