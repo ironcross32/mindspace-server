@@ -704,9 +704,7 @@ let mindspace_functions = {
                 let [name, value, type, title, hidden] = data.values
                 let empty = ""
                 let e = null
-                if (type == "text") {
-                    e = document.createElement("textarea")
-                } else if (typeof(type) != "string") {
+                if (typeof(type) != "string") {
                     e = document.createElement("select")
                     for (let key in type) {
                         let v = document.createElement("option")
@@ -724,7 +722,11 @@ let mindspace_functions = {
                     }
                     e.value = value
                 } else {
-                    e = document.createElement("input")
+                    if (type == "text") {
+                        e = document.createElement("textarea")
+                    } else {
+                        e = document.createElement("input")
+                    }
                     if (type == "float" || type == "int") {
                         e.type = "number"
                         let step = null
@@ -732,7 +734,7 @@ let mindspace_functions = {
                             step = "1"
                             empty = "0"
                         } else {
-                            step = "0.1"
+                            step = "0.01"
                             empty = "0.0"
                         }
                         e.step = step
