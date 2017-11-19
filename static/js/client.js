@@ -722,8 +722,8 @@ let mindspace_functions = {
                         if (val == value || val === value) {
                             v.selected = true
                         }
-                        v.value = value
-                        e.values[v.value] = val
+                        v.value = val
+                        e.values[v.value] = value
                         let text = type[key]
                         if (text === null) {
                             text= "Nothing"
