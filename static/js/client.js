@@ -843,7 +843,7 @@ let mindspace_functions = {
     zone: obj => {
         let [ambience_sound, ambience_rate, ambience_volume] = obj.args
         zone = create_ambience(zone, ambience_sound, ambience_volume, ambience_mixer)
-        if (zone !== null) {
+        if (zone !== null && zone.source !== undefined) {
             zone.source.playbackRate.value = ambience_rate
         }
     },
