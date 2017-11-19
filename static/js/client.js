@@ -451,7 +451,6 @@ form.onsubmit = (e) => {
         } else {
             value = field.value || null
         }
-        console.log(`${name} => ${typeof(value)} -> ${value}`)
         data[name] = value
     }
     form_command.args.push(data)
@@ -723,7 +722,7 @@ let mindspace_functions = {
                             v.selected = true
                         }
                         v.value = val
-                        e.values[v.value] = value
+                        e.values[v.value] = key
                         let text = type[key]
                         if (text === null) {
                             text= "Nothing"
