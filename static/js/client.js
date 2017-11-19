@@ -751,6 +751,7 @@ let mindspace_functions = {
                         } else if (type == "bool") {
                             e.type = "checkbox"
                             empty = false
+                            e.checked = value
                         } else {
                             if (hidden) {
                                 e.type = "password"
