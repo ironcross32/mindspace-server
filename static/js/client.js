@@ -443,7 +443,12 @@ form.onsubmit = (e) => {
     let data = {}
     for (let name in form_fields) {
         let field = form_fields[name]
-        let value = field.value || null
+        let value = null
+        if (field.type == "select-one") {
+            value = JSON.parse(field.value)
+        } else {
+            value = field.value || null
+        }
         if (field.type == "select-one" && (value == "null" || !value)) {
             value = null
         }
@@ -707,16 +712,18 @@ let mindspace_functions = {
                     e = document.createElement("select")
                     for (let key in type) {
                         let v = document.createElement("option")
+                        let val = null
                         if (Array.isArray(type)) {
-                            v.value = type[key]
+                            val = type[key]
                         } else {
-                            v.value = key
+                            val = key
                         }
-                        let val = type[key]
-                        if (val === null) {
-                            val = "Nothing"
+                        v.value = JSON.stringify(val)
+                        let text = type[key]
+                        if (text === null) {
+                            text= "Nothing"
                         }
-                        v.innerText = val
+                        v.innerText = text
                         e.appendChild(v)
                     }
                     e.value = value
