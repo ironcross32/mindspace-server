@@ -449,9 +449,6 @@ form.onsubmit = (e) => {
         } else {
             value = field.value || null
         }
-        if (field.type == "select-one" && (value == "null" || !value)) {
-            value = null
-        }
         data[name] = value
     }
     form_command.args.push(data)
