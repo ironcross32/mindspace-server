@@ -654,7 +654,7 @@ let mindspace_functions = {
             g.connect(mixer)
             p.connect(g)
             p.setPosition(x, y, z)
-            // p.maxDistance = player.max_distance
+            p.maxDistance = player.max_distance
             source.connect(p)
             source.start()
         })
@@ -680,7 +680,7 @@ let mindspace_functions = {
             g.connect(mixer)
             p.connect(g)
             p.setPosition(x, y, z)
-            // p.maxDistance = player.max_distance
+            p.maxDistance = player.max_distance
             source.connect(p)
             source.start()
         })
@@ -852,7 +852,7 @@ let mindspace_functions = {
             thing.panner.panningModel = "HRTF"
             thing.panner.distanceModel = "linear"
             thing.panner.connect(mixer)
-            // thing.panner.maxDistance.value = player.max_distance
+            thing.panner.maxDistance.value = player.max_distance
             objects[id] = thing
         }
         if (id == character_id) {
@@ -881,11 +881,9 @@ let mindspace_functions = {
     location: obj => {
         let [name, ambience_sound, ambience_volume, music_sound, max_distance] = obj.args
         player.max_distance = max_distance
-        /*
         for (let id in objects) {
             objects[id].panner.maxDistance = max_distance
         }
-        */
         room = create_ambience(room, ambience_sound, ambience_volume, ambience_mixer)
         music = create_ambience(music, music_sound, player.music_volume)
         if (room !== null) {
