@@ -23,6 +23,10 @@ let escape = null
 
 let quitting = false
 
+function scroll_bottom() {
+    window.scrollTo(0,document.body.scrollHeight)
+}
+
 function create_ambience(obj, sound, volume, output) {
     create_environment()
     if (output === undefined) {
@@ -377,6 +381,7 @@ function hide_keyboard(value) {
     keyboard.hidden = value
     hide_keyboard_button.value = `${value ? "Show" : "Hide"} Keyboard`
     Cookies.set("hide_keyboard", value, {expires: 30})
+    scroll_bottom()
 }
 
 hide_keyboard(Cookies.get("hide_keyboard"))
@@ -545,8 +550,10 @@ function set_title(name) {
 }
 
 function write_message(text) {
-    output.innerHTML += `<p>${text}</p>`
-    window.scrollTo(0,document.body.scrollHeight)
+    let p = document.createElement("p")
+    p.innerText = text
+    output.appendChild(p)
+    scroll_bottom()
 }
 
 function write_special(text) {
