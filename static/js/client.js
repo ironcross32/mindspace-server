@@ -389,11 +389,20 @@ hide_keyboard(Cookies.get("hide_keyboard"))
 hide_keyboard_button.onclick = () => hide_keyboard(!keyboard.hidden)
 
 document.onkeydown = (e) => {
+    let key = e.key.toUpperCase()
     let current = document.activeElement
     if (e.key === undefined || !connected || [
         "text", "password", "textarea", "number", "select-one"
     ].includes(current.type)) {
         return
+    } else if (current.type == "button" && escape === menu) {
+        let func = menu_keys[key]
+        if (func !== undefined) {
+            if (func(e) === false) {
+                return
+            }
+            return
+        }
     }
     let modifiers = []
     for (let name of ["ctrl", "shift", "alt"]) {
@@ -401,7 +410,6 @@ document.onkeydown = (e) => {
             modifiers.push(name)
         }
     }
-    let key = e.key.toUpperCase()
     if (keyboard_transformations[key] !== undefined) {
         key = keyboard_transformations[key]
     }
@@ -436,9 +444,32 @@ url.onclick = () => {
 let menu = document.getElementById("menu")
 let menu_h = document.getElementById("menu-h")
 let menu_ul = document.getElementById("menu-ul")
+let menu_index = null
 let menu_hide = document.getElementById("menu-hide")
 menu_hide.onclick = () => {
     menu.hidden = true
+}
+
+let menu_keys = {
+    ARROWDOWN: () => {
+        if (menu_index === null) {
+            menu_index = 0
+        }
+        menu_index = Math.min(menu_ul.children.length, menu_index + 1)
+        menu_ul.children[menu_index].firstChild.focus()
+    },
+    ARROWUP: () => {
+        menu_index = Math.max(0, menu_index - 1)
+        menu_ul.children[menu_index].firstChild.focus()
+    },
+    ENTER: (e) => {
+        e.preventDefault()
+        return false
+    },
+    SPACE: (e) => {
+        e.preventDefault()
+        return false
+    }
 }
 
 let text = document.getElementById("text")
