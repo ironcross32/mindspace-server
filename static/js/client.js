@@ -469,8 +469,8 @@ let menu_keys = {
         menu_index = Math.max(0, menu_index - 1)
         menu_ul.children[menu_index].firstChild.focus()
     },
-    "ENTER": () => false,
-    " ": () => write_message("Enter key.")
+    "ENTER": () => write_message("Enter key."),
+    " ": () => false
 }
 
 function search_menu(e) {
