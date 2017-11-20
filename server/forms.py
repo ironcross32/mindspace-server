@@ -42,7 +42,9 @@ class Field:
         if isinstance(t, list):
             res = []
             for item in t:
-                if len(item) != 2:
+                if not isinstance(item, list) or len(item) != 2:
+                    if isinstance(item, list):
+                        item = item[0]
                     item = [item, item]
                 res.append(item)
             t = res
