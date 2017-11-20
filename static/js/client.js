@@ -556,7 +556,12 @@ function set_convolver(url, node, volume) {
         if (node !== convolver) {
             if (convolver !== null) {
                 mixer.disconnect(convolver)
-                convolver.disconnect(convolver_mixer)
+                try {
+                    convolver.disconnect(convolver_mixer)
+                }
+                catch (e) {
+                    // It was not connected in the first place.
+                }
             }
             convolver = node
         }
