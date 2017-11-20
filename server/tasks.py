@@ -14,7 +14,7 @@ def do_tasks():
     """Run through all the tasks."""
     now = time()
     for t in Task.query(
-        Task.disabled.isnot(True),
+        Task.paused.isnot(True),
         or_(Task.next_run.is_(None), Task.next_run <= now)
     ):
         logger.debug('Running %r.', t)
@@ -25,8 +25,8 @@ def do_tasks():
             Session.commit()
         except Exception as e:
             Session.rollback()
-            t.disabled = True
-            logger.warning('Error in %r. Task disabled.', t)
+            t.paused = True
+            logger.warning('Error in %r. Task paused.', t)
             Session.add(t)
             Session.commit()
             logger.exception(e)
