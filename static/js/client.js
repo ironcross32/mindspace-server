@@ -881,7 +881,6 @@ let mindspace_functions = {
                 i.onclick = menu_button
             } else {
                 name = `- ${name} -`
-                i.disabled = true
             }
             i.value = name
             li.appendChild(i)
