@@ -545,7 +545,7 @@ function set_title(name) {
 }
 
 function write_message(text) {
-    output.append(`<p>${text}</p>`)
+    output.innerHTML += `<p>${text}</p>`
     window.scrollTo(0,document.body.scrollHeight)
 }
 
