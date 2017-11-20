@@ -8,7 +8,7 @@ from .base import (
     Base, SizeMixin, NameMixin, DescriptionMixin, AmbienceMixin,
     RandomSoundMixin, RandomSoundContainerMixin, CoordinatesMixin
 )
-from ..protocol import hidden_sound, reverb_property_names
+from ..protocol import hidden_sound
 from ..sound import get_sound, sounds_dir
 from ..forms import Label
 
@@ -43,14 +43,8 @@ class Room(
     music = Column(String(100), nullable=True)
     convolver = Column(String(100), nullable=True)
     convolver_volume = Column(Float, nullable=False, default=1.0)
-    mul = Column(Float, nullable=False, default=1.0)
     max_distance = Column(Float, nullable=False, default=100.0)
     visibility = Column(Float, nullable=False, default=1500.0)
-    cutoff_frequency = Column(Integer, nullable=False, default=5000)
-    delay_modulation_depth = Column(Float, nullable=False, default=0.0)
-    delay_modulation_frequency = Column(Float, nullable=False, default=10.0)
-    density = Column(Float, nullable=False, default=0.5)
-    t60 = Column(Float, nullable=False, default=1.0)
     floor_type = Column(String(20), nullable=True, default='grass')
     zone_id = Column(Integer, ForeignKey('zones.id'), nullable=True)
     zone = relationship('Zone', backref='rooms', foreign_keys=[zone_id])
@@ -71,10 +65,6 @@ class Room(
                 )
             )
         fields.append(self.make_field('convolver_volume', type=float))
-        for name in reverb_property_names:
-            fields.append(
-                self.make_field(name, type=float)
-            )
         return fields
 
     def music_choices(self):
