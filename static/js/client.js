@@ -545,11 +545,7 @@ function set_title(name) {
 }
 
 function write_message(text) {
-    let e = document.createElement("p")
-    e.innerText = text
-    output.appendChild(e)
-    // Below code copied from:
-    // https://stackoverflow.com/questions/11715646/scroll-automatically-to-the-bottom-of-the-page
+    output.append(`<p>${text}</p>`)
     window.scrollTo(0,document.body.scrollHeight)
 }
 
