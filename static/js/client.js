@@ -217,6 +217,30 @@ window.addEventListener("touchstart", unlock_audio, false)
 let keyboard = document.getElementById("keyboard")
 let modifiers = {}
 
+let keyboard_transformations = {
+    "¬": "`",
+    "!": "1",
+    "\"": "2",
+    // "£": "3",
+    "$": "4",
+    "%": "5",
+    "^": "6",
+    "&": "7",
+    "*": "8",
+    "(": "9",
+    ")": "0",
+    "_": "-",
+    "+": "=",
+    "{": "[",
+    "}": "]",
+    "@": "'",
+    "~": "#",
+    "<": ",",
+    ">": ".",
+    "?": "/",
+    "|": "\\",
+}
+
 function create_key(id, value, type) {
     if (value === undefined) {
         value = id.toUpperCase()
@@ -373,6 +397,9 @@ document.onkeydown = (e) => {
         }
     }
     let key = e.key.toUpperCase()
+    if (keyboard_transformations[key] !== undefined) {
+        key = keyboard_transformations[key]
+    }
     if (!modifiers.count && key == "ESCAPE" && escape !== null) {
         escape.hidden = true
         escape = null
