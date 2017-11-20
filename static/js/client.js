@@ -577,7 +577,7 @@ let player = {
 function set_convolver(url, node, volume) {
     if (convolver_mixer === null) {
         convolver_mixer = audio.createGain()
-        convolver_mixer.connect(audio.destination)
+        convolver_mixer.connect(environment)
     }
     if (url == convolver_url) {
         node.connect(convolver_mixer)
@@ -673,11 +673,14 @@ let mindspace_functions = {
     },
     hidden_sound: (obj) => {
         let [path, sum, x, y, z, is_dry] = obj.args
-        is_dry === is_dry // Just to shut up eslint.
         get_sound(path, sum).then(get_source).then(source => {
-            let p = audio.getPanner()
+            let p = audio.createPanner()
             let g = audio.createGain()
-            g.connect(mixer)
+            if (is_dry) {
+                g.connect(environment)
+            } else {
+                g.connect(mixer)
+            }
             p.connect(g)
             p.setPosition(x, y, z)
             p.maxDistance = player.max_distance
