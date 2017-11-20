@@ -493,3 +493,19 @@ class Object(
         if self.following is not None:
             self.do_social(self.unfollow_msg, _others=[self.following])
             self.following_id = None
+
+    def get_corner_coordinates(self, direction):
+        """Find the coordinates of the corner in the given direction."""
+        coordinates = []
+        for name in ('x', 'y', 'z'):
+            diff = getattr(direction, name)
+            old = getattr(self, name)
+            size = getattr(self.location, f'size_{name}')
+            if not diff:
+                new = old
+            elif diff < 0:
+                new = 0.0
+            else:  # diff > 0
+                new = size
+            coordinates.append(new)
+        return coordinates
