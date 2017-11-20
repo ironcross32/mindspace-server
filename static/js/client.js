@@ -884,6 +884,7 @@ let mindspace_functions = {
                 i.onclick = menu_button
             } else {
                 i = document.createElement("h3")
+                i.tabindex="-1"
                 i.innerText = name
             }
             li.appendChild(i)
