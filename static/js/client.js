@@ -921,6 +921,8 @@ function create_socket(obj) {
         music = null
         environment = null
         convolver = null
+        convolver_url = null
+        convolvers = {}
         sounds = {}
         objects = {}
         if (quitting) {
