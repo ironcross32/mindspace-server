@@ -29,7 +29,7 @@ class TransitStop(Base, LocationMixin, CoordinatesMixin):
         return sum([self.before_departure, self.after_departure])
 
 
-class TransitRoute(Base, NameMixin, PauseMixin):
+class TransitRoute(Base, NameMixin, CoordinatesMixin, PauseMixin):
     """Holds 0 or more transit stops."""
 
     __tablename__ = 'transit_routes'
