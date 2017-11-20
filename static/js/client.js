@@ -398,10 +398,7 @@ document.onkeydown = (e) => {
     } else if (current.type == "button" && escape === menu) {
         let func = menu_keys[key]
         if (func !== undefined) {
-            if (func(e) === false) {
-                return
-            }
-            return
+            return func(e)
         }
     }
     let modifiers = []
