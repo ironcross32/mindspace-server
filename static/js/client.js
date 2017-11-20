@@ -94,7 +94,7 @@ function create_mixer(volume, output) {
     }
     if (output !== null) { // Optionally don't connect this node.
         if (output === undefined) {
-            output = audio.destination
+            output = environment
         }
         g.connect(output)
     }
@@ -109,7 +109,7 @@ function create_main_mixer() {
 
 function create_environment() {
     if (environment === null) {
-        environment = create_mixer()
+        environment = create_mixer(player.sound_volume, audio.destination)
     }
 }
 
