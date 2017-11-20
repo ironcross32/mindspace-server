@@ -402,7 +402,7 @@ document.onkeydown = (e) => {
         "text", "password", "textarea", "number", "select-one"
     ].includes(current.type)) {
         return
-    } else if (current.type == "button" && escape === menu) {
+    } else if (escape === menu) {
         let func = menu_keys[key]
         if (func !== undefined) {
             return func(e)
