@@ -708,26 +708,20 @@ let mindspace_functions = {
                 let [name, value, type, title, hidden] = data.values
                 let e = null
                 if (typeof(type) != "string") {
-                    console.log(JSON.stringify(type))
+                    // Should be a list. If not, then there's a server bug.
                     e = document.createElement("select")
                     e.values = {}
                     for (let key in type) {
+                        let [actual, text] = type[key]
                         let v = document.createElement("option")
-                        let val = null
-                        if (Array.isArray(type)) {
-                            val = type[key]
-                        } else {
-                            val = key
-                        }
-                        if (val == value || val === value) {
+                        if (actual == value || actual === value) {
                             v.selected = true
                         }
-                        let text = type[key]
                         if (text === null) {
                             text= "Nothing"
                         }
                         v.value = text
-                        e.values[v.value] = key
+                        e.values[v.value] = actual
                         v.innerText = text
                         e.appendChild(v)
                     }
