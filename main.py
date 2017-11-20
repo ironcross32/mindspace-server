@@ -22,6 +22,13 @@ parser.add_argument(
     help='Where to log server output'
 )
 
+parser.add_argument(
+    '-t',
+    '--test-db',
+    action='store_true',
+    help='Try and load the database then exit'
+)
+
 
 if __name__ == '__main__':
     args = parser.parse_args()
@@ -32,6 +39,8 @@ if __name__ == '__main__':
     started = time()
     n = load_db()
     logging.info('Objects loaded: %d (%.2f seconds).', n, time() - started)
+    if args.test_db:
+        raise SystemExit
     ServerOptions.instance_id = args.options_id
     if ServerOptions.get() is None:
         logging.critical('Invalid ID for server options: %d.', args.options_id)
