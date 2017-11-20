@@ -14,7 +14,6 @@ let convolver = null
 let convolver_url = null
 let convolver_mixer = null
 
-let reverb = {}
 let ambience_mixer = null
 let room = null
 let zone = null
@@ -845,8 +844,7 @@ let mindspace_functions = {
         }
     },
     location: obj => {
-        let [name, ambience_sound, ambience_volume, music_sound, max_distance, reverb_options] = obj.args
-        reverb.options = reverb_options
+        let [name, ambience_sound, ambience_volume, music_sound, max_distance] = obj.args
         player.max_distance = max_distance
         /*
         for (let id in objects) {

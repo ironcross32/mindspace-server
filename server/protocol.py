@@ -4,11 +4,6 @@ hard-coding."""
 import os.path
 from .sound import get_sound
 
-reverb_property_names = (
-    'cutoff_frequency', 'delay_modulation_depth', 'delay_modulation_frequency',
-    'density', 't60', 'mul'
-)
-
 
 def message(con, message, channel=None):
     """Get the client to display a message."""
@@ -39,14 +34,9 @@ def location(con, obj):
     else:
         music = get_sound(os.path.join('music', obj.music))
         music = music.dump()
-    d = {
-        name: getattr(
-            obj, name
-        ) for name in reverb_property_names
-    }
     con.send(
         'location', obj.name, sound, obj.ambience_volume, music,
-        obj.max_distance, d
+        obj.max_distance
     )
     if obj.description is not None:
         message(con, obj.description)
