@@ -476,6 +476,7 @@ let menu_keys = {
 function search_menu(e) {
     let now = new Date().getTime()
     if (now - menu_last_search >= menu_search_interval) {
+        console.log(now - menu_last_search)
         menu_search = ""
     }
     menu_last_search = now
