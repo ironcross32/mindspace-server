@@ -23,6 +23,11 @@ let escape = null
 
 let quitting = false
 
+function hide(element) {
+    element.hidden = true
+    disconnect.focus()
+}
+
 function scroll_bottom() {
     window.scrollTo(0,document.body.scrollHeight)
 }
@@ -418,7 +423,7 @@ document.onkeydown = (e) => {
         key = keyboard_transformations[key]
     }
     if (!modifiers.count && key == "ESCAPE" && escape !== null) {
-        escape.hidden = true
+        hide(escape)
         escape = null
     } else {
         if (["ENTER", " ", "TAB", "W", "Q"].includes(key) || key[0] == "F") {
@@ -442,7 +447,7 @@ let game = document.getElementById("game")
 let url = document.getElementById("url")
 
 url.onclick = () => {
-    url.hidden = true
+    hide(url)
 }
 
 let menu = document.getElementById("menu")
@@ -454,7 +459,7 @@ let menu_last_search = 0
 let menu_search_interval = 1000 // Milliseconds
 let menu_hide = document.getElementById("menu-hide")
 menu_hide.onclick = () => {
-    menu.hidden = true
+    hide(menu)
 }
 
 let menu_keys = {
@@ -497,7 +502,7 @@ let text = document.getElementById("text")
 
 let text_cancel = document.getElementById("text-cancel")
 text_cancel.onclick = () => {
-    text.hidden = true
+    hide(text)
 }
 
 let text_form = document.getElementById("text-form")
@@ -513,7 +518,7 @@ text_form.onsubmit = (e) => {
     e.preventDefault()
     text_command.args.push(text_element.value)
     send(text_command)
-    text.hidden = true
+    hide(text)
 }
 
 let text_label = document.getElementById("text-label")
@@ -538,14 +543,14 @@ form.onsubmit = (e) => {
     }
     form_command.args.push(data)
     send(form_command)
-    form.hidden = true
+    hide(form)
 }
 
 let form_h = document.getElementById("form-h")
 let form_p = document.getElementById("form-p")
 let form_hide = document.getElementById("form-hide")
 form_hide.onclick = () => {
-    form.hidden = true
+    hide(form)
 }
 let form_ok = document.getElementById("form-ok")
 
@@ -558,7 +563,8 @@ let form_fields = {}
 
 hide_elements()
 
-document.getElementById("disconnect").onclick = () => {
+let disconnect = document.getElementById("disconnect")
+disconnect.onclick = () => {
     if (connected) {
         send({name: "quit"})
     } else {
@@ -576,7 +582,7 @@ function menu_button(e) {
             kwargs: JSON.parse(i.kwargs)
         }
     )
-    menu.hidden = true
+    hide(menu)
 }
 
 function clear_element(e) {
@@ -996,7 +1002,7 @@ connect_form.onsubmit = (e) => {
 }
 
 function create_socket(obj) {
-    connect.hidden = true
+    hide(connect)
     game.hidden = false
     soc = new WebSocket(`ws://${window.location.hostname}:6465`)
     soc.onclose = (e) => {
