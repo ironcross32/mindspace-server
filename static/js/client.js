@@ -458,19 +458,19 @@ menu_hide.onclick = () => {
 }
 
 let menu_keys = {
-    ARROWDOWN: () => {
+    "ARROWDOWN": () => {
         if (menu_index === null) {
             menu_index = 0
         }
         menu_index = Math.min(menu_ul.children.length, menu_index + 1)
         menu_ul.children[menu_index].firstChild.focus()
     },
-    ARROWUP: () => {
+    "ARROWUP": () => {
         menu_index = Math.max(0, menu_index - 1)
         menu_ul.children[menu_index].firstChild.focus()
     },
-    ENTER: () => false,
-    SPACE: () => false
+    "ENTER": () => false,
+    " ": () => write_message("Enter key.")
 }
 
 function search_menu(e) {
