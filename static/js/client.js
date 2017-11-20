@@ -575,6 +575,7 @@ disconnect.onclick = () => {
 function menu_button(e) {
     escape = null
     let i = e.target
+    hide(menu)
     send(
         {
             name: i.command,
@@ -582,7 +583,6 @@ function menu_button(e) {
             kwargs: JSON.parse(i.kwargs)
         }
     )
-    hide(menu)
 }
 
 function clear_element(e) {
