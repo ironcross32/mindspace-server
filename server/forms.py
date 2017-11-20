@@ -1,5 +1,6 @@
 """Contains the Form, Label, and Field classes."""
 
+from inspect import isclass
 from attr import attrs, attrib, Factory
 
 
@@ -39,15 +40,18 @@ class Field:
         """Return this object as a dict."""
         t = self.type
         assert not isinstance(t, dict), 'Dictionary: %r.' % t
-        if isinstance(t, list):
-            res = []
-            for item in t:
-                if not isinstance(item, list) or len(item) != 2:
-                    if isinstance(item, list):
-                        item = item[0]
-                    item = [item, item]
-                res.append(item)
-            t = res
+        if isclass(t):
+            t = t.__name__
+        else:
+            if isinstance(t, list):
+                res = []
+                for item in t:
+                    if not isinstance(item, list) or len(item) != 2:
+                        if isinstance(item, list):
+                            item = item[0]
+                        item = [item, item]
+                    res.append(item)
+                t = res
         return {
             'type': self.__class__.__name__,
             'values': [self.name, self.value, t, self.title, self.hidden]
