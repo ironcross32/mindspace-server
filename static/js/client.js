@@ -389,7 +389,11 @@ hide_keyboard(Cookies.get("hide_keyboard"))
 hide_keyboard_button.onclick = () => hide_keyboard(!keyboard.hidden)
 
 document.onkeydown = (e) => {
-    let key = e.key.toUpperCase()
+    let key = e.key
+    if (key === undefined) {
+        return false
+    }
+    key = key.toUpperCase()
     let current = document.activeElement
     if (e.key === undefined || !connected || [
         "text", "password", "textarea", "number", "select-one"
