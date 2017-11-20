@@ -442,6 +442,9 @@ let menu = document.getElementById("menu")
 let menu_h = document.getElementById("menu-h")
 let menu_ul = document.getElementById("menu-ul")
 let menu_index = null
+let menu_search = ""
+let menu_last_search = 0
+let menu_search_interval = 1.0
 let menu_hide = document.getElementById("menu-hide")
 menu_hide.onclick = () => {
     menu.hidden = true
@@ -461,6 +464,26 @@ let menu_keys = {
     },
     ENTER: () => false,
     SPACE: () => false
+}
+
+function search_menu(e) {
+    let now = new Date().getTime()
+    if (now - menu_last_search >= menu_search_interval) {
+        menu_search = ""
+    }
+    menu_last_search = now
+    menu_search += e.key
+    for (let child of menu_ul.children) {
+        let button = child.firstChild
+        if (button.value !== undefined && button.value.toLowerCase().startsWith(menu_search)) {
+            button.focus()
+            return false
+        }
+    }
+}
+
+for (let char of "ABCDEFGHIJKLMNOPQRSTUVWXYZ") {
+    menu_keys[char] = search_menu
 }
 
 let text = document.getElementById("text")
