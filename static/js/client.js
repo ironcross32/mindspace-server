@@ -851,6 +851,8 @@ let mindspace_functions = {
     menu: obj => {
         let [title, items, escapable] = obj.args
         menu_index = null
+        menu_search = ""
+        menu_last_search = ""
         menu.hidden = false
         if (escapable) {
             escape = menu
