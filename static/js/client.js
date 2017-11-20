@@ -579,6 +579,15 @@ function menu_button(e) {
     menu.hidden = true
 }
 
+function menu_heading() {
+    for (let i = 0; i < menu_ul.children.length; i++) {
+        let button = menu_ul.children[i].firstChild
+        if (button === document.activeElement && i != (menu_ul.children.length - 1)) {
+            menu_ul.children[i + 1].firstChild.focus()
+        }
+    }
+}
+
 function clear_element(e) {
     // Below code based on the first answer at:
     // https://stackoverflow.com/questions/3955229/remove-all-child-elements-of-a-dom-node-in-javascript
@@ -871,22 +880,19 @@ let mindspace_functions = {
         for (let item of items) {
             let [name, command, args, kwargs] = item
             let li = document.createElement("li")
-            let i = null
+            let i = document.createElement("input")
+            i.type = "button"
+            i.role="menuitem"
             if (command) {
-                i = document.createElement("input")
-                i.tabindex = 0
-                i.type = "button"
-                i.role="menuitem"
-                i.value = name
                 i.command = command
                 i.args = JSON.stringify(args)
                 i.kwargs = JSON.stringify(kwargs)
                 i.onclick = menu_button
             } else {
-                i = document.createElement("h3")
-                i.tabindex="-1"
-                i.innerText = name
+                name = `- ${name} -`
+                i.onclick = menu_heading
             }
+            i.value = name
             li.appendChild(i)
             menu_ul.appendChild(li)
         }
