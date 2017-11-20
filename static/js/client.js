@@ -94,9 +94,11 @@ function create_mixer(volume, output) {
     }
     if (output !== null) { // Optionally don't connect this node.
         if (output === undefined) {
+            if (environment === null) {
+                create_environment()
+            }
             output = environment
         }
-        create_environment()
         g.connect(output)
     }
     return g
