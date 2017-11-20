@@ -836,6 +836,7 @@ let mindspace_functions = {
     },
     menu: obj => {
         let [title, items, escapable] = obj.args
+        menu_index = null
         menu.hidden = false
         if (escapable) {
             escape = menu
@@ -906,7 +907,7 @@ let mindspace_functions = {
         if (char !== undefined) {
             audio.listener.setPosition(char.panner.positionX.value, char.panner.positionY.value, char.panner.positionZ.value)
         } else {
-            send("identify", character_id)
+            send({name: "identify", args: [character_id]})
         }
     },
     zone: obj => {
