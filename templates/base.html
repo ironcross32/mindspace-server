@@ -7,6 +7,7 @@
 </head>
 <body>
 <h1>{% block header %}Welcome to Mindspace{% endblock %}</h1>
+<div role="navigation">
 <h2>Menu</h2>
 <p>
 <a href="/">Home</a>
@@ -25,12 +26,17 @@
  |
 <a href="/login">Login</a>
 </p>
+</div>
 <hr>
+<div role="main">
 {% block body %}
 <p>Please choose an entry from the menu above to get started.</p>
 {% endblock %}
+</div>
 <hr>
+<div role="contentinfo">
 <p>Powered by Klein version {{ klein_version }}, running under Python {{ python_version }}.</p>
 <p>Copyright (c) forever by Chris Norman.</p>
+</div>
 </body>
 </html>
