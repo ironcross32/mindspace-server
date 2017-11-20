@@ -96,6 +96,7 @@ function create_mixer(volume, output) {
         if (output === undefined) {
             output = environment
         }
+        create_environment()
         g.connect(output)
     }
     return g
