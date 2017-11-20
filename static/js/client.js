@@ -872,7 +872,11 @@ let mindspace_functions = {
     character_id: obj => {
         character_id = obj.args[0]
         let char = objects[character_id]
-        audio.listener.setPosition(char.panner.positionX.value, char.panner.positionY.value, char.panner.positionZ.value)
+        if (char !== undefined) {
+            audio.listener.setPosition(char.panner.positionX.value, char.panner.positionY.value, char.panner.positionZ.value)
+        } else {
+            send("identify", character_id)
+        }
     },
     zone: obj => {
         let [ambience_sound, ambience_rate, ambience_volume] = obj.args
