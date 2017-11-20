@@ -213,7 +213,8 @@ class Object(
     @log_commands.setter
     def log_commands(self, value):
         con = self.get_connection()
-        con.logged = value
+        if con is not None:
+            con.logged = value
 
     @property
     def is_transit(self):
