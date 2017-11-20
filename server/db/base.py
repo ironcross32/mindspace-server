@@ -361,10 +361,10 @@ class DirectionMixin:
 
     @classmethod
     def get_fields(cls, instance):
-        d = {None: 'None'}
+        directions = [[None, 'None']]
         for direction in Base._decl_class_registry['Direction'].query():
-            d[direction.id] = direction.get_name(True)
-        return [instance.make_field('direction_id', type=d)]
+            directions.append([direction.id, direction.get_name(True)])
+        return [instance.make_field('direction_id', type=directions)]
 
 
 class CommunicationChannelMixin:

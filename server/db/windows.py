@@ -24,11 +24,11 @@ class Window(Base):
     def get_all_fields(self):
         fields = [
             self.make_field(
-                'overlooking_id', type={
-                    x.id: x.get_name(
+                'overlooking_id', type=[
+                    [x.id, x.get_name(
                         True
-                    ) for x in self.object.location.zone.rooms
-                }
+                    )] for x in self.object.location.zone.rooms
+                ]
             ),
             self.make_field('opened', type=bool)
         ]

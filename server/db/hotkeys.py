@@ -33,11 +33,11 @@ class Hotkey(Base, NameMixin, DescriptionMixin, CodeMixin, PermissionsMixin):
         for name in ('ctrl', 'shift', 'alt'):
             fields.append(
                 self.make_field(
-                    name, type={
-                        None: 'Either',
-                        True: 'Down',
-                        False: 'Up'
-                    }
+                    name, type=[
+                        [None, 'Either'],
+                        [True, 'Down'],
+                        [False, 'Up']
+                    ]
                 )
             )
         return fields
