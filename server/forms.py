@@ -37,14 +37,18 @@ class Field:
 
     def dump(self):
         """Return this object as a dict."""
+        t = self.type
+        assert not isinstance(t, dict), 'Dictionary: %r.' % t
+        if isinstance(t, list):
+            res = []
+            for item in t:
+                if len(item) != 2:
+                    item = [item, item]
+                res.append(item)
+            t = res
         return {
             'type': self.__class__.__name__,
-            'values': [
-                self.name, self.value, getattr(
-                    self.type, '__name__', self.type
-                ), self.title,
-                self.hidden
-            ]
+            'values': [self.name, self.value, t, self.title, self.hidden]
         }
 
 
