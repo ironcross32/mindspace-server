@@ -72,7 +72,7 @@ class Room(
 
     def convolver_choices(self):
         return [None] + sorted(
-            [x for x in os.listdir(impulses_dir)if x.endswith('.m4a')]
+            [x for x in os.listdir(impulses_dir)if not x.endswith('.txt')]
         )
 
     def floor_type_choices(self):
