@@ -377,7 +377,7 @@ document.onkeydown = (e) => {
         escape.hidden = true
         escape = null
     } else {
-        if (key == "TAB" || key[0] == "F") {
+        if (["TAB", "W", "Q"].contains(key) || key[0] == "F") {
             e.preventDefault()
         }
         send({name: "key", args: [key, modifiers]})
