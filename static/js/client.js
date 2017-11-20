@@ -480,6 +480,7 @@ function search_menu(e) {
     }
     menu_last_search = now
     menu_search += e.key
+    console.log(menu_search)
     for (let child of menu_ul.children) {
         let button = child.firstChild
         if (button.value !== undefined && button.value.toLowerCase().startsWith(menu_search)) {
