@@ -463,7 +463,7 @@ let menu_keys = {
         if (menu_index === null) {
             menu_index = 0
         }
-        menu_index = Math.min(menu_ul.children.length, menu_index + 1)
+        menu_index = Math.min(menu_ul.children.length - 1, menu_index + 1)
         menu_ul.children[menu_index].firstChild.focus()
     },
     "ARROWUP": () => {
