@@ -482,18 +482,13 @@ function search_menu(e) {
     }
     menu_last_search = now
     menu_search += e.key.toLowerCase()
-    let i = 0
-    for (let child of menu_ul.children) {
-        if (i < menu_index) {
-            continue
-        }
+    for (let i = menu_index; i < menu_ul.children.length; i++) {
+        let child = menu_ul.children[i]
         let button = child.firstChild
         if (button.value !== undefined && button.value.toLowerCase().startsWith(menu_search)) {
             button.focus()
             menu_index = i
             return false
-        } else {
-            i++
         }
     }
 }
