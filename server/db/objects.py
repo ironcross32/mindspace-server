@@ -1,8 +1,10 @@
 """Provides the Object class."""
 
 import os.path
+from datetime import datetime
 from sqlalchemy import (
-    Column, Integer, ForeignKey, Boolean, Float, func, or_, and_, String
+    Column, Integer, ForeignKey, Boolean, Float, func, or_, and_, String,
+    Interval, DateTime
 )
 from sqlalchemy.orm import relationship, backref
 from .base import (
@@ -35,7 +37,10 @@ class Object(
     DescriptionMixin, OwnerMixin, RandomSoundContainerMixin
 ):
     """An object or player."""
+
     __tablename__ = 'objects'
+    connected_time = Column(Interval, nullable=True)
+    last_connected = Column(DateTime(timezone=True), nullable=True)
     teleport_msg = Column(
         String(100), nullable=False,
         default='%1n vanish%1e in a column of light.'
@@ -257,7 +262,15 @@ class Object(
             old.player_id = None
             remember_quit(old)
             old.disconnect('Reconnecting from somewhere else.')
-        if con is not None:
+        if con is None:
+            # Remember how long we were connected for.
+            recent = datetime.utcnow() - self.last_connected
+            if self.connected_time is None:
+                self.connected_time = recent
+            else:
+                self.connected_time += recent
+        else:
+            self.last_connected = datetime.utcnow()
             con.player_id = self.id
             con.locked = self.player.locked
             connections[self.id] = con
