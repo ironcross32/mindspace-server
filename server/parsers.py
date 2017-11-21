@@ -80,7 +80,7 @@ def login(con, username, password):
         if obj.last_connected is None:
             msg = 'This is your first time connected.'
         else:
-            msg = f'Last connected: {obj.last_connected}.'
+            msg = f'Last connected: {obj.last_connected.ctime()}.'
         obj.register_connection(con)
         obj.message(msg)
         if obj.location is None:
