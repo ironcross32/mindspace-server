@@ -490,9 +490,10 @@ function search_menu(e) {
         let button = child.firstChild
         if (button.value !== undefined && button.value.toLowerCase().startsWith(menu_search)) {
             button.focus()
+            menu_index = i
             return false
         } else {
-            menu_index++
+            i++
         }
     }
 }
