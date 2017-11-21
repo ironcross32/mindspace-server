@@ -224,8 +224,6 @@ function unlock_audio() {
     }, 0)
 }
 
-window.addEventListener("touchstart", unlock_audio, false)
-
 let keyboard = document.getElementById("keyboard")
 let modifiers = {}
 
@@ -978,6 +976,7 @@ set_title()
 
 connect_form.onsubmit = (e) => {
     e.preventDefault()
+    unlock_audio()
     let obj = {port: 6464}
     let ok = true
     for (let name of field_names) {
