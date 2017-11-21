@@ -190,6 +190,7 @@ function send(obj) {
     }
     let l = [obj.name, obj.args, obj.kwargs]
     let value = JSON.stringify(l)
+    unlock_audio()
     soc.send(value)
 }
 
@@ -976,7 +977,6 @@ set_title()
 
 connect_form.onsubmit = (e) => {
     e.preventDefault()
-    unlock_audio()
     let obj = {port: 6464}
     let ok = true
     for (let name of field_names) {
