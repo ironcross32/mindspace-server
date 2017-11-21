@@ -47,7 +47,7 @@ class Object(
     )
     teleport_sound = Column(
         String(100), nullable=False,
-        default=os.path.join('exits', 'teleport.wav')
+        default=os.path.join('ambiences', 'teleport.wav')
     )
     transit_route_id = Column(
         Integer, ForeignKey('transit_routes.id'), nullable=True

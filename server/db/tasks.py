@@ -1,6 +1,6 @@
 """Provides the Task class."""
 
-from sqlalchemy import Column, Float, Boolean
+from sqlalchemy import Column, Float
 from .base import Base, NameMixin, DescriptionMixin, CodeMixin, PauseMixin
 
 
