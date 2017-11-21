@@ -478,14 +478,21 @@ function search_menu(e) {
     let now = new Date().getTime()
     if (now - menu_last_search >= menu_search_interval) {
         menu_search = ""
+        menu_index = 0
     }
     menu_last_search = now
     menu_search += e.key
+    let i = 0
     for (let child of menu_ul.children) {
+        if (i < menu_index) {
+            continue
+        }
         let button = child.firstChild
         if (button.value !== undefined && button.value.toLowerCase().startsWith(menu_search)) {
             button.focus()
             return false
+        } else {
+            menu_index++
         }
     }
 }
