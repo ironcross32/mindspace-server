@@ -470,6 +470,14 @@ let menu_keys = {
         menu_index = Math.max(0, menu_index - 1)
         menu_ul.children[menu_index].firstChild.focus()
     },
+    HOME: () => {
+        menu_index = -1
+        menu_keys.ARROWDOWN()
+    },
+    END: () => {
+        menu_index = menu_ul.children.length
+        menu_keys.ARROWUP()
+    },
     "ENTER": () => true,
     " ": () => true
 }
