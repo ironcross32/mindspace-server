@@ -478,8 +478,7 @@ let menu_keys = {
         menu_index = menu_ul.children.length
         menu_keys.ARROWUP()
     },
-    "ENTER": () => true,
-    " ": () => true
+    "ENTER": () => true
 }
 
 function search_menu(e) {
@@ -501,7 +500,7 @@ function search_menu(e) {
     }
 }
 
-for (let char of "ABCDEFGHIJKLMNOPQRSTUVWXYZ") {
+for (let char of "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 -=") {
     menu_keys[char] = search_menu
 }
 
