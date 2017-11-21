@@ -481,7 +481,7 @@ function search_menu(e) {
         menu_index = 0
     }
     menu_last_search = now
-    menu_search += e.key
+    menu_search += e.key.toLowerCase()
     let i = 0
     for (let child of menu_ul.children) {
         if (i < menu_index) {
