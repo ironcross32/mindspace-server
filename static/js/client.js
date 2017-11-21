@@ -919,7 +919,7 @@ let mindspace_functions = {
             thing.panner.panningModel = "HRTF"
             thing.panner.distanceModel = "linear"
             thing.panner.connect(mixer)
-            thing.panner.maxDistance.value = player.max_distance
+            thing.panner.maxDistance = player.max_distance
             objects[id] = thing
         }
         if (id == character_id) {
