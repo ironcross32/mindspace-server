@@ -1,5 +1,6 @@
 """Provides the Room class."""
 
+import sys
 import os
 import os.path
 from sqlalchemy import Column, Float, String, Integer, ForeignKey
@@ -71,9 +72,28 @@ class Room(
         return [None] + sorted(os.listdir(music_dir))
 
     def convolver_choices(self):
-        return [None] + sorted(
-            [x for x in os.listdir(impulses_dir)if not x.endswith('.txt')]
-        )
+        res = [None]
+        for filename in os.listdir(impulses_dir):
+            name, ext = os.path.splitext(filename)
+            if ext == '.m4a':
+                readme = os.path.join(impulses_dir, name + '.attribution.txt')
+                if os.path.isfile(readme):
+                    with open(readme, 'rb') as f:
+                        try:
+                            lines = [
+                                x for x in f.readlines() if x.startswith(b'"')
+                            ]
+                        except Exception as e:
+                            lines = [
+                                f'Unable to read file {readme}: {e}."'.encode()
+                            ]
+                        description = b'. '.join(lines).decode(
+                            sys.getdefaultencoding(), 'replace'
+                        )
+                else:
+                    description = 'No description available.'
+                res.append([filename, f'{filename}: {description.strip()}'])
+        return res
 
     def floor_type_choices(self):
         return [None] + sorted(os.listdir(floor_types_dir))
