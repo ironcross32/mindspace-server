@@ -64,11 +64,6 @@ function create_ambience(obj, sound, volume, output) {
         if (obj === null || obj.path != path || obj.sum !== sum) {
             // Empty object or path and / or sum don't match.
             if (obj !== null) {
-                if (obj.mixer === null || obj.mixer === undefined) {
-                    // Let's build us a mixer.
-                    obj.mixer = audio.createGain()
-                    obj.mixer.connect(output)
-                }
                 // Could be an old ambience.
                 if (obj.source !== undefined) {
                     // There is a sound.
@@ -77,6 +72,11 @@ function create_ambience(obj, sound, volume, output) {
             } else {
                 // Object === null.
                 obj = {} // Default object.
+            }
+            if (obj.mixer === null || obj.mixer === undefined) {
+                // Let's build us a mixer.
+                obj.mixer = audio.createGain()
+                obj.mixer.connect(output)
             }
             get_sound(path, sum).then(get_source).then(source => {
                 obj.path = path,
