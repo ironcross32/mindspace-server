@@ -91,6 +91,7 @@ def hidden_sound(con, sound, coordinates, is_dry):
 
 def form(con, form):
     """Tell the client to display form."""
+    interface_sound(con, get_sound(os.path.join('notifications', 'form.wav')))
     return con.send('form', *form.dump())
 
 
