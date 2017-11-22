@@ -87,8 +87,8 @@ function create_ambience(obj, sound, volume, output) {
                 source.start(0)
             })
         }
+        obj.mixer.gain.value = volume
     }
-    obj.mixer.gain.value = volume
     return obj
 }
 
