@@ -252,6 +252,8 @@ let keyboard_transformations = {
     "|": "\\",
 }
 
+keyboard_transformations[String.fromKeyCode(163)] = "3"
+
 function create_key(id, value, type) {
     if (value === undefined) {
         value = id.toUpperCase()
