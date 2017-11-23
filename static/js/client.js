@@ -717,12 +717,13 @@ let mindspace_functions = {
             let g = audio.createGain()
             g.connect(mixer)
             p.connect(g)
+            write_special(`Volume: ${g.gain.value}. Max distance: ${p.maxDistance}.`)
             g.gain.value = volume
-            write_special(`Volume: ${volume}. Max distance: ${max_distance}.`)
             p.setPosition(x, y, z)
             p.maxDistance = max_distance
             source.connect(p)
             source.start()
+            write_special(`Volume: ${g.gain.value}. Max distance: ${p.maxDistance}.`)
         })
     },
     object_sound: obj => {
