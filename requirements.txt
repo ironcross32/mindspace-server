@@ -16,3 +16,4 @@ psutil
 humanize
 emote-utils
 random-password
+pyopenssl
