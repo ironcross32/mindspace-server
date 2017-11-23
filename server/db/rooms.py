@@ -119,7 +119,7 @@ class Room(
             objects = self.objects
         else:
             Object = _who.__class__
-            md = self.max_distance
+            md = self.max_distance * _who.max_distance_multiplier
             query_args = [Object.location_id == self.id]
             for name in ('x', 'y', 'z'):
                 query_args.append(

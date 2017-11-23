@@ -20,8 +20,10 @@ def character_id(con, id):
     return con.send('character_id', id)
 
 
-def location(con, obj):
+def location(con, obj=None):
     """Tell the client about the player's location."""
+    if obj is None:
+        obj = con.get_player().location
     if obj.ambience is None:
         sound = None
     else:
@@ -34,10 +36,7 @@ def location(con, obj):
     else:
         music = get_sound(os.path.join('music', obj.music))
         music = music.dump()
-    con.send(
-        'location', obj.name, sound, obj.ambience_volume, music,
-        obj.max_distance
-    )
+    con.send('location', obj.name, sound, obj.ambience_volume, music)
     if obj.description is not None:
         message(con, obj.description)
     convolver(con, obj.convolver, obj.convolver_volume)
@@ -63,12 +62,16 @@ def identify(con, obj):
         else:
             sound = get_sound(os.path.join('ambiences', obj.ambience))
         sound = sound.dump()
+    if obj.location is None:
+        max_distance = 0.0
+    else:
+        max_distance = obj.location.max_distance * obj.max_distance_multiplier
     return con.send(
         'identify', obj.id,
         getattr(obj, 'x', 0.0),
         getattr(obj, 'y', 0.0),
         getattr(obj, 'z', 0.0),
-        sound, obj.ambience_volume
+        sound, obj.ambience_volume, max_distance
     )
 
 
@@ -82,10 +85,13 @@ def options(con, obj):
     mute_mic(con, obj.mic_muted)
 
 
-def hidden_sound(con, sound, coordinates, is_dry):
+def hidden_sound(
+    con, sound, coordinates, is_dry=False, volume=1.0, max_distance=100
+):
     """Tell the client to play a sound at the given coordinates."""
     return con.send(
-        'hidden_sound', sound.path, sound.sum, *coordinates, is_dry
+        'hidden_sound', sound.path, sound.sum, *coordinates, is_dry, volume,
+        max_distance
     )
 
 
@@ -144,9 +150,9 @@ def zone(con, zone):
     con.send('zone', sound, zone.background_rate, zone.background_volume)
 
 
-def random_sound(con, sound, x, y, z, volume):
+def random_sound(con, sound, x, y, z, volume=1.0, max_distance=100):
     """Send a random sound to the client."""
-    con.send('random_sound', *sound.dump(), x, y, z, volume)
+    con.send('random_sound', *sound.dump(), x, y, z, volume, max_distance)
 
 
 def convolver(con, filename, volume):

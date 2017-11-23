@@ -637,7 +637,6 @@ let player = {
     sound_volume: null,
     ambience_volume: null,
     music_volume: null,
-    max_distance: 150
 }
 
 function set_convolver(url, node, volume) {
@@ -712,7 +711,7 @@ let mindspace_functions = {
         }
     },
     random_sound: obj => {
-        let [path, sum, x, y, z, volume] = obj.args
+        let [path, sum, x, y, z, volume, max_distance] = obj.args
         get_sound(path, sum).then(get_source).then(source => {
             let p = audio.createPanner()
             let g = audio.createGain()
@@ -720,7 +719,7 @@ let mindspace_functions = {
             g.connect(mixer)
             p.connect(g)
             p.setPosition(x, y, z)
-            p.maxDistance = player.max_distance
+            p.maxDistance = max_distance
             source.connect(p)
             source.start()
         })
@@ -738,7 +737,7 @@ let mindspace_functions = {
         }
     },
     hidden_sound: (obj) => {
-        let [path, sum, x, y, z, is_dry] = obj.args
+        let [path, sum, x, y, z, is_dry, volume, max_distance] = obj.args
         get_sound(path, sum).then(get_source).then(source => {
             let p = audio.createPanner()
             let g = audio.createGain()
@@ -747,9 +746,10 @@ let mindspace_functions = {
             } else {
                 g.connect(mixer)
             }
+            g.gain.value = volume
             p.connect(g)
             p.setPosition(x, y, z)
-            p.maxDistance = player.max_distance
+            p.maxDistance = max_distance
             source.connect(p)
             source.start()
         })
@@ -913,7 +913,7 @@ let mindspace_functions = {
         }
     },
     identify: obj => {
-        let [id, x, y, z, ambience_sound, ambience_volume] = obj.args
+        let [id, x, y, z, ambience_sound, ambience_volume, max_distance] = obj.args
         let thing = objects[id]
         if (thing === undefined) {
             thing = {ambience: null, panner: audio.createPanner()}
@@ -921,7 +921,7 @@ let mindspace_functions = {
             thing.panner.panningModel = "HRTF"
             thing.panner.distanceModel = "linear"
             thing.panner.connect(mixer)
-            thing.panner.maxDistance = player.max_distance
+            thing.panner.maxDistance = max_distance
             objects[id] = thing
         }
         if (id == character_id) {
@@ -952,11 +952,7 @@ let mindspace_functions = {
         }
     },
     location: obj => {
-        let [name, ambience_sound, ambience_volume, music_sound, max_distance] = obj.args
-        player.max_distance = max_distance
-        for (let id in objects) {
-            objects[id].panner.maxDistance = max_distance
-        }
+        let [name, ambience_sound, ambience_volume, music_sound] = obj.args
         room = create_ambience(room, ambience_sound, ambience_volume, ambience_mixer)
         music = create_ambience(music, music_sound, player.music_volume)
         if (room !== null) {

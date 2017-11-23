@@ -39,6 +39,7 @@ class Object(
     """An object or player."""
 
     __tablename__ = 'objects'
+    max_distance_multiplier = Column(Float, nullable=False, default=1.0)
     connected_time = Column(Interval, nullable=True)
     last_connected = Column(DateTime(timezone=True), nullable=True)
     teleport_msg = Column(
@@ -197,6 +198,8 @@ class Object(
             'teleport_msg', 'teleport_sound'
         ):
             fields.append(self.make_field(name))
+        for name in ('max_distance_multiplier',):
+            fields.append(self.make_field(name, type=float))
         for name in ('window', 'exit', 'mobile', 'player'):
             obj = getattr(self, name)
             if obj is not None:
