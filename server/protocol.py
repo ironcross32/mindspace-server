@@ -140,8 +140,10 @@ def mute_mic(con, value):
     con.send('mute_mic', value)
 
 
-def zone(con, zone):
+def zone(con, zone=None):
     """Tell connection con about a zone."""
+    if zone is None:
+        zone = con.get_player().location.zone
     if zone.background_sound is None:
         sound = None
     else:
