@@ -715,9 +715,10 @@ let mindspace_functions = {
         get_sound(path, sum).then(get_source).then(source => {
             let p = audio.createPanner()
             let g = audio.createGain()
-            g.gain.value = volume
             g.connect(mixer)
             p.connect(g)
+            g.gain.value = volume
+            write_special(`Volume: ${volume}. Max distance: ${max_distance}.`)
             p.setPosition(x, y, z)
             p.maxDistance = max_distance
             source.connect(p)
