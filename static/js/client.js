@@ -32,6 +32,16 @@ function scroll_bottom() {
     window.scrollTo(0,document.body.scrollHeight)
 }
 
+function create_panner(max_distance) {
+    let p = audio.createPanner()
+    if (max_distance !== undefined) {
+        p.maxDistance = max_distance
+    }
+    p.panningModel = "HRTF"
+    p.distanceModel = "linear"
+    return p
+}
+
 function create_ambience(obj, sound, volume, output) {
     create_environment()
     if (output === undefined) {
@@ -713,13 +723,12 @@ let mindspace_functions = {
     random_sound: obj => {
         let [path, sum, x, y, z, volume, max_distance] = obj.args
         get_sound(path, sum).then(get_source).then(source => {
-            let p = audio.createPanner()
+            let p = create_panner(max_distance)
             let g = audio.createGain()
             g.connect(mixer)
             p.connect(g)
             g.gain.value = volume
             p.setPosition(x, y, z)
-            p.maxDistance = max_distance
             source.connect(p)
             source.start()
         })
@@ -739,7 +748,7 @@ let mindspace_functions = {
     hidden_sound: (obj) => {
         let [path, sum, x, y, z, is_dry, volume, max_distance] = obj.args
         get_sound(path, sum).then(get_source).then(source => {
-            let p = audio.createPanner()
+            let p = create_panner(max_distance)
             let g = audio.createGain()
             if (is_dry) {
                 g.connect(environment)
@@ -749,7 +758,6 @@ let mindspace_functions = {
             g.gain.value = volume
             p.connect(g)
             p.setPosition(x, y, z)
-            p.maxDistance = max_distance
             source.connect(p)
             source.start()
         })
@@ -916,10 +924,8 @@ let mindspace_functions = {
         let [id, x, y, z, ambience_sound, ambience_volume, max_distance] = obj.args
         let thing = objects[id]
         if (thing === undefined) {
-            thing = {ambience: null, panner: audio.createPanner()}
+            thing = {ambience: null, panner: create_panner()}
             create_main_mixer()
-            thing.panner.panningModel = "HRTF"
-            thing.panner.distanceModel = "linear"
             thing.panner.connect(mixer)
             objects[id] = thing
         }
