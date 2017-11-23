@@ -921,9 +921,9 @@ let mindspace_functions = {
             thing.panner.panningModel = "HRTF"
             thing.panner.distanceModel = "linear"
             thing.panner.connect(mixer)
-            thing.panner.maxDistance = max_distance
             objects[id] = thing
         }
+        thing.panner.maxDistance = max_distance
         if (id == character_id) {
             // Set player perspective.
             audio.listener.setPosition(x, y, z)
