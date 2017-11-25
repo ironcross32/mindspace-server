@@ -965,7 +965,7 @@ let mindspace_functions = {
         let r = room
         room = null
         r = create_ambience(r, ambience_sound, ambience_volume, ambience_mixer)
-        if (r === null) {
+        if (room === null) {
             room = r
         }
         music = create_ambience(music, music_sound, player.music_volume)
