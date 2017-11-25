@@ -16,6 +16,7 @@ let convolver_mixer = null
 
 let ambience_mixer = null
 let room = null
+let room_ambience = null
 let zone = null
 let music = null
 
@@ -962,10 +963,9 @@ let mindspace_functions = {
     },
     location: obj => {
         let [name, ambience_sound, ambience_volume, music_sound] = obj.args
-        let r = room
-        room = null
-        r = create_ambience(r, ambience_sound, ambience_volume, ambience_mixer)
-        if (room === null) {
+        room_ambience = ambience_sound
+        let r = create_ambience(room, ambience_sound, ambience_volume, ambience_mixer)
+        if (room_ambience == ambience_sound) {
             room = r
         }
         music = create_ambience(music, music_sound, player.music_volume)
