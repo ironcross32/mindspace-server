@@ -962,7 +962,12 @@ let mindspace_functions = {
     },
     location: obj => {
         let [name, ambience_sound, ambience_volume, music_sound] = obj.args
-        room = create_ambience(room, ambience_sound, ambience_volume, ambience_mixer)
+        let r = room
+        room = null
+        r = create_ambience(r, ambience_sound, ambience_volume, ambience_mixer)
+        if (r === null) {
+            room = r
+        }
         music = create_ambience(music, music_sound, player.music_volume)
         if (room !== null) {
             room.name = name
