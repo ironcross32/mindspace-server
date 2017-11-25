@@ -24,6 +24,9 @@ let escape = null
 let quitting = false
 
 function hide(element) {
+    if (escape === element) {
+        escape = null
+    }
     element.hidden = true
     disconnect.focus()
 }
