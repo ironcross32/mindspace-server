@@ -15,7 +15,6 @@ class Task(Base, NameMixin, DescriptionMixin, CodeMixin, PauseMixin):
         fields = super().get_all_fields()
         fields.extend(
             [
-                self.make_field('disabled', type=bool),
                 self.make_field('interval', type=float)
             ]
         )
