@@ -712,10 +712,11 @@ let mindspace_functions = {
         let b = document.createElement("input")
         b.type = "button"
         b.value = "Copy"
-        b.focus()
         p.appendChild(b)
         d.appendChild(p)
         game.appendChild(d)
+        escape = d
+        b.focus()
         b.onclick = () => {
             if (document.execCommand("copy")) {
                 write_message(`Copied ${text}`)
