@@ -24,6 +24,11 @@ let escape = null
 
 let quitting = false
 
+function show(element) {
+    escape = element
+    element.hidden = false
+}
+
 function hide(element) {
     if (escape === element) {
         escape = null
@@ -446,6 +451,19 @@ document.onkeydown = (e) => {
     }
 }
 
+let copy_div = document.getElementById("copy")
+let copy_text = document.getElementById("copy-text")
+let copy_button = document.getElementById("copy-button")
+copy_button.onclick = () => {
+    let text = copy_text.value
+    if (document.execCommand("copy")) {
+        write_message(`Copied ${text}`)
+    } else {
+        write_special(`Failed to copy ${text}`)
+    }
+    hide(copy_div)
+}
+
 let connect_form = document.getElementById("connect-form")
 let connect = document.getElementById("connect")
 
@@ -700,31 +718,10 @@ let mindspace_functions = {
     },
     copy: obj => {
         let text = obj.args[0]
-        let d = document.createElement("div")
-        let h = document.createElement("h2")
-        h.innerText = "Copy Text"
-        d.appendChild(h)
-        let p = document.createElement("p")
-        let e = document.createElement("textarea")
-        e.value = text
-        e.select()
-        p.appendChild(e)
-        let b = document.createElement("input")
-        b.type = "button"
-        b.value = "Copy"
-        p.appendChild(b)
-        d.appendChild(p)
-        game.appendChild(d)
-        escape = d
-        b.focus()
-        b.onclick = () => {
-            if (document.execCommand("copy")) {
-                write_message(`Copied ${text}`)
-            } else {
-                write_special(`Failed to copy ${text}`)
-            }
-            game.removeChild(d)
-        }
+        show(copy_div)
+        copy_text.value = text
+        copy_text.select()
+        copy_button.focus()
     },
     random_sound: obj => {
         let [path, sum, x, y, z, volume, max_distance] = obj.args
@@ -770,17 +767,16 @@ let mindspace_functions = {
     },
     url: obj => {
         let [title, href] = obj.args
-        url.hidden = false
-        escape = url
+        show(url)
         url.innerText = title
         url.href = href
         url.focus()
     },
     get_text: obj => {
         let [message, command, value, multiline, escapable, args, kwargs] = obj.args
-        text.hidden = false
-        if (escapable) {
-            escape = text
+        show(text)
+        if (!escapable) {
+            escape = null
         }
         text_label.innerText = message
         text_command.name = command
@@ -801,12 +797,11 @@ let mindspace_functions = {
     },
     form: obj => {
         let [title, fields, command, args, kwargs, ok, cancel] = obj.args
-        form.hidden = false
+        show(form)
         form_h.innerText = title
         form_ok.innerText = ok
         if (cancel !== null) {
             form_hide.innerText = cancel
-            escape = form
         }
         form_hide.focus()
         clear_element(form_p)
@@ -888,9 +883,9 @@ let mindspace_functions = {
         menu_index = null
         menu_search = ""
         menu_last_search = 0
-        menu.hidden = false
-        if (escapable) {
-            escape = menu
+        show(menu)
+        if (!escapable) {
+            escape = null
         }
         menu_h.innerText = title
         menu_ul.title = title
