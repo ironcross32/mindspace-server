@@ -439,7 +439,7 @@ document.onkeydown = (e) => {
         hide(escape)
         escape = null
     } else {
-        if (["ENTER", " ", "TAB", "W", "Q"].includes(key) || key[0] == "F") {
+        if (["ENTER", " ", "TAB", "W", "Q", "T"].includes(key) || key[0] == "F") {
             e.preventDefault()
         }
         send({name: "key", args: [key, modifiers]})
