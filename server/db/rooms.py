@@ -7,7 +7,7 @@ from sqlalchemy import Column, Float, String, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from .base import (
     Base, SizeMixin, NameMixin, DescriptionMixin, AmbienceMixin,
-    RandomSoundMixin, RandomSoundContainerMixin, CoordinatesMixin
+    RandomSoundMixin, RandomSoundContainerMixin, CoordinatesMixin, ZoneMixin
 )
 from ..protocol import hidden_sound
 from ..sound import get_sound, sounds_dir
@@ -36,7 +36,7 @@ class RoomFloorType(Base, CoordinatesMixin, NameMixin):
 
 class Room(
     Base, NameMixin, DescriptionMixin, SizeMixin, AmbienceMixin,
-    RandomSoundContainerMixin
+    RandomSoundContainerMixin, ZoneMixin
 ):
     """A room."""
 
@@ -48,8 +48,6 @@ class Room(
     max_distance = Column(Float, nullable=False, default=100.0)
     visibility = Column(Float, nullable=False, default=1500.0)
     floor_type = Column(String(20), nullable=True, default='grass')
-    zone_id = Column(Integer, ForeignKey('zones.id'), nullable=True)
-    zone = relationship('Zone', backref='rooms', foreign_keys=[zone_id])
 
     def get_all_fields(self):
         fields = super().get_all_fields()

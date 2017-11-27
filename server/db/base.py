@@ -477,3 +477,27 @@ class PauseMixin:
     @classmethod
     def get_fields(cls, instance):
         return [instance.make_field('paused', type=bool)]
+
+
+class ZoneMixin:
+    """Add a zone to something."""
+
+    @declared_attr
+    def zone_id(cls):
+        return Column(Integer, ForeignKey('zones.id'), nullable=True)
+
+    @declared_attr
+    def zone(cls):
+        return relationship(
+            'Zone', backref=cls.__tablename__, foreign_keys=[cls.zone_id]
+        )
+
+    @classmethod
+    def get_fields(cls, instance):
+        Zone = Base._decl_class_registry['Zone']
+        zones = [None]
+        for zone in Zone.query().order_by(Zone.name.desc()):
+            zones.append([zone.id, zone.get_name(True)])
+        return [
+            instance.make_field('zone_id', type=zones)
+        ]

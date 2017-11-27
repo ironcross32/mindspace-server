@@ -9,7 +9,8 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship, backref
 from .base import (
     Base, CoordinatesMixin, NameMixin, AmbienceMixin, LocationMixin,
-    DescriptionMixin, OwnerMixin, RandomSoundMixin, RandomSoundContainerMixin
+    DescriptionMixin, OwnerMixin, RandomSoundMixin, RandomSoundContainerMixin,
+    ZoneMixin
 )
 from .session import Session
 from .communication import CommunicationChannel
@@ -34,9 +35,9 @@ class ObjectRandomSound(RandomSoundMixin, Base):
 
 class Object(
     Base, NameMixin, CoordinatesMixin, AmbienceMixin, LocationMixin,
-    DescriptionMixin, OwnerMixin, RandomSoundContainerMixin
+    DescriptionMixin, OwnerMixin, RandomSoundContainerMixin, ZoneMixin
 ):
-    """An object or player."""
+    """A player-facing object."""
 
     __tablename__ = 'objects'
     max_distance_multiplier = Column(Float, nullable=False, default=1.0)
@@ -223,6 +224,10 @@ class Object(
         con = self.get_connection()
         if con is not None:
             con.logged = value
+
+    @property
+    def has_zone(self):
+        return self.zone is not None
 
     @property
     def is_transit(self):
