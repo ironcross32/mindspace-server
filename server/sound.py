@@ -55,7 +55,11 @@ def get_sound(path):
 
 
 def get_ambience(path):
-    return get_sound(os.path.join('ambiences', path))
+    if path.startswith('/'):
+        path = path[1:]
+    else:
+        path = os.path.join('ambiences', path)
+    return get_sound(path)
 
 
 nonempty_room = get_sound(
