@@ -156,7 +156,7 @@ class Room(
             ).first()
             if covering is not None:
                 name = covering.name
-        if self.floor_type is not None and name is None:
+        if self.floor_type is not None and covering is None:
             name = self.floor_type
         if name is not None:
             return get_sound(
