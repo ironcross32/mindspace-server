@@ -2,7 +2,7 @@
 hard-coding."""
 
 import os.path
-from .sound import get_sound
+from .sound import get_sound, get_ambience
 
 
 def message(con, message, channel=None):
@@ -27,9 +27,7 @@ def location(con, obj=None):
     if obj.ambience is None:
         sound = None
     else:
-        sound = get_sound(
-            os.path.join('ambiences', obj.ambience)
-        )
+        sound = get_ambience(obj.ambience)
         sound = sound.dump()
     if obj.music is None:
         music = None
@@ -57,10 +55,7 @@ def identify(con, obj):
     if not hasattr(obj, 'ambience') or obj.ambience is None:
         sound = None
     else:
-        if obj.ambience.startswith('/'):
-            sound = get_sound(obj.ambience[1:])
-        else:
-            sound = get_sound(os.path.join('ambiences', obj.ambience))
+        sound = get_ambience(obj.ambience)
         sound = sound.dump()
     if obj.location is None:
         max_distance = 0.0
@@ -144,12 +139,12 @@ def zone(con, zone=None):
     """Tell connection con about a zone."""
     if zone is None:
         zone = con.get_player().location.zone
-    if zone.background_sound is None:
+    if zone.ambience is None:
         sound = None
     else:
-        sound = get_sound(os.path.join('zones', zone.background_sound))
-        sound = (sound.path, sound.sum)
-    con.send('zone', sound, zone.background_rate, zone.background_volume)
+        sound = get_ambience(zone.ambience)
+        sound = sound.dump()
+    con.send('zone', sound, zone.ambience_rate, zone.ambience_volume)
 
 
 def random_sound(con, sound, x, y, z, volume=1.0, max_distance=100):
