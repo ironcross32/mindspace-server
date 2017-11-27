@@ -3,7 +3,7 @@
 import sys
 import os
 import os.path
-from sqlalchemy import Column, Float, String, Integer, ForeignKey
+from sqlalchemy import Column, Float, String, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from .base import (
     Base, SizeMixin, NameMixin, DescriptionMixin, AmbienceMixin,
@@ -41,6 +41,7 @@ class Room(
     """A room."""
 
     __tablename__ = 'rooms'
+    airlock = Column(Boolean, nullable=False, default=False)
     music = Column(String(100), nullable=True)
     convolver = Column(String(100), nullable=True)
     convolver_volume = Column(Float, nullable=False, default=1.0)
@@ -66,6 +67,8 @@ class Room(
                 )
             )
         fields.append(self.make_field('convolver_volume', type=float))
+        for name in ('airlock',):
+            fields.append(self.make_field(name, type=bool))
         return fields
 
     def music_choices(self):
