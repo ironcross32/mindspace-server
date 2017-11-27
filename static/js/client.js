@@ -795,6 +795,7 @@ let mindspace_functions = {
         text_element = e
         clear_element(text_field)
         text_field.appendChild(e)
+        e.select()
         e.focus()
     },
     form: obj => {
