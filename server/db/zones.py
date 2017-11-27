@@ -1,22 +1,19 @@
 """Provides the Zone class."""
 
-import os
-import os.path
-from sqlalchemy import Column, String, Float, Integer, ForeignKey, Boolean
+from sqlalchemy import Column, Float, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import relationship, backref
 from .base import (
     Base, CoordinatesMixin, NameMixin, DescriptionMixin, OwnerMixin,
-    DirectionMixin
+    DirectionMixin, AmbienceMixin
 )
 from ..forms import Label
 from ..protocol import zone
-from ..sound import sounds_dir
 from ..util import distance_between
 
 
 class Zone(
     Base, CoordinatesMixin, NameMixin, DescriptionMixin, OwnerMixin,
-    DirectionMixin
+    DirectionMixin, AmbienceMixin
 ):
     """A zone which contains 0 or more rooms."""
 
@@ -32,9 +29,8 @@ class Zone(
     star_id = Column(Integer, ForeignKey('stars.id'), nullable=True)
     star = relationship('Star', backref=backref('object', uselist=False))
     last_turn = Column(Float, nullable=False, default=0.0)
-    background_sound = Column(String(150), nullable=True)
-    background_rate = Column(Float, nullable=False, default=1.0)
-    background_volume = Column(Float, nullable=False, default=1.0)
+    ambience_rate = Column(Float, nullable=False, default=1.0)
+    ambience_volume = Column(Float, nullable=False, default=1.0)
     speed = Column(Float, nullable=True)
 
     @property
@@ -60,23 +56,8 @@ class Zone(
         fields.extend(DescriptionMixin.get_fields(self))
         fields.extend(DirectionMixin.get_fields(self))
         fields.extend(CoordinatesMixin.get_fields(self))
-        for name in ('speed',):
+        for name in ('ambience_rate', 'ambience_volume', 'speed'):
             fields.append(self.make_field(name, type=float))
-        fields.extend(
-            [
-                self.make_field(
-                    'background_sound', type=[None] + sorted(
-                        os.listdir(
-                            os.path.join(
-                                sounds_dir, 'zones'
-                            )
-                        )
-                    )
-                ),
-                self.make_field('background_rate'),
-                self.make_field('background_volume')
-            ]
-        )
         return fields
 
     def update_occupants(self):
