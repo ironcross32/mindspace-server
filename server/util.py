@@ -422,7 +422,7 @@ def migrate(
         if arrive_sound is not None:
             player.sound(get_sound(arrive_sound))
     for follower in player.followers:
-        strings = factory.get_strings(follow_msg, [follower, player])
+        strings = factory.get_strings(follow_msg, [follower, player, obj])
         follower.message(strings[0])
         player.message(strings[1])
         follower.move(destination, coordinates)
