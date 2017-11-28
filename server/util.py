@@ -9,7 +9,7 @@ from twisted.internet.task import LoopingCall
 from .distance import pc, kpc, mpc, gpc, tpc, au, ly, km, light_speed
 from .sound import get_sound, empty_room, nonempty_room
 from . import db
-from .protocol import interface_sound
+from .protocol import interface_sound, message
 from .socials import factory
 
 
@@ -401,3 +401,33 @@ def point_pos(c, d, theta):
     x, y, z = c
     theta_rad = pi/2 - radians(theta)
     return x + d*cos(theta_rad), y + d*sin(theta_rad), z
+
+
+def migrate(
+    player, obj, destination, coordinates, leave_msg, leave_sound,
+    arrive_msg, arrive_sound, follow_msg
+):
+    """Migrate a player from one rom to another, doing all the necessaries."""
+    player.clear_following()
+    player.do_social(leave_msg, _others=[obj])
+    player.move(destination, coordinates)
+    if leave_sound is not None:
+        obj.sound(get_sound(leave_sound))
+    if destination is not None:
+        string = factory.get_strings(arrive_msg, [player, obj])[-1]
+        destination.broadcast_command_selective(
+            lambda obj: obj is not player,
+            message, string
+        )
+        if arrive_sound is not None:
+            player.sound(get_sound(arrive_sound))
+    for follower in player.followers:
+        strings = factory.get_strings(follow_msg, [follower, player])
+        follower.message(strings[0])
+        player.message(strings[1])
+        follower.move(destination, coordinates)
+        obj.location.broadcast_command(message, strings[-1], _who=obj)
+        destination.broadcast_command_selective(
+            lambda obj: obj is not player and obj not in player.followers,
+            message, strings[-1]
+        )
