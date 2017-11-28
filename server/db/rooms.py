@@ -47,6 +47,7 @@ class RoomAirlock(Base, CoordinatesMixin):
     leave_other_msg = message('%1n|normal disembark%1s from %2n.')
     leave_sound = message(nullable=True)
     leave_other_sound = message(nullable=True)
+    follow_msg = message('%1n|normal follow%1s %2n aboard %3n.')
 
     def get_all_fields(self):
         fields = super().get_all_fields()
