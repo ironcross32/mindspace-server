@@ -48,6 +48,12 @@ class RoomAirlock(Base, CoordinatesMixin):
     leave_sound = message(nullable=True)
     leave_other_sound = message(nullable=True)
 
+    def get_all_fields(self):
+        fields = super().get_all_fields()
+        for name in dir(self):
+            if name.endswith('_msg') or name.endswith('_sound'):
+                fields.append(self.make_field(name))
+
 
 class Room(
     Base, NameMixin, DescriptionMixin, SizeMixin, AmbienceMixin,
