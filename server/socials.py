@@ -33,3 +33,9 @@ def get_y(obj, suffix):
 def are(obj, suffix):
     """"are" or "is"."""
     return ('are', 'is')
+
+
+@factory.suffix('ss', 'your')
+def your(obj, suffix):
+    """"your" or "name's"."""
+    return ('your', f"{obj.get_name()}'s")
