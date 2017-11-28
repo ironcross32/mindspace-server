@@ -9,8 +9,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship, backref
 from .base import (
     Base, CoordinatesMixin, NameMixin, AmbienceMixin, LocationMixin,
-    DescriptionMixin, OwnerMixin, RandomSoundMixin, RandomSoundContainerMixin,
-    ZoneMixin
+    DescriptionMixin, OwnerMixin, RandomSoundMixin, RandomSoundContainerMixin
 )
 from .session import Session
 from .communication import CommunicationChannel
@@ -35,7 +34,7 @@ class ObjectRandomSound(RandomSoundMixin, Base):
 
 class Object(
     Base, NameMixin, CoordinatesMixin, AmbienceMixin, LocationMixin,
-    DescriptionMixin, OwnerMixin, RandomSoundContainerMixin, ZoneMixin
+    DescriptionMixin, OwnerMixin, RandomSoundContainerMixin
 ):
     """A player-facing object."""
 

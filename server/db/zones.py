@@ -23,7 +23,7 @@ class Zone(
     accelerating = Column(Boolean, nullable=False, default=True)
     starship_id = Column(Integer, ForeignKey('starships.id'), nullable=True)
     starship = relationship(
-        'Starship', backref=backref('object', uselist=False),
+        'Starship', backref=backref('zone', uselist=False),
         foreign_keys=[starship_id]
     )
     star_id = Column(Integer, ForeignKey('stars.id'), nullable=True)

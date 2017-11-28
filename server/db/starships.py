@@ -2,7 +2,7 @@
 
 import os.path
 from sqlalchemy import Column, Float, Integer, ForeignKey, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from .base import Base, NameMixin
 from ..distance import km, ly
 from ..sound import get_sound, NoSuchSound
@@ -33,6 +33,8 @@ class Starship(Base):
     """Make a Zone a starship."""
 
     __tablename__ = 'starships'
+    exit_id = Column(Integer, ForeignKey('objects.id'), nullable=True)
+    exit = relationship('Object', backref=backref('starship', uselist=False))
     engine_id = Column(
         Integer, ForeignKey('starship_engines.id'), nullable=True
     )
