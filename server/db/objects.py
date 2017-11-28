@@ -9,7 +9,8 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship, backref
 from .base import (
     Base, CoordinatesMixin, NameMixin, AmbienceMixin, LocationMixin,
-    DescriptionMixin, OwnerMixin, RandomSoundMixin, RandomSoundContainerMixin
+    DescriptionMixin, OwnerMixin, RandomSoundMixin, RandomSoundContainerMixin,
+    StarshipMixin
 )
 from .session import Session
 from .communication import CommunicationChannel
@@ -34,7 +35,7 @@ class ObjectRandomSound(RandomSoundMixin, Base):
 
 class Object(
     Base, NameMixin, CoordinatesMixin, AmbienceMixin, LocationMixin,
-    DescriptionMixin, OwnerMixin, RandomSoundContainerMixin
+    DescriptionMixin, OwnerMixin, RandomSoundContainerMixin, StarshipMixin
 ):
     """A player-facing object."""
 
@@ -50,8 +51,6 @@ class Object(
         String(100), nullable=False,
         default=os.path.join('ambiences', 'teleport.wav')
     )
-    starship_id = Column(Integer, ForeignKey('starships.id'), nullable=True)
-    starship = relationship('Starship', backref=backref('exit', uselist=False))
     transit_route_id = Column(
         Integer, ForeignKey('transit_routes.id'), nullable=True
     )

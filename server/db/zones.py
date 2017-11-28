@@ -4,7 +4,7 @@ from sqlalchemy import Column, Float, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import relationship, backref
 from .base import (
     Base, CoordinatesMixin, NameMixin, DescriptionMixin, OwnerMixin,
-    DirectionMixin, AmbienceMixin
+    DirectionMixin, AmbienceMixin, StarshipMixin
 )
 from ..forms import Label
 from ..protocol import zone
@@ -13,7 +13,7 @@ from ..util import distance_between
 
 class Zone(
     Base, CoordinatesMixin, NameMixin, DescriptionMixin, OwnerMixin,
-    DirectionMixin, AmbienceMixin
+    DirectionMixin, AmbienceMixin, StarshipMixin
 ):
     """A zone which contains 0 or more rooms."""
 
@@ -21,11 +21,6 @@ class Zone(
     speed = Column(Float, nullable=True)
     acceleration = Column(Float, nullable=True)
     accelerating = Column(Boolean, nullable=False, default=True)
-    starship_id = Column(Integer, ForeignKey('starships.id'), nullable=True)
-    starship = relationship(
-        'Starship', backref=backref('zone', uselist=False),
-        foreign_keys=[starship_id]
-    )
     star_id = Column(Integer, ForeignKey('stars.id'), nullable=True)
     star = relationship('Star', backref=backref('object', uselist=False))
     last_turn = Column(Float, nullable=False, default=0.0)

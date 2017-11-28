@@ -10,7 +10,7 @@ from attr import asdict
 from sqlalchemy import (
     Column, Integer, String, Float, ForeignKey, DateTime, Boolean, inspect
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from .engine import engine
 from .session import Session
@@ -501,3 +501,16 @@ class ZoneMixin:
         return [
             instance.make_field('zone_id', type=zones)
         ]
+
+
+class StarshipMixin:
+    @declared_attr
+    def starship_id(cls):
+        return Column(Integer, ForeignKey('starships.id'), nullable=True)
+
+    @declared_attr
+    def starship(cls):
+        return relationship(
+            'Starship', backref=backref(cls.__name__.lower(), uselist=False),
+            foreign_keys=[cls.starship_id]
+        )
