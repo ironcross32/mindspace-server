@@ -524,3 +524,8 @@ class StarshipMixin:
         ).order_by(Zone.name):
             starships.append([obj.starship_id, obj.get_name(True)])
         return [instance.make_field('starship_id', type=starships)]
+
+
+def message(string=None, nullable=False):
+    """A message column."""
+    return Column(String(150), nullable=nullable, default=string)

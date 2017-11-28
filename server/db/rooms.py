@@ -3,11 +3,12 @@
 import sys
 import os
 import os.path
-from sqlalchemy import Column, Float, String, Integer, ForeignKey, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Float, String, Integer, ForeignKey
+from sqlalchemy.orm import relationship, backref
 from .base import (
     Base, SizeMixin, NameMixin, DescriptionMixin, AmbienceMixin,
-    RandomSoundMixin, RandomSoundContainerMixin, CoordinatesMixin, ZoneMixin
+    RandomSoundMixin, RandomSoundContainerMixin, CoordinatesMixin, ZoneMixin,
+    message
 )
 from ..protocol import hidden_sound
 from ..sound import get_sound, sounds_dir
@@ -34,6 +35,16 @@ class RoomFloorType(Base, CoordinatesMixin, NameMixin):
     room = relationship('Room', backref='floor_types')
 
 
+class RoomAirlock(Base):
+    """An airlock for a room."""
+
+    __tablename__ = 'room_airlocks'
+    board_msg = message('%1n|normal board%1s %2n.')
+    board_sound = message(nullable=True)
+    leave_msg = message('%1n|normal disembark%1s from %2n.')
+    leave_sound = message(nullable=True)
+
+
 class Room(
     Base, NameMixin, DescriptionMixin, SizeMixin, AmbienceMixin,
     RandomSoundContainerMixin, ZoneMixin
@@ -41,7 +52,10 @@ class Room(
     """A room."""
 
     __tablename__ = 'rooms'
-    airlock = Column(Boolean, nullable=False, default=False)
+    airlock_id = Column(Integer, ForeignKey('room_airlocks.id'), nullable=True)
+    airlock = relationship(
+        'RoomAirlock', backref=backref('room', uselist=False)
+    )
     music = Column(String(100), nullable=True)
     convolver = Column(String(100), nullable=True)
     convolver_volume = Column(Float, nullable=False, default=1.0)

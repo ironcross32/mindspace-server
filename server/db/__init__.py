@@ -11,7 +11,7 @@ from db_dumper import load as dumper_load, dump as dumper_dump
 from .engine import engine
 from .session import Session, session
 from .base import Base
-from .rooms import Room, RoomRandomSound, RoomFloorType
+from .rooms import Room, RoomRandomSound, RoomFloorType, RoomAirlock
 from .players import Player
 from .objects import Object, ObjectRandomSound
 from .actions import Action, ObjectAction
@@ -275,5 +275,6 @@ __all__ = (
     'Credit', 'StarshipEngine', 'RoomFloorType', 'ObjectTypeActionSecondary',
     'ObjectTypeHotkeySecondary', 'ObjectTypeSecondary', 'ObjectType', 'Orbit',
     'Starship', 'StarshipSensors', 'Star', 'Word', 'Task', 'TransitStop',
-    'TransitRoute', 'load_db_old', 'dump_db_old', 'get_classes', 'finalise_db'
+    'TransitRoute', 'load_db_old', 'dump_db_old', 'get_classes', 'finalise_db',
+    'RoomAirlock'
 )
