@@ -74,26 +74,32 @@ class Room(
 
     def convolver_choices(self):
         res = [None]
-        for filename in os.listdir(impulses_dir):
-            name, ext = os.path.splitext(filename)
-            if ext == '.m4a':
-                readme = os.path.join(impulses_dir, name + '.attribution.txt')
-                if os.path.isfile(readme):
-                    with open(readme, 'rb') as f:
-                        try:
-                            lines = [
-                                x for x in f.readlines() if x.startswith(b'"')
-                            ]
-                        except Exception as e:
-                            lines = [
-                                f'Unable to read file {readme}: {e}."'.encode()
-                            ]
-                        description = b'. '.join(lines).decode(
-                            sys.getdefaultencoding(), 'replace'
-                        )
-                else:
-                    description = 'No description available.'
-                res.append([filename, f'{filename}: {description.strip()}'])
+        for top, directories, filenames in os.walk(impulses_dir):
+            for filename in filenames:
+                full = os.path.join(top[len(impulses_dir) + 1:], filename)
+                name, ext = os.path.splitext(filename)
+                if ext in ('.wav', '.m4a'):
+                    readme = os.path.join(
+                        top, name + '.attribution.txt'
+                    )
+                    if os.path.isfile(readme):
+                        with open(readme, 'rb') as f:
+                            try:
+                                lines = [
+                                    x for x in f.readlines() if x.startswith(
+                                        b'"'
+                                    )
+                                ]
+                            except Exception as e:
+                                err = f'Unable to read file {readme}: {e}."'
+                                err = err.encode()
+                                lines = [err]
+                            description = b'. '.join(lines).decode(
+                                sys.getdefaultencoding(), 'replace'
+                            )
+                    else:
+                        description = 'No description available.'
+                    res.append([full, f'{filename}: {description.strip()}'])
         return res
 
     def floor_type_choices(self):
