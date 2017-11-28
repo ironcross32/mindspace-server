@@ -53,6 +53,7 @@ class RoomAirlock(Base, CoordinatesMixin):
         for name in dir(self):
             if name.endswith('_msg') or name.endswith('_sound'):
                 fields.append(self.make_field(name))
+        return fields
 
 
 class Room(
