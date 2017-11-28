@@ -45,7 +45,7 @@ class TransitRoute(Base, NameMixin, CoordinatesMixin, PauseMixin):
     )
     board_sound = Column(String(100), nullable=True)
     board_other_msg = Column(
-        String(100), nullable=False, default='{} arrives.'
+        String(100), nullable=False, default='%1n|normal arrive%1s.'
     )
     board_other_sound = Column(String(100), nullable=True)
     leave_msg = Column(
@@ -56,7 +56,7 @@ class TransitRoute(Base, NameMixin, CoordinatesMixin, PauseMixin):
     )
     leave_sound = Column(String(100), nullable=True)
     leave_other_msg = Column(
-        String(100), nullable=False, default='{} disembarks.'
+        String(100), nullable=False, default='%1n|normal disembark%1s.'
     )
     leave_other_sound = Column(String(100), nullable=True)
     arrive_msg = Column(
