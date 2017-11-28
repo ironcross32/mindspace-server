@@ -514,3 +514,13 @@ class StarshipMixin:
             'Starship', backref=backref(cls.__name__.lower(), uselist=False),
             foreign_keys=[cls.starship_id]
         )
+
+    @classmethod
+    def get_fields(cls, instance):
+        starships = [None]
+        Zone = Base._decl_class_registry['Zone']
+        for obj in Zone.query(
+            Zone.starship_id.isnot(None)
+        ).order_by(Zone.name):
+            starships.append([obj.starship_id, obj.get_name(True)])
+        return [instance.make_field('starship_id', type=starships)]
