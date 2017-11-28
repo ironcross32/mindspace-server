@@ -33,6 +33,8 @@ class Starship(Base):
     """Make a Zone a starship."""
 
     __tablename__ = 'starships'
+    # Null means in space, False means ascending, and True means landing.
+    landing = Column(Boolean, nullable=True)
     engine_id = Column(
         Integer, ForeignKey('starship_engines.id'), nullable=True
     )
