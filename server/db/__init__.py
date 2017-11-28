@@ -257,7 +257,7 @@ def dump_db(where=None):
     for cls in get_classes():
         objects.extend(Session.query(cls))
     y = dumper_dump(objects, dump_object)
-    with open(db_file, 'w') as f:
+    with open(where, 'w') as f:
         dump(y, stream=f)
     return len(objects)
 
