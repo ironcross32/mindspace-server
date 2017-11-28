@@ -7,6 +7,7 @@ from glob import glob
 from inspect import isclass
 from sqlalchemy import inspect
 from yaml import dump, load
+from db_dumper import load as dumper_load, dump as dumper_dump
 from .engine import engine
 from .session import Session, session
 from .base import Base
@@ -49,10 +50,22 @@ from .tasks import Task
 from .transits import TransitStop, TransitRoute
 
 logger = logging.getLogger(__name__)
+db_file = 'world.yaml'
 output_directory = 'world'
 
 
-def dump_object(obj, columns):
+def get_classes():
+    """Returns a list of all classes used in the database."""
+    classes = []
+    for cls in Base._decl_class_registry.values():
+        if isclass(cls) and issubclass(cls, Base):
+            classes.append(cls)
+    return classes
+
+
+def dump_object(obj):
+    """Return object obj as a dictionary."""
+    columns = inspect(obj.__class__).columns
     d = {}
     for name, column in columns.items():
         value = getattr(obj, name)
@@ -66,7 +79,7 @@ def dump_object(obj, columns):
     return d
 
 
-def load_db():
+def load_db_old():
     """Load the db from output_directory."""
     logger.info('Creating database tables...')
     Base.metadata.create_all()
@@ -76,9 +89,7 @@ def load_db():
     else:
         logger.info('Loading database from directory %s.', output_directory)
         with session() as s:
-            for cls in Base._decl_class_registry.values():
-                if not isclass(cls) or not issubclass(cls, Base):
-                    continue
+            for cls in get_classes():
                 directory = os.path.join(output_directory, cls.__name__)
                 if os.path.isdir(directory):
                     logger.info('Entering directory %s.', directory)
@@ -89,7 +100,22 @@ def load_db():
                             objects.append(cls(**y))
                     logger.info('Leaving directory %s.', directory)
             s.add_all(objects)
+    finalise_db()
+    return sum(
+        [
+            s.query(
+                cls
+            ).count() for cls in Base._decl_class_registry.values() if isclass(
+                cls
+            )
+        ]
+    )
+
+
+def finalise_db():
+    """Create skeleton objects."""
     with session() as s:
+        objects = []
         if not s.query(Zone).count():
             s.add(Zone(name='The First Zone'))
             s.commit()
@@ -149,18 +175,26 @@ def load_db():
                 )
             )
         s.query(Object).update({Object.connected: False})
-    return sum(
-        [
-            s.query(
-                cls
-            ).count() for cls in Base._decl_class_registry.values() if isclass(
-                cls
-            )
-        ]
-    )
 
 
-def dump_db(where=None):
+def load_db():
+    """Load the database from a single flat file."""
+    logger.info('Creating database tables...')
+    Base.metadata.create_all()
+    if os.path.isfile(db_file):
+        logger.info('Loading the database from %s.', db_file)
+        with open(db_file, 'r') as f:
+            y = load(f)
+        with session() as s:
+            objects = dumper_load(y, get_classes())
+            s.add_all(objects)
+    else:
+        logger.info('Starting with blank database.')
+    finalise_db()
+    return len(objects)
+
+
+def dump_db_old(where=None):
     """Dump the database to single files."""
     if where is None:
         where = output_directory
@@ -202,6 +236,32 @@ def dump_db(where=None):
     return objects
 
 
+def dump_db(where=None):
+    """Dump the database to single files."""
+    if where is None:
+        where = db_file
+    if os.path.isfile(where):
+        stat = os.stat(where)
+        old_name = f'{where}.{stat.st_mtime}'
+        try:
+            os.rename(where, old_name)
+            logger.info('Renamed %s to %s.', where, old_name)
+        except OSError as e:
+            logger.warning(
+                'Failed to rename %s to %s:', where, old_name
+            )
+            logger.exception(e)
+            where += '.critical'
+    logger.info('Dumping the database to %s.', where)
+    objects = []
+    for cls in get_classes():
+        objects.extend(Session.query(cls))
+    y = dumper_dump(objects, dump_object)
+    with open(db_file, 'w') as f:
+        dump(y, stream=f)
+    return len(objects)
+
+
 __all__ = (
     'engine', 'Session', 'session', 'Base', 'dump_object', 'Room',
     'RoomRandomSound', 'Player', 'Object', 'Action', 'ObjectAction',
@@ -215,5 +275,5 @@ __all__ = (
     'Credit', 'StarshipEngine', 'RoomFloorType', 'ObjectTypeActionSecondary',
     'ObjectTypeHotkeySecondary', 'ObjectTypeSecondary', 'ObjectType', 'Orbit',
     'Starship', 'StarshipSensors', 'Star', 'Word', 'Task', 'TransitStop',
-    'TransitRoute'
+    'TransitRoute', 'load_db_old', 'dump_db_old', 'get_classes', 'finalise_db'
 )
