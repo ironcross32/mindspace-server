@@ -35,14 +35,18 @@ class RoomFloorType(Base, CoordinatesMixin, NameMixin):
     room = relationship('Room', backref='floor_types')
 
 
-class RoomAirlock(Base):
+class RoomAirlock(Base, CoordinatesMixin):
     """An airlock for a room."""
 
     __tablename__ = 'room_airlocks'
     board_msg = message('%1n|normal board%1s %2n.')
+    board_other_msg = message('%1n|normal arrive%1s from outside.')
     board_sound = message(nullable=True)
-    leave_msg = message('%1n|normal disembark%1s from %2n.')
+    board_other_sound = message(nullable=True)
+    leave_msg = message('%1n|normal leave%1s the ship.')
+    leave_other_msg = message('%1n|normal disembark%1s from %2n.')
     leave_sound = message(nullable=True)
+    leave_other_sound = message(nullable=True)
 
 
 class Room(
