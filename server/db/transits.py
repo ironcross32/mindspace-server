@@ -2,7 +2,10 @@
 
 from sqlalchemy import Column, Integer, Float, ForeignKey, String
 from sqlalchemy.orm import relationship, backref
-from .base import Base, NameMixin, CoordinatesMixin, LocationMixin, PauseMixin
+from .base import (
+    Base, NameMixin, CoordinatesMixin, LocationMixin, PauseMixin, BoardMixin,
+    LeaveMixin
+)
 
 
 class TransitStop(Base, LocationMixin, CoordinatesMixin):
@@ -29,7 +32,9 @@ class TransitStop(Base, LocationMixin, CoordinatesMixin):
         return sum([self.before_departure, self.after_departure])
 
 
-class TransitRoute(Base, NameMixin, CoordinatesMixin, PauseMixin):
+class TransitRoute(
+    Base, NameMixin, CoordinatesMixin, PauseMixin, BoardMixin, LeaveMixin
+):
     """Holds 0 or more transit stops."""
 
     __tablename__ = 'transit_routes'
@@ -37,28 +42,6 @@ class TransitRoute(Base, NameMixin, CoordinatesMixin, PauseMixin):
         String(100), nullable=False,
         default="You can't see anything during transit."
     )
-    board_msg = Column(
-        String(100), nullable=False, default='%1n board%1s %2n.'
-    )
-    board_follow_msg = Column(
-        String(100), nullable=False, default='%1n|normal follow%1s %2n.'
-    )
-    board_sound = Column(String(100), nullable=True)
-    board_other_msg = Column(
-        String(100), nullable=False, default='%1n|normal arrive%1s.'
-    )
-    board_other_sound = Column(String(100), nullable=True)
-    leave_msg = Column(
-        String(100), nullable=False, default='%1n disembark%1s from %2n.'
-    )
-    leave_follow_msg = Column(
-        String(100), nullable=False, default='%1n|normal follow%1s %2n.'
-    )
-    leave_sound = Column(String(100), nullable=True)
-    leave_other_msg = Column(
-        String(100), nullable=False, default='%1n|normal disembark%1s.'
-    )
-    leave_other_sound = Column(String(100), nullable=True)
     arrive_msg = Column(
         String(100), nullable=False, default='%1n arrive%1s abruptly.'
     )
