@@ -50,6 +50,8 @@ class Object(
         String(100), nullable=False,
         default=os.path.join('ambiences', 'teleport.wav')
     )
+    starship_id = Column(Integer, ForeignKey('starships.id'), nullable=True)
+    starship = relationship('Starship', backref=backref('exit', uselist=False))
     transit_route_id = Column(
         Integer, ForeignKey('transit_routes.id'), nullable=True
     )
