@@ -217,6 +217,10 @@ function send(obj) {
 let soc = null
 let connected = false
 
+document.onload = () => {
+    document.getElementById("username").focus()
+}
+
 // Page elements.
 
 let output = document.getElementById("output")
