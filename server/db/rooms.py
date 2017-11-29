@@ -8,7 +8,7 @@ from sqlalchemy.orm import relationship, backref
 from .base import (
     Base, SizeMixin, NameMixin, DescriptionMixin, AmbienceMixin,
     RandomSoundMixin, RandomSoundContainerMixin, CoordinatesMixin, ZoneMixin,
-    message
+    BoardMixin, LeaveMixin
 )
 from ..protocol import hidden_sound
 from ..sound import get_sound, sounds_dir
@@ -35,19 +35,10 @@ class RoomFloorType(Base, CoordinatesMixin, NameMixin):
     room = relationship('Room', backref='floor_types')
 
 
-class RoomAirlock(Base, CoordinatesMixin):
+class RoomAirlock(Base, CoordinatesMixin, BoardMixin, LeaveMixin):
     """An airlock for a room."""
 
     __tablename__ = 'room_airlocks'
-    board_msg = message('%1n|normal board%1s %2n.')
-    board_other_msg = message('%1n|normal arrive%1s from outside.')
-    board_sound = message(nullable=True)
-    board_other_sound = message(nullable=True)
-    leave_msg = message('%1n|normal leave%1s the ship.')
-    leave_other_msg = message('%1n|normal disembark%1s from %2n.')
-    leave_sound = message(nullable=True)
-    leave_other_sound = message(nullable=True)
-    follow_msg = message('%1n|normal follow%1s %2n aboard %3n.')
 
     def get_all_fields(self):
         fields = super().get_all_fields()
