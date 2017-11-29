@@ -22,8 +22,10 @@ def character_id(con, id):
 
 def location(con, obj=None):
     """Tell the client about the player's location."""
+    player = con.get_player()
     if obj is None:
-        obj = con.get_player().location
+        obj = player.location
+    player.message(obj.get_name(player.is_staff))
     if obj.ambience is None:
         sound = None
     else:
