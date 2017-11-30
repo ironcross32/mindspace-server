@@ -430,6 +430,7 @@ document.onkeydown = (e) => {
     ) {
         return
     }
+    write_special(e.key)
     let key = e.key.toUpperCase()
     if (escape === menu) {
         let func = menu_keys[key]
