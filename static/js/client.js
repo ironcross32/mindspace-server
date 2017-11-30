@@ -448,7 +448,6 @@ document.onkeydown = (e) => {
     }
     if (!modifiers.count && key == "ESCAPE" && escape !== null) {
         hide(escape)
-        escape = null
     } else if (escape === copy_div && current.type == "button" && !modifiers.count && [" ", "ENTER"].includes(key)) {
         return
     } else {
@@ -556,6 +555,12 @@ text_cancel.onclick = () => {
 
 let text_form = document.getElementById("text-form")
 let text_element = null
+
+text_element.onkeyup = (e) => {
+    if (e.key == "escape" && escape !== null) {
+        hide(escape)
+    }
+}
 
 let text_command = {
     name: null,
