@@ -424,7 +424,7 @@ hide_keyboard_button.onclick = () => hide_keyboard(!keyboard.hidden)
 document.onkeydown = (e) => {
     let current = document.activeElement
     if (
-        e.key != "escape" && (
+        (e.key != "escape") && (
             e.key === undefined || current === url || !connected || [
                 "text", "password", "textarea", "number", "select-one"
             ].includes(current.type)
