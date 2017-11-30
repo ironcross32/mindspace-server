@@ -556,12 +556,6 @@ text_cancel.onclick = () => {
 let text_form = document.getElementById("text-form")
 let text_element = null
 
-text_element.onkeyup = (e) => {
-    if (e.key == "escape" && escape !== null) {
-        hide(escape)
-    }
-}
-
 let text_command = {
     name: null,
     args: [],
@@ -803,6 +797,11 @@ let mindspace_functions = {
             e.type = "text"
         }
         e.value = value
+        e.onkeyup = (e) => {
+            if (e.key == "escape" && escape !== null) {
+                hide(escape)
+            }
+        }
         text_element = e
         clear_element(text_field)
         text_field.appendChild(e)
