@@ -798,10 +798,8 @@ let mindspace_functions = {
         }
         e.value = value
         e.onkeyup = (evt) => {
-            if (evt.key == "escape" && escape !== null) {
+            if (evt.key == "Escape" && escape !== null) {
                 hide(escape)
-            } else {
-                write_special(evt.key)
             }
         }
         text_element = e
