@@ -266,14 +266,15 @@ class Object(
 
     def register_connection(self, con):
         """Assign connection con to this object."""
-        if self.get_connection() is not None:
-            old = connections.pop(self.id)
+        old = connections.pop(self.id, None)
+        if old is not None:
             old.player_id = None
             remember_quit(old)
             old.disconnect('Reconnecting from somewhere else.')
         if con is None:
             # Remember how long we were connected for.
-            recent = datetime.utcnow() - self.last_connected
+            self.last_disconnected = datetime.utcnow()
+            recent = self.last_disconnected - self.last_connected
             if self.connected_time is None:
                 self.connected_time = recent
             else:
