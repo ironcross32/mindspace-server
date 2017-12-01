@@ -40,6 +40,9 @@ class Object(
     """A player-facing object."""
 
     __tablename__ = 'objects'
+    created = Column(
+        DateTime(timezone=True), nullable=False, default=func.now()
+    )
     max_distance_multiplier = Column(Float, nullable=False, default=1.0)
     connected_time = Column(Interval, nullable=True)
     last_connected = Column(DateTime(timezone=True), nullable=True)
