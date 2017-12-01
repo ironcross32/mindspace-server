@@ -77,10 +77,10 @@ def login(con, username, password):
             remember_quit(con)
             con.logger.info('Blocked authentication to %r.', player)
             return con.disconnect('Your account has been locked.')
-        if obj.last_connected is None:
+        if obj.last_disconnected is None:
             msg = 'This is your first time connected.'
         else:
-            msg = f'Last connected: {obj.last_connected.ctime()}.'
+            msg = f'Last connected: {obj.last_disconnected.ctime()}.'
         obj.register_connection(con)
         obj.message(msg)
         if obj.location is None:
