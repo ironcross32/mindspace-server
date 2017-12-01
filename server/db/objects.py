@@ -4,7 +4,7 @@ import os.path
 from datetime import datetime
 from sqlalchemy import (
     Column, Integer, ForeignKey, Boolean, Float, func, or_, and_, String,
-    Interval, DateTime
+    DateTime
 )
 from sqlalchemy.orm import relationship, backref
 from .base import (
@@ -44,9 +44,6 @@ class Object(
         DateTime(timezone=True), nullable=False, default=func.now()
     )
     max_distance_multiplier = Column(Float, nullable=False, default=1.0)
-    connected_time = Column(Interval, nullable=True)
-    last_connected = Column(DateTime(timezone=True), nullable=True)
-    last_disconnected = Column(DateTime(timezone=True), nullable=True)
     teleport_msg = Column(
         String(100), nullable=False,
         default='%1n vanish%1e in a column of light.'
@@ -276,14 +273,14 @@ class Object(
             old.disconnect('Reconnecting from somewhere else.')
         if con is None:
             # Remember how long we were connected for.
-            self.last_disconnected = datetime.utcnow()
-            recent = self.last_disconnected - self.last_connected
-            if self.connected_time is None:
-                self.connected_time = recent
+            self.player.last_disconnected = datetime.utcnow()
+            recent = self.player.last_disconnected - self.player.last_connected
+            if self.player.connected_time is None:
+                self.player.connected_time = recent
             else:
-                self.connected_time += recent
+                self.player.connected_time += recent
         else:
-            self.last_connected = datetime.utcnow()
+            self.player.last_connected = datetime.utcnow()
             con.player_id = self.id
             con.locked = self.player.locked
             connections[self.id] = con

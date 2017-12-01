@@ -1,7 +1,9 @@
 """Provides the Player class."""
 
 from random import randint
-from sqlalchemy import Column, Integer, Float, String, Boolean
+from sqlalchemy import (
+    Column, Integer, Float, String, Boolean, Interval, DateTime
+)
 from .base import Base, PermissionsMixin, PasswordMixin
 from ..protocol import options
 from ..forms import Label
@@ -9,7 +11,12 @@ from ..forms import Label
 
 class Player(Base, PermissionsMixin, PasswordMixin):
     """Player options."""
+
     __tablename__ = 'players'
+    connected_time = Column(Interval, nullable=True)
+    last_connected = Column(DateTime(timezone=True), nullable=True)
+    last_host = Column(String(15), nullable=True)
+    last_disconnected = Column(DateTime(timezone=True), nullable=True)
     username = Column(String(50), nullable=False, unique=True)
     transmition_id = Column(Integer, nullable=True)
     transmition_banned = Column(Boolean, nullable=True, default=False)
