@@ -43,6 +43,7 @@ class Object(
     max_distance_multiplier = Column(Float, nullable=False, default=1.0)
     connected_time = Column(Interval, nullable=True)
     last_connected = Column(DateTime(timezone=True), nullable=True)
+    last_disconnected = Column(DateTime(timezone=True), nullable=True)
     teleport_msg = Column(
         String(100), nullable=False,
         default='%1n vanish%1e in a column of light.'
