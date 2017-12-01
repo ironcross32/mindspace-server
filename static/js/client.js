@@ -656,6 +656,10 @@ function set_title(name) {
 }
 
 function write_message(text) {
+    if (document.getElementById("speak").checked) {
+        let msg = new SpeechSynthesisUtterance(text)
+        window.speechSynthesis.speak(msg)
+    }
     let p = document.createElement("p")
     p.innerText = text
     output.appendChild(p)
