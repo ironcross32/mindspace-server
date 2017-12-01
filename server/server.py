@@ -176,7 +176,7 @@ class ProtocolBase:
 
     def on_disconnect(self, reason):
         self.shell = None
-        if self.walk_task is not None:
+        if getattr(self, 'walk_task', None) is not None:
             try:
                 self.walk_task.stop()
             except AssertionError:
