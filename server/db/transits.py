@@ -43,7 +43,7 @@ class TransitRoute(
         default="You can't see anything during transit."
     )
     arrive_msg = Column(
-        String(100), nullable=False, default='%1n arrive%1s abruptly.'
+        String(100), nullable=False, default='%1n|normal arrive%1s abruptly.'
     )
     arrive_sound = Column(String(100), nullable=True)
     arrive_other_msg = Column(
@@ -53,7 +53,7 @@ class TransitRoute(
     )
     arrive_other_sound = Column(String(100), nullable=True)
     depart_msg = Column(
-        String(100), nullable=False, default='%1n depart%1s.'
+        String(100), nullable=False, default='%1n|normal depart%1s.'
     )
     depart_sound = Column(String(100), nullable=True)
     depart_other_msg = Column(

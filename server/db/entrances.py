@@ -18,7 +18,8 @@ class Entrance(
         String(100), nullable=False, default='You cannot go that way.'
     )
     follow_msg = Column(
-        String(100), nullable=False, default='%1n follow%1s %2n through %3n.'
+        String(100), nullable=False,
+        default='%1n|normal follow%1s %2n through %3n.'
     )
     leave_msg = Column(
         String(100), nullable=False, default='%1n|normal leave%1s through %2n.'

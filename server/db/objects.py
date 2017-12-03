@@ -51,7 +51,7 @@ class Object(
     max_distance_multiplier = Column(Float, nullable=False, default=1.0)
     teleport_msg = Column(
         String(100), nullable=False,
-        default='%1n vanish%1e in a column of light.'
+        default='%1n|normal vanish%1e in a column of light.'
     )
     teleport_sound = Column(
         String(100), nullable=False,
@@ -422,7 +422,7 @@ class Object(
         other_side = entrance.get_other_side()
         if other_side is None:
             recent_exit_id = self.id
-            msg = '%1n arrive%1s.'
+            msg = '%1n|normal arrive%1s.'
         else:
             if other_side.exit.ambience is not None:
                 other_side.sound(get_ambience(other_side.exit.ambience))

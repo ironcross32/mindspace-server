@@ -532,7 +532,7 @@ def message(string=None, nullable=False):
 
 
 class BoardMixin:
-    board_msg = message('%1n board%1s %2n.')
+    board_msg = message('%1n|normal board%1s %2n.')
     board_follow_msg = message('%1n|normal follow%1s %2n onto %3n.')
     board_sound = message('ambiences/AirlockEnter.wav', True)
     board_other_msg = message('%1n|normal arrive%1s.')
@@ -540,7 +540,7 @@ class BoardMixin:
 
 
 class LeaveMixin:
-    leave_msg = message('%1n disembark%1s from %2n.')
+    leave_msg = message('%1n|normal disembark%1s from %2n.')
     leave_follow_msg = message('%1n|normal follow%1s %2n.')
     leave_sound = message('ambiences/AirlockExit.wav', True)
     leave_other_msg = message('%1n|normal disembark%1s.')
@@ -564,5 +564,5 @@ class LaunchMixin:
 class LandMixin:
     """Sounds and messages for landing things."""
 
-    land_msg = message('%1n complete%1s its landing.')
+    land_msg = message('%1n|normal complete%1s its landing.')
     land_sound = message('starship/land/1.wav', True)
