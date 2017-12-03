@@ -416,20 +416,6 @@ for (let button of document.querySelectorAll(".key-special")) {
     button.onclick = special_key
 }
 
-let hide_keyboard_button = document.getElementById("hide-keyboard")
-
-function hide_keyboard(value) {
-    value = value || false
-    keyboard.hidden = value
-    hide_keyboard_button.value = `${value ? "Show" : "Hide"} Keyboard`
-    Cookies.set("hide_keyboard", value, {expires: 30})
-    scroll_bottom()
-}
-
-hide_keyboard(Cookies.get("hide_keyboard"))
-
-hide_keyboard_button.onclick = () => hide_keyboard(!keyboard.hidden)
-
 document.onkeydown = (e) => {
     let current = document.activeElement
     if (
