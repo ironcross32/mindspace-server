@@ -224,6 +224,7 @@ let tts = window.speechSynthesis
 
 for (let i in tts.getVoices()) {
     let voice = tts.getVoices()[i]
+    console.log(voice.name)
     let o = document.createElement("option")
     o.value = i
     o.innerText = `${voice.name} (${voice.lang})`
