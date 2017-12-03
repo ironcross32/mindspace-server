@@ -82,8 +82,6 @@ class Room(
                 )
             )
         fields.append(self.make_field('convolver_volume', type=float))
-        for name in ('airlock',):
-            fields.append(self.make_field(name, type=bool))
         return fields
 
     def music_choices(self):
