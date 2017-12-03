@@ -532,3 +532,10 @@ class Object(
                 new = size
             coordinates.append(new)
         return coordinates
+
+    def get_gender(self):
+        if self.gender_id is None:
+            gid = 1
+        else:
+            gid = self.gender_id
+        return Base._decl_class_registry['Gender'].get(gid)
