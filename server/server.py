@@ -247,7 +247,8 @@ class ProtocolBase:
         if value:
             server.logged_players.add(self)
         else:
-            server.logged_players.remove(self)
+            if self in server.logged_players:
+                server.logged_players.remove(self)
 
 
 class MindspaceWebSocketProtocol(WebSocketServerProtocol, ProtocolBase):
