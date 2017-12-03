@@ -545,3 +545,10 @@ class LeaveMixin:
     leave_sound = message('ambiences/AirlockExit.wav', True)
     leave_other_msg = message('%1n|normal disembark%1s.')
     leave_other_sound = message('ambiences/AirlockExit.wav', True)
+
+
+class HiddenMixin:
+    hidden = Column(Boolean, nullable=False, default=False)
+
+    def get_all_fields(self):
+        return [self.make_field('hidden', type=bool)]

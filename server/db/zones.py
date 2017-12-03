@@ -4,7 +4,7 @@ from sqlalchemy import Column, Float, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import relationship, backref
 from .base import (
     Base, CoordinatesMixin, NameMixin, DescriptionMixin, OwnerMixin,
-    DirectionMixin, AmbienceMixin, StarshipMixin
+    DirectionMixin, AmbienceMixin, StarshipMixin, HiddenMixin
 )
 from ..forms import Label
 from ..protocol import zone
@@ -13,7 +13,7 @@ from ..util import distance_between
 
 class Zone(
     Base, CoordinatesMixin, NameMixin, DescriptionMixin, OwnerMixin,
-    DirectionMixin, AmbienceMixin, StarshipMixin
+    DirectionMixin, AmbienceMixin, StarshipMixin, HiddenMixin
 ):
     """A zone which contains 0 or more rooms."""
 

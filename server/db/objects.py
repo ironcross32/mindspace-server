@@ -89,7 +89,6 @@ class Object(
     )
     window_id = Column(Integer, ForeignKey('windows.id'), nullable=True)
     window = relationship('Window', backref=backref('object', uselist=False))
-    hidden = Column(Boolean, nullable=False, default=False)
     monitor_transmitions = Column(Boolean, nullable=False, default=False)
     speed = Column(Float, nullable=False, default=0.5)
     last_walked = Column(Float, nullable=False, default=0.0)
@@ -191,7 +190,7 @@ class Object(
     def get_all_fields(self):
         fields = super().get_all_fields()
         fields.append(self.make_field('pose'))
-        for name in ('hidden', 'anchored', 'log_commands'):
+        for name in ('anchored', 'log_commands'):
             fields.append(self.make_field(name, type=bool))
         for name in (
             'start_use_msg', 'stop_use_msg', 'get_msg', 'drop_msg', 'give_msg',
