@@ -116,14 +116,14 @@ def load_db_old():
 def finalise_db():
     """Create skeleton objects."""
     with session() as s:
-        objects = []
         if not s.query(Zone).count():
             s.add(Zone(name='The First Zone'))
             s.commit()
         if not s.query(Room).count():
-            objects.append(
-                Room(name='The First Room', zone=s.query(Zone).first())
+            s.add(
+                Room(name='The First Room', zone_id=1)
             )
+        s.commit()
         if not s.query(Command).count():
             for path in glob(os.path.join('commands', '*.command')):
                 fname = os.path.basename(path)
@@ -132,7 +132,7 @@ def finalise_db():
                     cmd = Command(name=name)
                     cmd.set_code(f.read())
                     logger.info('Loaded %s from %s.', cmd.name, path)
-                    objects.append(cmd)
+                    s.add(cmd)
         if not s.query(Hotkey).count():
             for path in glob(os.path.join('hotkeys', '*.command')):
                 fname = os.path.basename(path)
@@ -142,8 +142,8 @@ def finalise_db():
                 key = Hotkey(name=name, description=description)
                 key.set_code(code)
                 logger.info('Loaded %s from %s.', key.name, path)
-                objects.append(key)
-        s.add_all(objects)
+                s.add(key)
+        s.commit()
         if not s.query(Direction).count():
             # Create default directions:
             Direction.create('north', y=1)
@@ -176,6 +176,28 @@ def finalise_db():
                 )
             )
         s.query(Object).update({Object.connected: False})
+        if not Gender.count():
+            s.add(Gender(name='Neutral'))
+            s.add(
+                Gender(
+                    name='Male',
+                    subjective='he',
+                    objective='him',
+                    possessive_adjective='his',
+                    possessive_noun='his',
+                    reflexive='himself'
+                )
+            )
+            s.add(
+                Gender(
+                    name='Female',
+                    subjective='she',
+                    objective='her',
+                    possessive_adjective='her',
+                    possessive_noun='hers',
+                    reflexive='herself'
+                )
+            )
 
 
 def load_db():
@@ -192,7 +214,6 @@ def load_db():
     else:
         logger.info('Starting with blank database.')
     finalise_db()
-    return len(objects)
 
 
 def dump_db_old(where=None):

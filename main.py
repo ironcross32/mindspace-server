@@ -5,7 +5,7 @@ from time import time
 from argparse import ArgumentParser, FileType, ArgumentDefaultsHelpFormatter
 from twisted.internet import reactor, error
 from server.server import server
-from server.db import load_db, dump_db, ServerOptions, Task, session
+from server.db import load_db, dump_db, ServerOptions, Task, session, Base
 from server.program import build_context
 from server.log_handler import LogHandler
 from server.tasks import tasks_task, tasks_errback
@@ -37,8 +37,11 @@ if __name__ == '__main__':
         stream=args.log_file
     )
     started = time()
-    n = load_db()
-    logging.info('Objects loaded: %d (%.2f seconds).', n, time() - started)
+    load_db()
+    logging.info(
+        'Objects loaded: %d (%.2f seconds).', Base.number_of_objects(),
+        time() - started
+    )
     if args.test_db:
         raise SystemExit
     ServerOptions.instance_id = args.options_id
@@ -62,4 +65,7 @@ if __name__ == '__main__':
     reactor.run()
     started = time()
     n = dump_db()
-    logging.info('Objects dumped: %d (%.2f seconds).', n, time() - started)
+    logging.info(
+        'Objects dumped: %d (%.2f seconds).', Base.number_of_objects(),
+        time() - started
+    )
