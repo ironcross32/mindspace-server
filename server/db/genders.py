@@ -2,6 +2,7 @@
 
 from sqlalchemy import Column, String
 from .base import Base, NameMixin
+from ..forms import Label
 
 
 class Gender(Base, NameMixin):
@@ -22,3 +23,13 @@ class Gender(Base, NameMixin):
     possessive_adjective = Column(String(15), nullable=False, default='its')
     possessive_noun = Column(String(15), nullable=False, default='its')
     reflexive = Column(String(15), nullable=False, default='itself')
+
+    def get_all_fields(self):
+        fields = super().get_all_fields()
+        fields.append(Label('Pronouns'))
+        for name in (
+            'subjective', 'objective', 'possessive_adjective',
+            'possessive_noun', 'reflexive'
+        ):
+            fields.append(self.make_field(name))
+        return fields
