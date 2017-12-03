@@ -192,6 +192,11 @@ class Object(
 
     def get_all_fields(self):
         fields = super().get_all_fields()
+        Gender = Base._decl_class_registry['Gender']
+        genders = [None]
+        for g in Gender.query():
+            genders.append([g.id, g.get_name(True)])
+        fields.append(self.make_field('gender_id', type=genders))
         fields.append(self.make_field('pose'))
         for name in ('anchored', 'log_commands'):
             fields.append(self.make_field(name, type=bool))
