@@ -30,7 +30,7 @@ def check_in_space(player, starship=None):
     starship the player is aboard."""
     if starship is None:
         starship = player.location.zone.starship
-    if starship.location_id is not None:
+    if starship.object.location_id is not None:
         player.message('You are not in space.')
         end()
 
