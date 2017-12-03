@@ -794,6 +794,7 @@ let mindspace_functions = {
     url: obj => {
         let [title, href] = obj.args
         let a = document.createElement("a")
+        a.target = "_blank"
         a.className = "url"
         a.href = href
         a.innerText = title
