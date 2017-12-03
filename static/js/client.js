@@ -437,6 +437,9 @@ document.onkeydown = (e) => {
             return func(e)
         }
     }
+    if (key == "CONTROL") {
+        window.speechSynthesis.cancel()
+    }
     let modifiers = []
     for (let name of ["ctrl", "shift", "alt"]) {
         if (e[`${name}Key`]) {
@@ -454,7 +457,6 @@ document.onkeydown = (e) => {
         if (["'", "ENTER", " ", "TAB", "W", "Q", "T", "N"].includes(key) || key[0] == "F") {
             e.preventDefault()
         }
-        window.speechSynthesis.cancel()
         send({name: "key", args: [key, modifiers]})
     }
 }
