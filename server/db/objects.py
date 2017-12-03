@@ -281,6 +281,7 @@ class Object(
                 self.player.connected_time += recent
         else:
             self.player.last_connected = datetime.utcnow()
+            self.player.last_host = con.host
             con.player_id = self.id
             con.locked = self.player.locked
             connections[self.id] = con
