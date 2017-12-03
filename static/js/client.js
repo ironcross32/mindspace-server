@@ -429,12 +429,6 @@ document.onkeydown = (e) => {
     }
     if (key == "CONTROL") {
         window.speechSynthesis.cancel()
-    } else if (key == "SHIFT") {
-        if (tts.paused) {
-            tts.resume()
-        } else {
-            tts.pause()
-        }
     }
     let modifiers = []
     for (let name of ["ctrl", "shift", "alt"]) {
