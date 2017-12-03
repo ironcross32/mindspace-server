@@ -187,6 +187,7 @@ ctx = dict(
     valid_object=valid_object,
     valid_sensors=valid_sensors,
     valid_engine=valid_engine,
+    check_in_space=check_in_space,
     check_location=check_location,
     check_perms=check_perms,
     check_admin=check_admin,
