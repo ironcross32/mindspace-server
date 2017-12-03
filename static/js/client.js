@@ -221,10 +221,9 @@ let connected = false
 document.getElementById("username").focus()
 let voice_voice = document.getElementById("voice-voice")
 let tts = window.speechSynthesis
-let voices = tts.getVoices()
 
-for (let i in voices) {
-    let voice = voices[i]
+for (let i in tts.getVoices()) {
+    let voice = tts.getVoices()[i]
     let o = document.createElement("option")
     o.value = i
     o.innerText = `${voice.name} (${voice.lang})`
@@ -658,7 +657,7 @@ function write_message(text) {
         msg.rate = voice_rate.value
         let voice_index = parseInt(voice_voice.value)
         if (voice_index != -1) {
-            msg.voice = voices[voice_index]
+            msg.voice = tts.getVoices()[voice_index]
         }
         window.speechSynthesis.speak(msg)
     }
