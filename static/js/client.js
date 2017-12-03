@@ -51,8 +51,11 @@ function create_panner(max_distance) {
     return p
 }
 
-function create_ambience(obj, sound, volume, output) {
+function create_ambience(obj, sound, volume, output, rate) {
     create_environment()
+    if (rate === undefined) {
+        rate = 1
+    }
     if (output === undefined) {
         // Let's use the main output.
         output = environment
@@ -102,6 +105,7 @@ function create_ambience(obj, sound, volume, output) {
                 obj.sum = sum,
                 obj.source = source
                 source.loop = true
+                source.playbackRate.value = rate
                 source.connect(obj.mixer)
                 source.start(0)
             })
@@ -991,10 +995,7 @@ let mindspace_functions = {
     },
     zone: obj => {
         let [ambience_sound, ambience_rate, ambience_volume] = obj.args
-        zone = create_ambience(zone, ambience_sound, ambience_volume, ambience_mixer)
-        if (zone !== null && zone.source !== undefined) {
-            zone.source.playbackRate.value = ambience_rate
-        }
+        zone = create_ambience(zone, ambience_sound, ambience_volume, ambience_mixer, ambience_rate)
     },
     location: obj => {
         let [name, ambience_sound, ambience_volume, music_sound] = obj.args
