@@ -230,7 +230,7 @@ let voice_enable = document.getElementById("voice-enable")
 voice_enable.checked = Cookies.get("voice_enable") == "true" ? true : false
 
 voice_enable.onchange = () => {
-    Cookies.set("voice_enable", voice_enable.checked, {expired: 30})
+    Cookies.set("voice_enable", voice_enable.checked, {expires: 30})
 }
 
 let voice_rate = document.getElementById("voice-rate")
