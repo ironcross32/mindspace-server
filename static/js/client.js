@@ -222,10 +222,10 @@ let connected = false
 let voice_voice = document.getElementById("voice-voice")
 let tts = window.speechSynthesis
 let voice_enable = document.getElementById("voice-enable")
-voice_enable.value = Cookies.get("voice_enable") || false
+voice_enable.checked = Cookies.get("voice_enable") == "true" ? true : false
 
 voice_enable.onchange = () => {
-    Cookies.set("voice_enable", voice_enable.value, {expired: 30})
+    Cookies.set("voice_enable", voice_enable.checked, {expired: 30})
 }
 
 let voice_rate = document.getElementById("voice-rate")
