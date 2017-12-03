@@ -778,10 +778,11 @@ let mindspace_functions = {
     },
     url: obj => {
         let [title, href] = obj.args
-        show(url)
-        url.innerText = title
-        url.href = href
-        url.focus()
+        let a = document.createElement("a")
+        a.href = href
+        a.innerText = title
+        output.appendChild(a)
+        a.focus()
     },
     get_text: obj => {
         let [message, command, value, multiline, escapable, args, kwargs] = obj.args
