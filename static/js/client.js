@@ -217,15 +217,26 @@ function send(obj) {
 let soc = null
 let connected = false
 
-document.getElementById("username").focus()
-let voice_voice = document.getElementById("voice-voice")
-let tts = window.speechSynthesis
-
 // Page elements.
 
-let output = document.getElementById("output")
+let voice_voice = document.getElementById("voice-voice")
+let tts = window.speechSynthesis
 let voice_enable = document.getElementById("voice-enable")
+voice_enable.value = Cookies.get("voice_enable") || false
+
+voice_enable.onchange = () => {
+    Cookies.set("voice_enable", voice_enable.value, {expired: 30})
+}
+
 let voice_rate = document.getElementById("voice-rate")
+voice_rate.value = Cookies.get("voice_rate") || 1
+
+voice_rate.onchange = () => {
+    Cookies.set("voice_rate", voice_rate.value, {expires: 30})
+}
+
+let output = document.getElementById("output")
+document.getElementById("username").focus()
 
 // Below code to make Web Audio work on iOS modified from:
 // https://paulbakaus.com/tutorials/html5/web-audio-on-ios/
@@ -1041,6 +1052,7 @@ function create_socket(obj) {
         o.innerText = `${voice.name} (${voice.lang})`
         voice_voice.appendChild(o)
     }
+    voice_voice.value = Cookies.get("voice_voice") || -1
     hide(connect)
     game.hidden = false
     soc = new WebSocket(`ws://${window.location.hostname}:6465`)
