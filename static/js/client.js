@@ -650,6 +650,7 @@ function write_message(text) {
         let voice_index = parseInt(voice_voice.value)
         if (voice_index != -1) {
             msg.voice = tts.getVoices()[voice_index]
+            console.log(msg.voice.name)
         }
         window.speechSynthesis.speak(msg)
     }
@@ -1033,9 +1034,9 @@ function create_socket(obj) {
     o.value = -1
     o.selected = true
     o.innerText = "Default"
+    voice_voice.appendChild(o)
     for (let i in tts.getVoices()) {
         let voice = tts.getVoices()[i]
-        console.log(voice.name)
         let o = document.createElement("option")
         o.value = i
         o.innerText = `${voice.name} (${voice.lang})`
