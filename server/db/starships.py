@@ -57,7 +57,7 @@ class Starship(Base, LandMixin, LaunchMixin):
         """Return the coordinates where relative sounds should be played,
         taking into account object and player coordinates, as well as
         player.location.max_distance."""
-        zone = self.object
+        zone = self.zone
         coordinates = []
         for name in ('x', 'y', 'z'):
             c = max(
