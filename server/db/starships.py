@@ -3,7 +3,7 @@
 import os.path
 from sqlalchemy import Column, Float, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
-from .base import Base, NameMixin
+from .base import Base, NameMixin, LandMixin, LaunchMixin
 from ..distance import km, ly
 from ..sound import get_sound, NoSuchSound
 from ..protocol import hidden_sound
@@ -31,7 +31,7 @@ class StarshipSensors(Base, NameMixin):
     distance = Column(Float, nullable=False, default=ly)
 
 
-class Starship(Base):
+class Starship(Base, LandMixin, LaunchMixin):
     """Make a Zone a starship."""
 
     __tablename__ = 'starships'
