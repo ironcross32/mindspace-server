@@ -105,11 +105,12 @@ function create_ambience(obj, sound, volume, output, rate) {
                 obj.sum = sum,
                 obj.source = source
                 source.loop = true
-                console.log(rate)
                 source.playbackRate.value = rate
                 source.connect(obj.mixer)
                 source.start(0)
             })
+        } else {
+            obj.source.playbackRate.value = rate
         }
         obj.mixer.gain.value = volume
     }
