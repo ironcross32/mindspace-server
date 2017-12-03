@@ -800,6 +800,9 @@ let mindspace_functions = {
         a.innerText = title
         output.appendChild(a)
         a.focus()
+        a.onclick = () => {
+            disconnect.focus()
+        }
     },
     get_text: obj => {
         let [message, command, value, multiline, escapable, args, kwargs] = obj.args
