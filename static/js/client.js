@@ -52,7 +52,6 @@ function create_panner(max_distance) {
 }
 
 function create_ambience(obj, sound, volume, output, rate) {
-    console.log(rate)
     create_environment()
     if (rate === undefined) {
         rate = 1
@@ -106,6 +105,7 @@ function create_ambience(obj, sound, volume, output, rate) {
                 obj.sum = sum,
                 obj.source = source
                 source.loop = true
+                console.log(rate)
                 source.playbackRate.value = rate
                 source.connect(obj.mixer)
                 source.start(0)
