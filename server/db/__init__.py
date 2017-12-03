@@ -48,6 +48,7 @@ from .stars import Star
 from .words import Word
 from .tasks import Task
 from .transits import TransitStop, TransitRoute
+from .genders import Gender
 
 logger = logging.getLogger(__name__)
 db_file = 'world.yaml'
@@ -276,5 +277,5 @@ __all__ = (
     'ObjectTypeHotkeySecondary', 'ObjectTypeSecondary', 'ObjectType', 'Orbit',
     'Starship', 'StarshipSensors', 'Star', 'Word', 'Task', 'TransitStop',
     'TransitRoute', 'load_db_old', 'dump_db_old', 'get_classes', 'finalise_db',
-    'RoomAirlock'
+    'RoomAirlock', 'Gender'
 )
