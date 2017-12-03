@@ -420,7 +420,7 @@ document.onkeydown = (e) => {
     let current = document.activeElement
     if (
         (e.key != "escape") && (
-            e.key === undefined || current === url || !connected || [
+            e.key === undefined || !connected || [
                 "text", "password", "textarea", "number", "select-one"
             ].includes(current.type)
         )
@@ -479,11 +479,6 @@ for (let name of field_names) {
 }
 
 let game = document.getElementById("game")
-let url = document.getElementById("url")
-
-url.onclick = () => {
-    hide(url)
-}
 
 let menu = document.getElementById("menu")
 let menu_h = document.getElementById("menu-h")
