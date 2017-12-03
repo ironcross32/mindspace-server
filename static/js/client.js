@@ -220,6 +220,11 @@ let connected = false
 // Page elements.
 
 let voice_voice = document.getElementById("voice-voice")
+
+voice_voice.onchange = () => {
+    Cookies.set("voice_voice", voice_voice.value, {expires: 30})
+}
+
 let tts = window.speechSynthesis
 let voice_enable = document.getElementById("voice-enable")
 voice_enable.checked = Cookies.get("voice_enable") == "true" ? true : false
