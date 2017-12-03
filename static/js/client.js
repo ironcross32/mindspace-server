@@ -217,23 +217,9 @@ function send(obj) {
 let soc = null
 let connected = false
 
-// stuff to happen when the page has loaded.
 document.getElementById("username").focus()
 let voice_voice = document.getElementById("voice-voice")
 let tts = window.speechSynthesis
-
-console.log("Here we are.")
-console.log(tts.getVoices().length)
-
-for (let i in tts.getVoices()) {
-    let voice = tts.getVoices()[i]
-    console.log(voice.name)
-    let o = document.createElement("option")
-    o.value = i
-    o.innerText = `${voice.name} (${voice.lang})`
-    voice_voice.appendChild(o)
-}
-
 
 // Page elements.
 
@@ -1042,6 +1028,19 @@ connect_form.onsubmit = (e) => {
 }
 
 function create_socket(obj) {
+    clear_element(voice_voice)
+    let o = document.createElement("option")
+    o.value = -1
+    o.selected = true
+    o.innerText = "Default"
+    for (let i in tts.getVoices()) {
+        let voice = tts.getVoices()[i]
+        console.log(voice.name)
+        let o = document.createElement("option")
+        o.value = i
+        o.innerText = `${voice.name} (${voice.lang})`
+        voice_voice.appendChild(o)
+    }
     hide(connect)
     game.hidden = false
     soc = new WebSocket(`ws://${window.location.hostname}:6465`)
