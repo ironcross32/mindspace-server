@@ -220,10 +220,14 @@ let connected = false
 // stuff to happen when the page has loaded.
 document.getElementById("username").focus()
 let voice_voice = document.getElementById("voice-voice")
-for (let voice of window.speechSynthesis.getVoices()) {
+let tts = window.speechSynthesis
+let voices = tts.getVoices()
+
+for (let i in voices) {
+    let voice = voices[i]
     let o = document.createElement("option")
-    o.value = voice
-    o.innerText = voice
+    o.value = i
+    o.innerText = `${voice.name} (${voice.lang})`
     voice_voice.appendChild(o)
 }
 
@@ -652,6 +656,10 @@ function write_message(text) {
     if (voice_enable.checked) {
         let msg = new SpeechSynthesisUtterance(text)
         msg.rate = voice_rate.value
+        let voice_index = parseInt(voice_voice.value)
+        if (voice_index != -1) {
+            msg.voice = voices[voice_index]
+        }
         window.speechSynthesis.speak(msg)
     }
     let p = document.createElement("p")
