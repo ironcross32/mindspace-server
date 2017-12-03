@@ -217,11 +217,22 @@ function send(obj) {
 let soc = null
 let connected = false
 
+// stuff to happen when the page has loaded.
 document.getElementById("username").focus()
+let voice_voice = document.getElementById("voice-voice")
+for (let voice of window.speechSynthesis.getVoices()) {
+    let o = document.createElement("option")
+    o.value = voice
+    o.innerText = voice
+    voice_voice.appendChild(o)
+}
+
 
 // Page elements.
 
 let output = document.getElementById("output")
+let voice_enable = document.getElementById("voice-enable")
+let voice_rate = document.getElementById("voice-rate")
 
 // Below code to make Web Audio work on iOS modified from:
 // https://paulbakaus.com/tutorials/html5/web-audio-on-ios/
@@ -656,8 +667,9 @@ function set_title(name) {
 }
 
 function write_message(text) {
-    if (document.getElementById("speak").checked) {
+    if (voice_enable.checked) {
         let msg = new SpeechSynthesisUtterance(text)
+        msg.rate = voice_rate.value
         window.speechSynthesis.speak(msg)
     }
     let p = document.createElement("p")
