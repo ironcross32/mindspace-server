@@ -407,7 +407,7 @@ def migrate(
     player, obj, destination, coordinates, leave_msg, leave_sound,
     arrive_msg, arrive_sound, follow_msg
 ):
-    """Migrate a player from one rom to another, doing all the necessaries."""
+    """Migrate a player from one room to another, doing all the necessaries."""
     player.clear_following()
     player.do_social(leave_msg, _others=[obj])
     player.move(destination, coordinates)
