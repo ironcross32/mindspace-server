@@ -428,10 +428,16 @@ for (let button of document.querySelectorAll(".key-special")) {
 document.onkeydown = (e) => {
     let current = document.activeElement
     if (
-        (e.key != "escape") && (
-            e.key === undefined || !connected || [
-                "text", "password", "textarea", "number", "select-one"
-            ].includes(current.type)
+        (
+            (
+                e.key != "escape"
+            ) && (
+                e.key === undefined || !connected || [
+                    "text", "password", "textarea", "number", "select-one"
+                ].includes(current.type)
+            )
+        ) || (
+            current.className == "url"
         )
     ) {
         return
@@ -788,6 +794,7 @@ let mindspace_functions = {
     url: obj => {
         let [title, href] = obj.args
         let a = document.createElement("a")
+        a.className = "url"
         a.href = href
         a.innerText = title
         output.appendChild(a)
