@@ -652,12 +652,12 @@ function set_title(name) {
 function write_message(text) {
     if (voice_enable.checked) {
         let msg = new SpeechSynthesisUtterance(text)
-        msg.rate = voice_rate.value
+        msg.rate = parseInt(voice_rate.value)
         let voice_index = parseInt(voice_voice.value)
         if (voice_index != -1) {
             msg.voice = tts.getVoices()[voice_index]
         }
-        window.speechSynthesis.speak(msg)
+        tts.speak(msg)
     }
     let p = document.createElement("p")
     p.innerText = text
