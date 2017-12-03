@@ -14,10 +14,12 @@ class StarshipEngine(Base, NameMixin):
 
     __tablename__ = 'starship_engines'
     max_acceleration = Column(Float, nullable=False, default=km)
+    lift_speed = Column(Float, nullable=False, default=0.1)
+    land_speed = Column(Float, nullable=False, default=1.0)
 
     def get_all_fields(self):
         fields = super().get_all_fields()
-        for name in ('max_acceleration',):
+        for name in ('max_acceleration', 'lift_speed', 'land_speed'):
             fields.append(self.make_field(name, type=float))
         return fields
 
