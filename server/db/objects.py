@@ -41,9 +41,7 @@ class Object(
     """A player-facing object."""
 
     __tablename__ = 'objects'
-    gender_id = Column(
-        Integer, ForeignKey('genders.id'), nullable=False, default=1
-    )
+    gender_id = Column(Integer, ForeignKey('genders.id'), nullable=True)
     gender = relationship('Gender', backref='objects')
     created = Column(
         DateTime(timezone=True), nullable=False, default=func.now()
