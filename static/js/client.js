@@ -224,15 +224,15 @@ let tts = window.speechSynthesis
 let voice_enable = document.getElementById("voice-enable")
 voice_enable.value = Cookies.get("voice_enable") || false
 
-voice_enable.onchange = (e) => {
-    Cookies.set("voice_enable", e.value, {expired: 30})
+voice_enable.onchange = () => {
+    Cookies.set("voice_enable", voice_enable.value, {expired: 30})
 }
 
 let voice_rate = document.getElementById("voice-rate")
 voice_rate.value = Cookies.get("voice_rate") || 1
 
-voice_rate.onchange = (e) => {
-    Cookies.set("voice_rate", e.value, {expires: 30})
+voice_rate.onchange = () => {
+    Cookies.set("voice_rate", voice_rate.value, {expires: 30})
 }
 
 let output = document.getElementById("output")
