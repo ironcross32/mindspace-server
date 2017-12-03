@@ -552,3 +552,17 @@ class HiddenMixin:
 
     def get_all_fields(self):
         return [self.make_field('hidden', type=bool)]
+
+
+class LaunchMixin:
+    """Messages and sounds for launchable things."""
+
+    launch_msg = message('%1n|normal begin%1s rising into the air.')
+    launch_sound = message('starship/launch/1.wav', True)
+
+
+class LandMixin:
+    """Sounds and messages for landing things."""
+
+    land_msg = message('%1n complete%1s its landing.')
+    land_sound = message('starship/land/1.wav', True)
