@@ -534,18 +534,14 @@ def message(string=None, nullable=False):
 class BoardMixin:
     board_msg = message('%1n board%1s %2n.')
     board_follow_msg = message('%1n|normal follow%1s %2n onto %3n.')
-    board_sound = message(nullable=True, default='ambiences/AirlockEnter.wav')
+    board_sound = message('ambiences/AirlockEnter.wav', True)
     board_other_msg = message('%1n|normal arrive%1s.')
-    board_other_sound = message(
-        nullable=True, default='ambiences/AirlockEnter.wav'
-    )
+    board_other_sound = message('ambiences/AirlockEnter.wav', True)
 
 
 class LeaveMixin:
     leave_msg = message('%1n disembark%1s from %2n.')
     leave_follow_msg = message('%1n|normal follow%1s %2n.')
-    leave_sound = message(nullable=True, default='ambiences/AirlockExit.wav')
+    leave_sound = message('ambiences/AirlockExit.wav', True)
     leave_other_msg = message('%1n|normal disembark%1s.')
-    leave_other_sound = message(
-        nullable=True, default='ambiences/AirlockExit.wav'
-    )
+    leave_other_sound = message('ambiences/AirlockExit.wav', True)
