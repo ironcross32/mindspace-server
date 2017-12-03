@@ -184,7 +184,7 @@ class ProtocolBase:
         if self in server.connections:
             server.connections.remove(self)
         getattr(self, 'logger', logger).info(reason)
-        if self.player_id is not None:
+        if getattr(self, 'player_id', None) is not None:
             with session() as s:
                 player = self.get_player(s)
                 player.connected = False
