@@ -52,6 +52,7 @@ function create_panner(max_distance) {
 }
 
 function create_ambience(obj, sound, volume, output, rate) {
+    console.log(rate)
     create_environment()
     if (rate === undefined) {
         rate = 1
