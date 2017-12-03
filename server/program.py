@@ -25,6 +25,16 @@ class PermissionError(Exception):
     """Someone did something naughty."""
 
 
+def check_in_space(player, starship=None):
+    """Ensure the provided starship is in space. If starship is None use the
+    starship the player is aboard."""
+    if starship is None:
+        starship = player.location.zone.starship
+    if starship.location_id is not None:
+        player.message('You are not in space.')
+        end()
+
+
 def check_location(player, obj):
     """Ensure player is at obj.location."""
     if player.location_id != obj.location_id:
