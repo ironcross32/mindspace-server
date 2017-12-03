@@ -222,6 +222,9 @@ document.getElementById("username").focus()
 let voice_voice = document.getElementById("voice-voice")
 let tts = window.speechSynthesis
 
+console.log("Here we are.")
+console.log(tts.getVoices().length)
+
 for (let i in tts.getVoices()) {
     let voice = tts.getVoices()[i]
     console.log(voice.name)
