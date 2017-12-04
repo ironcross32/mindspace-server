@@ -90,7 +90,7 @@ class _Base:
         n = 0
         for base in cls._decl_class_registry.values():
             if isclass(base):
-                n += Session.query(base).count()
+                n += base.count()
         return n
 
     def make_field(self, name, **kwargs):
