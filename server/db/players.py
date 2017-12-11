@@ -30,6 +30,7 @@ class Player(Base, PermissionsMixin, PasswordMixin):
     disconnect_notifications = Column(Boolean, nullable=False, default=True)
     mail_notifications = Column(Boolean, nullable=False, default=True)
     idea_notifications = Column(Boolean, nullable=False, default=True)
+    changelog_notifications = Column(Boolean, nullable=False, default=True)
 
     def get_all_fields(self):
         fields = [
@@ -51,7 +52,7 @@ class Player(Base, PermissionsMixin, PasswordMixin):
         for name in (
             'builder', 'admin', 'locked', 'connect_notifications',
             'disconnect_notifications', 'mail_notifications',
-            'idea_notifications'
+            'idea_notifications', 'changelog_notifications'
         ):
             fields.append(self.make_field(name, type=bool))
         return fields
