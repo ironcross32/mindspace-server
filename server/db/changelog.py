@@ -10,7 +10,5 @@ class ChangelogEntry(Base, OwnerMixin):
     __tablename__ = 'changelogs'
     text = Column(String(150), nullable=False)
     posted = Column(
-        DateTime(timezone=True),
-        nullable=False,
-        default=func.now()
+        DateTime(timezone=True), nullable=False, default=func.now()
     )
