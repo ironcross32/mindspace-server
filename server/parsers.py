@@ -80,8 +80,8 @@ def login(con, username, password):
         if obj.player.last_disconnected is None:
             msg = 'This is your first time connected.'
         else:
-            msg = 'Last connected %s from %s.' % (
-                player.last_connected, player.last_host
+            msg = 'Last connected: %s from %s.' % (
+                player.last_connected.ctime(), player.last_host
             )
         obj.register_connection(con)
         obj.message(msg)
