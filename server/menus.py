@@ -4,6 +4,7 @@ from attr import attrs, attrib, Factory
 from .db import Object
 from .sound import nonempty_room, empty_room
 from .protocol import interface_sound, menu
+from .util import pluralise
 
 
 @attrs
@@ -86,3 +87,50 @@ def objects_menu(
             )
         m = Menu('Objects Menu', items, escapable=True)
         return menu(con, m)
+
+
+@attrs
+class Page:
+    """A page of results."""
+
+    query = attrib()
+    start = attrib(default=Factory(int))
+    count = attrib(default=Factory(lambda: 20))
+
+    def __attrs_post_init__(self):
+        self.results = self.query.slice(
+            self.start, min(self.start + self.count, self.query.count())
+        )
+
+    def get_items(self, func, name, *args, **kwargs):
+        """Convert this page of results to a list of items which can be used as
+        the base for creating a Menu instance. All items are passed through
+        func which should return an instance of Item, and name, args, and
+        kwargs are used for next and previous entries."""
+        c = self.query.count()
+        items = []
+        for result in self.results:
+            items.append(func(result))
+        actions = []
+        if self.start > 0:
+            end = min(self.count, self.start)
+            actions.append(
+                Item(
+                    f'Previous {end} {pluralise(end, "entry", "entries")}',
+                    name, args=list(*args, max(0, self.start - self.count)),
+                    kwargs=kwargs
+                )
+            )
+        next_start = self.start + self.count
+        if next_start < c:
+            end = min(c - next_start, self.count)
+            items.append(
+                Item(
+                    f'Next {end} {pluralise(end, "entry", "entries")}',
+                    name, args=list(*args, next_start), kwargs=kwargs
+                )
+            )
+        if actions:
+            items.append(LabelItem('Pagination'))
+            items.extend(actions)
+        return items
