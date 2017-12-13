@@ -431,3 +431,14 @@ def migrate(
             lambda obj: obj is not player and obj not in player.followers,
             message, strings[-1]
         )
+
+
+def truncate(s, n=80, after='...'):
+    """Return string s truncated to n characters. If s is truncated, append
+    after."""
+    if not s:
+        return ''
+    s = s.splitlines()[0]
+    if len(s) > n:
+        s = s[:n] + after
+    return s
