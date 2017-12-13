@@ -2,7 +2,7 @@
 
 from sqlalchemy import Column, Integer, ForeignKey, String, DateTime, func
 from sqlalchemy.orm import relationship
-from .base import Base, OwnerMixin
+from .base import Base, NameMixin, OwnerMixin
 
 
 class IdeaVote(Base):
@@ -13,11 +13,10 @@ class IdeaVote(Base):
     voter_id = Column(Integer, ForeignKey('objects.id'), nullable=False)
 
 
-class Idea(Base, OwnerMixin):
+class Idea(Base, NameMixin, OwnerMixin):
     """An idea."""
 
     __tablename__ = 'ideas'
-    title = Column(String(50), nullable=False, unique=True)
     body = Column(String(10000), nullable=False)
     created = Column(
         DateTime(timezone=True), nullable=False, default=func.now()
