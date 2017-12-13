@@ -1,17 +1,17 @@
 """Provides mail-related classes."""
 
 import os.path
-from sqlalchemy import Column, Integer, ForeignKey, DateTime, func, Boolean
+from sqlalchemy import Column, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
-from .base import Base, NameMixin, TextMixin, OwnerMixin
+from .base import Base, NameMixin, TextMixin, OwnerMixin, CreatedMixin
 from ..sound import get_sound
 from ..protocol import interface_sound
 
 
-class MailMessage(Base, NameMixin, TextMixin, OwnerMixin):
+class MailMessage(Base, NameMixin, TextMixin, OwnerMixin, CreatedMixin):
     """An out of character mail message."""
+
     __tablename__ = 'mail_messages'
-    sent = Column(DateTime(timezone=True), nullable=False, default=func.now())
     read = Column(Boolean, nullable=False, default=False)
     to_id = Column(
         Integer,

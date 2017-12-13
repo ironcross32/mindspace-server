@@ -3,14 +3,13 @@
 import os.path
 from datetime import datetime
 from sqlalchemy import (
-    Column, Integer, ForeignKey, Boolean, Float, func, or_, and_, String,
-    DateTime
+    Column, Integer, ForeignKey, Boolean, Float, func, or_, and_, String
 )
 from sqlalchemy.orm import relationship, backref
 from .base import (
     Base, CoordinatesMixin, NameMixin, AmbienceMixin, LocationMixin,
     DescriptionMixin, OwnerMixin, RandomSoundMixin, RandomSoundContainerMixin,
-    StarshipMixin, HiddenMixin
+    StarshipMixin, HiddenMixin, CreatedMixin
 )
 from .session import Session
 from .communication import CommunicationChannel
@@ -36,16 +35,13 @@ class ObjectRandomSound(RandomSoundMixin, Base):
 class Object(
     Base, NameMixin, CoordinatesMixin, AmbienceMixin, LocationMixin,
     DescriptionMixin, OwnerMixin, RandomSoundContainerMixin, StarshipMixin,
-    HiddenMixin
+    HiddenMixin, CreatedMixin
 ):
     """A player-facing object."""
 
     __tablename__ = 'objects'
     gender_id = Column(Integer, ForeignKey('genders.id'), nullable=True)
     gender = relationship('Gender', backref='objects')
-    created = Column(
-        DateTime(timezone=True), nullable=False, default=func.now()
-    )
     max_distance_multiplier = Column(Float, nullable=False, default=1.0)
     teleport_msg = Column(
         String(100), nullable=False,

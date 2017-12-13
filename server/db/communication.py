@@ -1,12 +1,12 @@
 """Provides classes to do with communication channels."""
 
 import os.path
-from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, func
+from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from attr import attrs, attrib, Factory
 from .base import (
     Base, NameMixin, DescriptionMixin, OwnerMixin, CommunicationChannelMixin,
-    PermissionsMixin
+    PermissionsMixin, CreatedMixin
 )
 from ..sound import get_sound, sounds_dir
 
@@ -105,10 +105,11 @@ class CommunicationChannel(
         return m
 
 
-class CommunicationChannelMessage(Base, OwnerMixin, CommunicationChannelMixin):
+class CommunicationChannelMessage(
+    Base, OwnerMixin, CommunicationChannelMixin, CreatedMixin
+):
     """A message to a channel."""
 
     __tablename__ = 'communication_channel_messages'
     text = Column(String(10000), nullable=False)
-    sent = Column(DateTime(timezone=True), nullable=False, default=func.now())
     channel = relationship('CommunicationChannel', backref='messages')

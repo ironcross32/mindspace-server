@@ -1,19 +1,16 @@
 """Provides the Revision class."""
 
-from sqlalchemy import Column, Integer, String, DateTime, func
-from .base import Base
+from sqlalchemy import Column, Integer, String
+from .base import Base, CreatedMixin
 from .session import Session
 
 
-class Revision(Base):
+class Revision(Base, CreatedMixin):
     """Old code."""
 
     __tablename__ = 'revisions'
     object_id = Column(Integer, nullable=False)
     object_class_name = Column(String(20), nullable=False)
-    created = Column(
-        DateTime(timezone=True), nullable=False, default=func.now()
-    )
     code = Column(String(1000000), nullable=False)
 
     @property

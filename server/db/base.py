@@ -8,7 +8,8 @@ from random import choice, uniform
 from passlib.hash import sha256_crypt as crypt
 from attr import asdict
 from sqlalchemy import (
-    Column, Integer, String, Float, ForeignKey, DateTime, Boolean, inspect
+    Column, Integer, String, Float, ForeignKey, DateTime, Boolean, inspect,
+    func
 )
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
@@ -566,3 +567,9 @@ class LandMixin:
 
     land_msg = message('%1n|normal complete%1s its landing.')
     land_sound = message('starship/land/1.wav', True)
+
+
+class CreatedMixin:
+    created = Column(
+        DateTime(timezone=True), nullable=False, default=func.now()
+    )
