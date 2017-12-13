@@ -117,17 +117,17 @@ class Page:
             actions.append(
                 Item(
                     f'Previous {end} {pluralise(end, "entry", "entries")}',
-                    name, args=list(*args, max(0, self.start - self.count)),
+                    name, args=args + (max(0, self.start - self.count),),
                     kwargs=kwargs
                 )
             )
         next_start = self.start + self.count
         if next_start < c:
             end = min(c - next_start, self.count)
-            items.append(
+            actions.append(
                 Item(
                     f'Next {end} {pluralise(end, "entry", "entries")}',
-                    name, args=list(*args, next_start), kwargs=kwargs
+                    name, args=args + (next_start,), kwargs=kwargs
                 )
             )
         if actions:
