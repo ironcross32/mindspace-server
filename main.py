@@ -43,6 +43,7 @@ if __name__ == '__main__':
         time() - started
     )
     if args.test_db:
+        logging.info('Database loaded successfully.')
         raise SystemExit
     ServerOptions.instance_id = args.options_id
     if ServerOptions.get() is None:
