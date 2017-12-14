@@ -549,7 +549,7 @@ function clear_element(e) {
 }
 
 function hide_elements() {
-    for (let element of document.getElementsByClassName("hidden")) {
+    for (let element of document.getElementsByClassName("mindspace-hidden")) {
         element.hidden = true
     }
 }
