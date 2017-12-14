@@ -17,6 +17,7 @@ class Player(Base, PermissionsMixin, PasswordMixin):
     last_connected = Column(DateTime(timezone=True), nullable=True)
     last_host = Column(String(15), nullable=True)
     last_disconnected = Column(DateTime(timezone=True), nullable=True)
+    email = Column(String(150), nullable=True)
     username = Column(String(50), nullable=False, unique=True)
     transmition_id = Column(Integer, nullable=True)
     transmition_banned = Column(Boolean, nullable=True, default=False)
