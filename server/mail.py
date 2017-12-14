@@ -23,7 +23,5 @@ class Message(MIMEText):
         self['From'] = sender
         d = sendmail(
             'localhost', addr, recipients, self, senderDomainName=domain
-        )
-        d.addCallback(logger.info)
-        d.addErrback(logger.error)
+        ).addCallback(logger.info).addErrback(logger.error)
         return d
