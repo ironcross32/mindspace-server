@@ -1,0 +1,27 @@
+"""Provides the Message class."""
+
+import logging
+from socket import getfqdn
+from email.mime.text import MIMEText
+from email.utils import formataddr
+from twisted.mail.smtp import sendmail
+from .db.server_options import ServerOptions
+
+logger = logging.getLogger(__name__)
+domain = getfqdn()
+
+
+class Message(MIMEText):
+    def send(self, recipients):
+        """Sends this email using local transport."""
+        self['To'] = ', '.join(recipients)
+        o = ServerOptions.get()
+        addr = o.mail_from_address
+        sender = formataddr((o.mail_from_name, addr))
+        self['From'] = sender
+        d = sendmail(
+            'localhost', addr, recipients, self, senderDomainName=domain
+        )
+        d.addCallback(logger.info)
+        d.addErrback(logger.error)
+        return d
