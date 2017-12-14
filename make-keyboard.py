@@ -33,9 +33,9 @@ if __name__ == '__main__':
                 key = key[1:]
             else:
                 type = 'button'
-                cls = 'key'
+                cls = 'standard'
             key = key.upper()
-            s += f'<input type="{type}" class="{cls}" value="{key}">'
+            s += f'<input type="{type}" class="key-{cls}" value="{key}">'
             s += '\n</div>\n'
         s += '</div>\n'
     with open(filename, 'w') as f:
