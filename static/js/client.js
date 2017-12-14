@@ -350,49 +350,6 @@ function add_keys(row, keys) {
     }
 }
 
-function row() {
-    return document.createElement("tr")
-}
-
-{
-    let r = row()
-    add_keys(r, ["ESCAPE", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "DELETE"])
-    keyboard.appendChild(r)
-    r = row()
-    add_keys(r, ["NONE", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "BACKSPACE"])
-    keyboard.appendChild(r)
-    r = row()
-    add_keys(r, ["TAB", "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "[", "]", "ENTER"])
-    keyboard.appendChild(r)
-    r = row()
-    add_keys(r, ["A", "S", "D", "F", "G", "H", "J", "K", "L", ";", "'", "#", "HOME", "PAGEDOWN"])
-    keyboard.appendChild(r)
-    r = row()
-    r.appendChild(create_td(create_modifier("shift", "SHIFT")))
-    add_keys(r, ["\\", "Z", "X", "C", "V", "B", "N", "M", ",", ".", "/", "END", "PAGEDOWN"])
-    keyboard.appendChild(r)
-    r = row()
-    r.appendChild(create_td(create_modifier("ctrl")))
-    r.appendChild(create_td(create_modifier("alt")))
-    for (let [key, value] of [
-        ["SPACE", "SPACE"],
-        ["I", "North"],
-        ["O", "Northeast"],
-        ["L", "East"],
-        [".", "Southeast"],
-        [",", "South"],
-        ["M", "Southwest"],
-        ["J", "West"],
-        ["U", "Northwest"],
-        ["F1", "Help"],
-        ["TAB", "Next Item"]
-    ]) {
-        r.appendChild(create_td(create_key(key, value)))
-    }
-    r.appendChild(create_td(create_key({name: "key", args: ["TAB", ["shift"]]}, "Previous Item", "special")))
-    keyboard.appendChild(r)
-}
-
 function standard_key(e) {
     // Send a key.
     if (!connected) {
