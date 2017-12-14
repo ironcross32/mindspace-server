@@ -19,6 +19,7 @@ from emote_utils import SocialsError
 from . import db, server, protocol, menus, util, forms, sound, distance
 from .db import base
 from .socials import factory
+from .mail import Message
 
 
 class PermissionError(Exception):
@@ -209,7 +210,8 @@ ctx = dict(
     time=time,
     ctime=ctime,
     strftime=strftime,
-    base=base
+    base=base,
+    Message=Message
 )
 
 
