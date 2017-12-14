@@ -1,5 +1,6 @@
 """Provides the ServerOptions class."""
 
+from socket import getfqdn
 from datetime import timedelta
 from sqlalchemy import Column, Integer, Interval, String, ForeignKey
 from sqlalchemy.orm import relationship
@@ -27,6 +28,12 @@ class ServerOptions(Base, NameMixin):
     first_room_id = Column(Integer, ForeignKey('rooms.id'), nullable=False)
     first_room = relationship('Room', backref='first_room_options')
     purge_after = Column(Interval, nullable=False, default=timedelta(days=30))
+    mail_from_name = Column(
+        String(50), nullable=False, default='Mindspace Webmaster'
+    )
+    mail_from_address = Column(
+        String(50), nullable=False, default=f'webmaster@{getfqdn()}'
+    )
 
     @classmethod
     def get(cls):
