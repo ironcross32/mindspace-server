@@ -272,9 +272,6 @@ function unlock_audio() {
     }, 0)
 }
 
-let keyboard = document.getElementById("keyboard")
-let modifiers = {}
-
 let keyboard_transformations = {
     "¬": "`",
     "!": "1",
@@ -302,90 +299,27 @@ let keyboard_transformations = {
 
 keyboard_transformations[String.fromCharCode(163)] = "3"
 
-function create_key(id, value, type) {
-    if (value === undefined) {
-        value = id.toUpperCase()
-    }
-    if (type === undefined) {
-        type = "standard"
-    } else if (type == "special") {
-        id = JSON.stringify(id)
-    }
-    let k = document.createElement("input")
-    k.className = `key-${type}`
-    k.id = id
-    k.value = value
-    if (type == "modifier") {
-        let l = document.createElement("label")
-        let s = document.createElement("span")
-        s.innerText = value
-        l.appendChild(s)
-        k.type = "checkbox"
-        modifiers[id] = k
-        l.appendChild(k)
-        k = l
-    } else {
-        k.type = "button"
-    }
-    return k
-}
-
-function create_modifier(id, value) {
-    return create_key(id, value, "modifier")
-}
-
-function create_td(key) {
-    // Add a key to a <td> element."""
-    let t = document.createElement("td")
-    t.appendChild(key)
-    return t
-}
-
-function add_keys(row, keys) {
-    // Row should be a <tr> element.
-    for (let key of keys) {
-        let k = create_key(key)
-        let t = create_td(k)
-        row.appendChild(t)
-    }
-}
-
 function standard_key(e) {
     // Send a key.
     if (!connected) {
         return
     }
     let mods = []
-    for (let name in modifiers) {
-        let control = modifiers[name]
+    for (let control of document.querySelectorAll(".key-modifier")) {
         if (control.checked) {
-            mods.push(control.id)
+            mods.push(control.value)
             control.checked = false
         }
     }
     let button = e.target
     send({
         name: "key",
-        args: [button.id, mods]
+        args: [button.value, mods]
     })
 }
 
 for (let button of document.querySelectorAll(".key-standard")) {
     button.onclick = standard_key
-}
-
-function special_key(e) {
-    // Send a special key.
-    if (!connected) {
-        return
-    }
-    let button = e.target
-    let command = JSON.parse(button.id)
-    send(command)
-}
-
-for (let button of document.querySelectorAll(".key-special")) {
-    button.onclick = special_key
 }
 
 document.onkeydown = (e) => {
