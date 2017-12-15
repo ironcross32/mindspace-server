@@ -813,7 +813,7 @@ let mindspace_functions = {
                 l.setAttribute("for", id)
                 l.innerText = `${title} `
                 i.appendChild(l)
-                i.style.width = "90%"
+                e.style.width = "90%"
                 i.appendChild(e)
                 form_fields[name] = e
             }
