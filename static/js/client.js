@@ -746,7 +746,8 @@ let mindspace_functions = {
             kwargs: kwargs
         }
         form_fields = {}
-        for (let data of fields) {
+        for (let index in fields) {
+            let data = fields[index]
             let i = null
             if (data.type == "Label") {
                 i = document.createElement("h3")
@@ -803,11 +804,21 @@ let mindspace_functions = {
                     }
                     e.value = value || empty
                 }
-                i = document.createElement("label")
-                let s = document.createElement("span")
-                s.innerText = `${title} `
-                i.appendChild(s)
-                i.appendChild(e)
+                let id = `form-field-${index}`
+                e.setAttribute("id", id)
+                i = document.createElement("div")
+                i.className = "row"
+                let label_column = document.createElement("div")
+                label_column.className="col-xs-2"
+                let l = document.createElement("label")
+                l.setAttribute("for", id)
+                l.innerText = `${title} `
+                label_column.appendChild(l)
+                i.appendChild(label_column)
+                let field_column = document.createElement("di")
+                field_column.className = "col-xs-10"
+                field_column.appendChild(e)
+                i.appendChild(field_column)
                 form_fields[name] = e
             }
             form_p.appendChild(i)
