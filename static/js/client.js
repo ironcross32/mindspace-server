@@ -807,16 +807,16 @@ let mindspace_functions = {
                 let id = `form-field-${index}`
                 e.setAttribute("id", id)
                 i = document.createElement("div")
-                i.className = "row"
+                i.style.width = "100%"
                 let label_column = document.createElement("div")
-                label_column.className="col-xs-2"
+                label_column.style.width = "10%"
                 let l = document.createElement("label")
                 l.setAttribute("for", id)
                 l.innerText = `${title} `
                 label_column.appendChild(l)
                 i.appendChild(label_column)
                 let field_column = document.createElement("di")
-                field_column.className = "col-xs-10"
+                field_column.style.width = "90%"
                 field_column.appendChild(e)
                 i.appendChild(field_column)
                 form_fields[name] = e
