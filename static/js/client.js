@@ -247,7 +247,7 @@ voice_rate.onchange = () => {
 }
 
 let map = document.getElementById("map")
-map.style.width = map.style.height = Math.min(window.screen.height, window.screen.width)
+map.width = map.height = Math.min(window.screen.height, window.screen.width)
 let output = document.getElementById("output")
 document.getElementById("username").focus()
 
