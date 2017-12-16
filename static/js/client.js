@@ -246,6 +246,8 @@ voice_rate.onchange = () => {
     Cookies.set("voice_rate", voice_rate.value, {expires: 30})
 }
 
+let map = document.getElementById("map")
+map.style.width = map.style.height = Math.min(window.screen.height, window.screen.width)
 let output = document.getElementById("output")
 document.getElementById("username").focus()
 

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block head %}
-<link rel="stylesheet" type="text/css" href="/static/css/client.css">
+<link rel="stylesheet" type="text/css" href="/static/css/client.css?1">
 {% endblock %}
 {% block title %}Client{% endblock %}
 {% block header %}Mindspace Web Client{% endblock %}
@@ -14,6 +14,7 @@
 </form>
 </div>
 <div class="mindspace-hidden" id="game">
+<canvas class="border border-dark" id="map" height="300" height="300">Game map goes here.</canvas>
 <div class="border border-dark" id="output" aria-live="assertive"></div>
 <p><input type="button" id="disconnect" value="Disconnect"></p>
 <details>
