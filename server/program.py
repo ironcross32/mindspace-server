@@ -5,6 +5,7 @@ import sys
 import datetime
 import logging
 import re
+import random
 from time import time, ctime, strftime
 from platform import platform, architecture, python_implementation
 from contextlib import redirect_stdout, redirect_stderr
@@ -239,7 +240,7 @@ def build_context():
         value = getattr(distance, name)
         if isinstance(value, float):
             ctx[name] = value
-    for module in (db, protocol, menus, forms, sound):
+    for module in (db, protocol, menus, forms, sound, random):
         for name in dir(module):
             member = getattr(module, name)
             if callable(member) or isinstance(member, sound.Sound):
