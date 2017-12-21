@@ -66,23 +66,25 @@ class Server:
 
     def show_advert(self):
         """Show an advert."""
-        with session() as s:
-            q = s.query(Advert)
-            if self.last_advert is not None:
-                q = q.filter(Advert.id.isnot(self.last_advert))
-            c = q.count()
-            self.last_advert = None
-            if c and self.connections:
-                ad = choice(q.all())
-                self.last_advert = ad.id
-                logger.info('Showing advert %r.', ad)
-                for con in self.connections:
-                    interface_sound(
-                        con,
-                        get_sound(os.path.join('notifications', 'advert.wav'))
-                    )
-                    message(con, ad.text)
-                    message(con, 'For more information, press the A key.')
+        q = Advert.query()
+        if self.last_advert is not None:
+            q = q.filter(Advert.id != self.last_advert)
+        c = q.count()
+        self.last_advert = None
+        if c:
+            ad = choice(q.all())
+            self.last_advert = ad.id
+            logger.info('Showing advert %r.', ad)
+            sound = get_sound(os.path.join('notifications', 'advert.wav'))
+            for player in Object.join(Object.player).filter(
+                Player.donator.is_(False)
+            ):
+                con = player.get_connection()
+                if con is None:
+                    continue
+                interface_sound(con, sound)
+                message(con, ad.text)
+                message(con, 'For more information, press the A key.')
         reactor.callLater(randint(120, 900), self.show_advert)
 
     def start_listening(self):
