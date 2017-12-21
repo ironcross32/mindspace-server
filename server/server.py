@@ -4,7 +4,6 @@ import logging
 import os.path
 from time import time
 from datetime import datetime
-from random import choice, randint
 from json import dumps, loads
 from autobahn.twisted.websocket import (
     WebSocketServerProtocol, WebSocketServerFactory
@@ -16,8 +15,7 @@ from .protocol import interface_sound, message
 from .sound import get_sound
 from .parsers import login_parser, transmition_parser
 from .db import (
-    Session, session, Object, Player, Advert, ServerOptions, BannedIP,
-    LoggedCommand
+    Session, session, Object, Player, ServerOptions, BannedIP, LoggedCommand
 )
 from .web.app import app
 from .web import routes  # noqa
@@ -62,35 +60,10 @@ class Server:
         self.connections = []
         self.tcp_factory = ServerFactory()
         self.udp_factory = UDPProtocol()
-        self.last_advert = None
-
-    def show_advert(self):
-        """Show an advert."""
-        q = Advert.query()
-        if self.last_advert is not None:
-            q = q.filter(Advert.id != self.last_advert)
-        c = q.count()
-        self.last_advert = None
-        if c:
-            ad = choice(q.all())
-            self.last_advert = ad.id
-            logger.info('Showing advert %r.', ad)
-            sound = get_sound(os.path.join('notifications', 'advert.wav'))
-            for player in Object.join(Object.player).filter(
-                Player.donator.is_(False)
-            ):
-                con = player.get_connection()
-                if con is None:
-                    continue
-                interface_sound(con, sound)
-                message(con, ad.text)
-                message(con, 'For more information, press the A key.')
-        reactor.callLater(randint(120, 900), self.show_advert)
 
     def start_listening(self):
         """Start everything listening."""
         self.started = datetime.utcnow()
-        self.show_advert()
         o = ServerOptions.get()
         self.udp_port = o.udp_port
         self.tcp_listener = reactor.listenTCP(
