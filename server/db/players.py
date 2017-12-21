@@ -13,6 +13,7 @@ class Player(Base, PermissionsMixin, PasswordMixin):
     """Player options."""
 
     __tablename__ = 'players'
+    donator = Column(Boolean, nullable=False, default=False)
     connected_time = Column(Interval, nullable=True)
     last_connected = Column(DateTime(timezone=True), nullable=True)
     last_host = Column(String(15), nullable=True)
