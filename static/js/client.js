@@ -576,6 +576,7 @@ function write_message(text) {
         tts.speak(msg)
     }
     let p = document.createElement("p")
+    p.setAttribute("aria-live", "assertive")
     p.innerText = text
     output.appendChild(p)
     scroll_bottom()
