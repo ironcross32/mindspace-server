@@ -250,6 +250,7 @@ let map = document.getElementById("map")
 map.width = map.height = Math.min(window.screen.height, window.screen.width)
 let gl = map.getContext("2d", { alpha: false })
 let output = document.getElementById("output")
+let incoming = document.getElementById("incoming")
 document.getElementById("username").focus()
 
 // Below code to make Web Audio work on iOS modified from:
@@ -575,11 +576,15 @@ function write_message(text) {
         }
         tts.speak(msg)
     }
+    if (output.children.length) {
+        output.children[output.children.length - 1].removeAttribute('aria-hidden')
+    }
     let p = document.createElement("p")
-    p.setAttribute("aria-live", "assertive")
+    p.innerText = text
+    p.setAttribute('aria-hidden', 'true')
     output.appendChild(p)
-    p.textContent = text
     scroll_bottom()
+    incoming.textContent = text
 }
 
 function write_special(text) {
