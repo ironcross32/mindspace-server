@@ -577,8 +577,8 @@ function write_message(text) {
     }
     let p = document.createElement("p")
     p.setAttribute("aria-live", "assertive")
-    p.innerText = text
     output.appendChild(p)
+    p.textContent = text
     scroll_bottom()
 }
 
