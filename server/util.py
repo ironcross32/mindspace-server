@@ -13,9 +13,13 @@ from .protocol import interface_sound, message
 from .socials import factory
 
 
-def now():
-    """Returns datetime.utcnow()."""
-    return datetime.utcnow()
+def now(when=None):
+    """Returns local game time according to ServerOptions.time_difference. If
+    when is provided use that value as a base, otherwise use
+    datetime.utcnow()."""
+    if when is None:
+        when = datetime.utcnow()
+    return when - db.ServerOptions.get().time_difference
 
 
 def directions(c1, c2, format=int):

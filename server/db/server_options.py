@@ -34,6 +34,9 @@ class ServerOptions(Base, NameMixin):
     mail_from_address = Column(
         String(50), nullable=False, default=f'webmaster@{getfqdn()}'
     )
+    time_difference = Column(
+        Interval, nullable=False, default=timedelta(days=2000 * 365)
+    )
 
     @classmethod
     def get(cls):
