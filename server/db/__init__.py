@@ -80,39 +80,6 @@ def dump_object(obj):
     return d
 
 
-def load_db_old():
-    """Load the db from output_directory."""
-    logger.info('Creating database tables...')
-    Base.metadata.create_all()
-    objects = []
-    if not os.path.isdir(output_directory):
-        logger.info('Starting with blank database.')
-    else:
-        logger.info('Loading database from directory %s.', output_directory)
-        with session() as s:
-            for cls in get_classes():
-                directory = os.path.join(output_directory, cls.__name__)
-                if os.path.isdir(directory):
-                    logger.info('Entering directory %s.', directory)
-                    for fname in os.listdir(directory):
-                        with open(os.path.join(directory, fname), 'r') as f:
-                            y = f.read()
-                            y = load(y)
-                            objects.append(cls(**y))
-                    logger.info('Leaving directory %s.', directory)
-            s.add_all(objects)
-    finalise_db()
-    return sum(
-        [
-            s.query(
-                cls
-            ).count() for cls in Base._decl_class_registry.values() if isclass(
-                cls
-            )
-        ]
-    )
-
-
 def finalise_db():
     """Create skeleton objects."""
     with session() as s:
@@ -216,64 +183,10 @@ def load_db():
     finalise_db()
 
 
-def dump_db_old(where=None):
-    """Dump the database to single files."""
-    if where is None:
-        where = output_directory
-    objects = 0
-    if os.path.isdir(where):
-        stat = os.stat(where)
-        old_name = f'{where}.{stat.st_mtime}'
-        try:
-            os.rename(where, old_name)
-            logger.info('Renamed %s to %s.', where, old_name)
-        except OSError as e:
-            logger.warning(
-                'Failed to rename directory %s to %s:', where, old_name
-            )
-            logger.exception(e)
-            where += '.critical'
-    logger.info('Dumping the database to directory %s.', where)
-    os.makedirs(where)
-    for cls in Base._decl_class_registry.values():
-        if not isclass(cls) or not issubclass(cls, Base):
-            continue
-        directory = os.path.join(where, cls.__name__)
-        q = Session.query(cls)
-        if q.count():
-            columns = inspect(cls).columns
-            logger.info('Entering directory %s.', directory)
-            if not os.path.isdir(directory):
-                logger.info('Creating directory.')
-                os.makedirs(directory)
-            for obj in q:
-                path = os.path.join(directory, f'{obj.id}.yaml')
-                objects += 1
-                y = dump_object(obj, columns)
-                with open(path, 'w') as f:
-                    dump(y, stream=f)
-            logger.info('Leaving directory %s.', directory)
-        else:
-            logger.info('Nothing to be done for directory %s.', directory)
-    return objects
-
-
 def dump_db(where=None):
     """Dump the database to single files."""
     if where is None:
         where = db_file
-    if os.path.isfile(where):
-        stat = os.stat(where)
-        old_name = f'{where}.{stat.st_mtime}'
-        try:
-            os.rename(where, old_name)
-            logger.info('Renamed %s to %s.', where, old_name)
-        except OSError as e:
-            logger.warning(
-                'Failed to rename %s to %s:', where, old_name
-            )
-            logger.exception(e)
-            where += '.critical'
     logger.info('Dumping the database to %s.', where)
     objects = []
     for cls in get_classes():
