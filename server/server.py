@@ -15,11 +15,9 @@ from twisted.web.server import Site
 from .protocol import interface_sound, message
 from .sound import get_sound
 from .parsers import login_parser, transmition_parser
-from .db import (
-    Session, session, Object, Player, ServerOptions, BannedIP, LoggedCommand
-)
 from .web.app import app
 from .web import routes  # noqa
+from . import db
 
 logger = logging.getLogger(__name__)
 
@@ -27,30 +25,29 @@ logger = logging.getLogger(__name__)
 @transmition_parser.command
 def transmit(udp, host, port, type, id, data):
     """Send data out to players."""
-    with session() as s:
-        player = s.query(Player).filter_by(transmition_id=id).first()
-        if player is None:
-            return  # Just drop it.
-        con = player.object.get_connection()
-        if con is None or con.host != host:
-            return logger.warning(
-                '%s:%d attempted to transmit as %r.', host, port, player
-            )
-        player_obj = player.object
-        if player.transmition_banned:
-            return  # They've been naughty.
-        args = [
-            Object.connected.is_(True),
-            Object.player_id.isnot(None)
-        ]
-        if not player_obj.monitor_transmitions:
-            args.append(Object.id.isnot(player_obj.id))
-        for obj in player_obj.get_visible(*args):
-            obj_con = obj.get_connection()
-            udp.transport.write(
-                login_parser.prepare_data(type, player_obj.id, data),
-                (obj_con.host, server.udp_port)
-            )
+    player = db.Player.query(transmition_id=id).first()
+    if player is None:
+        return  # Just drop it.
+    con = player.object.get_connection()
+    if con is None or con.host != host:
+        return logger.warning(
+            '%s:%d attempted to transmit as %r.', host, port, player
+        )
+    player_obj = player.object
+    if player.transmition_banned:
+        return  # They've been naughty.
+    args = [
+        db.Object.connected.is_(True),
+        db.Object.player_id.isnot(None)
+    ]
+    if not player_obj.monitor_transmitions:
+        args.append(db.Object.id.isnot(player_obj.id))
+    for obj in player_obj.get_visible(*args):
+        obj_con = obj.get_connection()
+        udp.transport.write(
+            login_parser.prepare_data(type, player_obj.id, data),
+            (obj_con.host, server.udp_port)
+        )
 
 
 class Server:
@@ -65,7 +62,7 @@ class Server:
     def start_listening(self):
         """Start everything listening."""
         self.started = datetime.utcnow()
-        o = ServerOptions.get()
+        o = db.ServerOptions.get()
         self.udp_port = o.udp_port
         self.tcp_listener = reactor.listenTCP(
             o.port, self.tcp_factory, interface=o.interface
@@ -149,7 +146,7 @@ class ProtocolBase:
         self.logger.info('Connected.')
         server.connections.append(self)
         self.parser = login_parser
-        message(self, ServerOptions.get().connect_msg)
+        message(self, db.ServerOptions.get().connect_msg)
 
     def on_disconnect(self, reason):
         if getattr(self, 'walk_task', None) is not None:
@@ -163,7 +160,7 @@ class ProtocolBase:
         if getattr(self, 'player_id', None) is not None:
             player = self.get_player()
             player.connected = False
-            for account in Player.query(disconnect_notifications=True):
+            for account in db.Player.query(disconnect_notifications=True):
                 obj = account.object
                 if obj is None:
                     continue
@@ -179,7 +176,8 @@ class ProtocolBase:
                     )
             player.player.transmition_id = None
             player.register_connection(None)
-            Session.add_all([player, player.player])
+            db.Session.add_all([player, player.player])
+            db.Session.commit()
 
     def set_locked(self, value):
         """Lock or unlock this connection."""
@@ -196,13 +194,15 @@ class ProtocolBase:
     def player(self):
         """Get the player object associated with this connection."""
         if self.player_id is not None:
-            return Object.get(self.player_id)
+            return db.Object.get(self.player_id)
 
     def handle_string(self, string):
         self.last_active = time()
         if self.logged:
-            Session.add(LoggedCommand(string=string, owner_id=self.player_id))
-            Session.commit()
+            db.Session.add(
+                db.LoggedCommand(string=string, owner_id=self.player_id)
+            )
+            db.Session.commit()
             message(self, 'Your connection has been locked.')
         else:
             try:
@@ -275,7 +275,7 @@ class MindspaceProtocol(NetstringReceiver, ProtocolBase):
 class ServerFactory(protocol.ServerFactory):
 
     def buildProtocol(self, addr):
-        if BannedIP.query(ip=addr.host).count():
+        if db.BannedIP.query(ip=addr.host).count():
             logger.warning('Blocked connection from banned IP %s.', addr.host)
         else:
             logger.info(

@@ -8,9 +8,9 @@ import re
 import random
 from time import time, ctime, strftime
 from platform import platform, architecture, python_implementation
-from contextlib import redirect_stdout, redirect_stderr
-from code import InteractiveConsole
+from contextlib import contextmanager, redirect_stdout, redirect_stderr
 import sqlalchemy
+from lupa import LuaRuntime
 from random_password import random_password
 from humanize import naturalsize
 from psutil import Process, boot_time, virtual_memory
@@ -154,23 +154,6 @@ def server_info():
     return stats
 
 
-class PythonShell(InteractiveConsole):
-    """A shell bound to a connection instance."""
-
-    def __init__(self, connection, *args, **kwargs):
-        self.connection = connection
-        super().__init__(*args, **kwargs)
-        self.locals.update(
-            shell=self,
-            con=self.connection,
-            logger=logging.getLogger('Python Shell'),
-            **ctx
-        )
-
-    def write(self, data):
-        protocol.message(self.connection, data)
-
-
 class OK(Exception):
     """Use instead of return."""
 
@@ -180,7 +163,6 @@ def end():
     raise OK()
 
 
-codes = {}
 ctx = dict(
     util=util,
     random_password=random_password,
@@ -196,7 +178,6 @@ ctx = dict(
     check_builder=check_builder,
     check_staff=check_staff,
     exc=exc,
-    PythonShell=PythonShell,
     redirect_stdout=redirect_stdout,
     redirect_stderr=redirect_stderr,
     os=os,
@@ -216,23 +197,45 @@ ctx = dict(
 )
 
 
+@contextmanager
+def manage_environment(**kwargs):
+    """Add all kwargs to the lua environment for the lifetime of this
+    context."""
+    g = lua.globals()
+    try:
+        for name, value in kwargs.items():
+            if name in ctx:
+                raise RuntimeError(
+                    f'Duplicate global {name} with value {repr(value)}.'
+                )
+            g[name] = value
+        yield lua
+    finally:
+        for name, value in kwargs.items():
+            g[name] = None
+
+
+def as_function(code, **kwargs):
+    """Execute code like a function returning its value. Use manage_environment
+    with the provided keyword arguments."""
+    with manage_environment(**kwargs) as runtime:
+        return runtime.execute(code)
+
+
 def run_program(con, s, prog, **context):
     """Run a program with a sensible context."""
     context['s'] = s
     if con is None:
         player = None
     else:
-        context['con'] = con
-        player = con.get_player(s)
-        context['player'] = player
-    context.update(ctx)
+        player = con.player
+    context['con'] = con
+    context['player'] = player
     context['logger'] = logging.getLogger(
         f'{prog}{" (%s)" % player.get_name(True) if player else ""}'
     )
     context.setdefault('self', prog)
-    if prog.code not in codes:
-        codes[prog.code] = compile(prog.code, prog.name, 'exec')
-    exec(codes[prog.code], {}, context)
+    return as_function(prog.code, **context)
 
 
 def build_context():
@@ -250,3 +253,8 @@ def build_context():
         reactor=reactor,
         run_program=run_program
     )
+    for name, value in ctx.items():
+        lua.globals()[name] = value
+
+
+lua = LuaRuntime()

@@ -22,7 +22,7 @@ def character_id(con, id):
 
 def location(con, obj=None):
     """Tell the client about the player's location."""
-    player = con.get_player()
+    player = con.player
     if obj is None:
         obj = player.location
     player.message(obj.get_name(player.is_staff))
@@ -140,7 +140,7 @@ def mute_mic(con, value):
 def zone(con, zone=None):
     """Tell connection con about a zone."""
     if zone is None:
-        zone = con.get_player().location.zone
+        zone = con.player.location.zone
     if zone.ambience is None:
         sound = None
     else:
