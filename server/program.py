@@ -229,7 +229,7 @@ def run_program(con, s, prog, **context):
     context['logger'] = logging.getLogger(
         f'{prog}{" (%s)" % player.get_name(True) if player else ""}'
     )
-    context.setdefault('self', prog)
+    context['self'] = prog
     if prog.code not in codes:
         codes[prog.code] = compile(prog.code, prog.name, 'exec')
     exec(codes[prog.code], {}, context)
