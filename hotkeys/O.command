@@ -1,0 +1,1 @@
+con.handle_command('starship_course', self.name, modifiers)

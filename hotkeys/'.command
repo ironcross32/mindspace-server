@@ -1,0 +1,1 @@
+get_text(con, 'Enter text to say', 'say', escapable=True)

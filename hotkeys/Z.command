@@ -1,0 +1,1 @@
+util.show_objects(con.get_player(s), lambda obj: obj.exit is None)

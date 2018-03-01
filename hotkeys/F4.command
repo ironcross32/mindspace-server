@@ -1,0 +1,1 @@
+con.handle_command('set_player_option', 'recording_threshold', 1)
