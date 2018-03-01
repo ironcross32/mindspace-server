@@ -236,7 +236,7 @@ def run_program(con, s, prog, context=None):
     context['logger'] = logging.getLogger(
         f'{prog}{" (%s)" % player.get_name(True) if player else ""}'
     )
-    context.setdefault('self', prog)
+    context['self'] = prog
     return as_function(prog.code, **context)
 
 
@@ -259,5 +259,5 @@ def build_context():
         lua.globals()[name] = value
 
 
-lua = LuaRuntime()
+lua = LuaRuntime(unpack_returned_tuples=True)
 db.base.lua = lua

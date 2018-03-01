@@ -24,6 +24,7 @@ from ..forms import Label, Field, text
 rounds = 10000
 ambiences_dir = os.path.join(sounds_dir, 'ambiences')
 random_sounds_dir = os.path.join(sounds_dir, 'random')
+lua = None
 datas = {}
 
 
@@ -41,6 +42,18 @@ class _Base:
         for name in inspect(self.__class__).columns.keys():
             strings.append(f'{name}={getattr(self, name)}')
         return res + ', '.join(strings) + ')'
+
+    @classmethod
+    def lua_query(self, table):
+        """Return the resulting objects as a table. Accepts a single dictionary-
+        like object as an argument."""
+        q = self.query(**table)
+        d = {}
+        for name in dir(q):
+            if not name.startswith('_'):
+                d[name] = getattr(q, name)
+        d['table'] = lambda: lua.table(*q.all())
+        return lua.table(**d)
 
     def duplicate(self):
         """Return a new object that is just like this one."""
