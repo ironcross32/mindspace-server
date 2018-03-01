@@ -75,7 +75,7 @@ class Server:
         )
         if private_key is None and certificate_key is None:
             self.web_endpoint = endpoints.TCP4ServerEndpoint(
-                reactor, o.web_port, interface=o.interface
+                reactor, o.http_port, interface=o.interface
             )
         elif private_key is None or certificate_key is None:
             logger.critical(
@@ -85,7 +85,7 @@ class Server:
             raise SystemExit
         else:
             self.web_endpoint = endpoints.serverFromString(
-                reactor, f'ssl:{o.web_port}:'
+                reactor, f'ssl:{o.http_port}:'
                 f'interface={o.interface}:privateKey={private_key}:'
                 f'certKey={certificate_key}'
             )

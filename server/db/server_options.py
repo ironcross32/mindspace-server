@@ -19,8 +19,9 @@ class ServerOptions(Base, NameMixin):
     disconnect_msg = Column(String(100), nullable=False, default='Goodbye.')
     interface = Column(String(25), nullable=False, default='0.0.0.0')
     port = Column(Integer, nullable=False, default=6463)
-    web_port = Column(Integer, nullable=False, default=6464)
+    http_port = Column(Integer, nullable=False, default=6464)
     websocket_port = Column(Integer, nullable=False, default=6465)
+    https_port = Column(Integer, nullable=False, default=6466)
     udp_port = Column(Integer, nullable=False, default=9000)
     name_change_interval = Column(
         Interval, nullable=False, default=timedelta(days=30)
