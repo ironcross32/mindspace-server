@@ -975,7 +975,7 @@ function create_socket(obj) {
     voice_voice.value = Cookies.get("voice_voice") || -1
     hide(connect)
     game.hidden = false
-    soc = new WebSocket(`ws://${window.location.hostname}:6465`)
+    soc = new WebSocket(`wss://${window.location.hostname}:6465`)
     soc.onclose = (e) => {
         if (audio !== null) {
             audio.close()
