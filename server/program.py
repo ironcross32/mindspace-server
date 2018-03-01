@@ -222,8 +222,10 @@ def as_function(code, **kwargs):
         return runtime.execute(code)
 
 
-def run_program(con, s, prog, **context):
+def run_program(con, s, prog, context=None):
     """Run a program with a sensible context."""
+    if context is None:
+        context = {}
     context['s'] = s
     if con is None:
         player = None
@@ -258,3 +260,4 @@ def build_context():
 
 
 lua = LuaRuntime()
+db.base.lua = lua
