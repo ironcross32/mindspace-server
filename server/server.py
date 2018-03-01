@@ -5,6 +5,7 @@ import os.path
 from time import time
 from datetime import datetime
 from json import dumps, loads
+from msgpack.exceptions import UnpackException
 from autobahn.twisted.websocket import (
     WebSocketServerProtocol, WebSocketServerFactory
 )
@@ -119,7 +120,11 @@ class UDPProtocol(protocol.DatagramProtocol):
             self.transferred[source] = 0
         if self.transferred[source] > 200000:
             return  # Greedy connection.
-        transmition_parser.handle_string(data, self, *source)
+        try:
+            transmition_parser.handle_string(data, self, *source)
+        except UnpackException as e:
+            logger.warning('Failed to unpack data:')
+            logger.exception(e)
 
 
 class ProtocolBase:
