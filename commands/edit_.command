@@ -1,47 +1,48 @@
-player = con.get_player()
-a = list(a)
-if not player.is_admin:
-    end()
-elif len(a) == 1:
-    a.extend([None, None])
-elif len(a) == 2:
-    a.append(None)
-elif len(a) == 3:
-    pass  # Perfect.
-else:
-    raise RuntimeError('Incorrect number of arguments: %r.' % a)
-type, id, data = a
-if type == 'command':
-    cls = Command
-elif type == 'hotkey':
-    cls = Hotkey
-else:
-    raise RuntimeError('Invalid type: %r.' % type)
+def parse_args(type, id=None, data=None):
+    return (type, id, data)
+
+type, id, data = parse_args(*a)
+cls = Base._decl_class_registry[type]
+if cls not in (Social,):
+    check_builder(player)
 if id is None:
-    items = []
-    for thing in s.query(cls):
-        items.append(Item(thing.get_name(True), __name__, args=[type, thing.id]))
-    m = Menu('Choose a %s' % cls.__name__.lower(), items, escapable=True)
+    items = [Item(f'Edit {cls.__name__}', None)]
+    for thing in cls.query().order_by(cls.name):
+        if hasattr(thing, 'get_description'):
+            description = f': {thing.get_description()}'
+        else:
+            description = ''
+        items.append(Item(f'{thing.get_name(True)}{description}', __name__, args=[type, thing.id]))
+    m = Menu(f'Choose {cls.__name__.lower()}', items, escapable=True)
     menu(con, m)
     end()
-obj = s.query(cls).get(id)
-if obj is None:
-    player.message('Invalid object.')
-    end()
-if data:
-    if all(data.values()):
+obj = cls.get(id)
+valid_object(player, obj)
+if not hasattr(obj, 'owner') or obj.owner is not player:
+    check_admin(player)
+try:
+    if data:
         for name, value in data.items():
-            setattr(obj, name, value)
-        try:
-            obj.set_code(obj.code)
-            s.add(obj)
-            s.commit()
-            player.message('Edits saved.')
-            end()
-        except OK:
-            end()
-        except Exception as e:
-            player.message(repr(e))
-    else:
-        player.message('All fields are required.')
+            if '.' in name:
+                where, name = name.split('.')
+                where = getattr(obj, where)
+            else:
+                where = obj
+            setattr(where, name, value)
+        s.add(obj)
+        s.commit()
+        if isinstance(obj, Object) and obj.location is not None:
+            obj.update_neighbours()
+        elif isinstance(obj, Zone):
+            obj.update_occupants()
+        player.message('Edits saved.')
+        end()
+except Exception as e:
+    if isinstance(e, OK):
+        raise e
+    player.message(repr(e))
+    logger.warning(
+        '%s caused an error while editing %s:',
+        player.get_name(True), obj.get_name(True) if hasattr(obj, 'get_name') else repr(obj))
+    logger.exception(e)
 form(con, ObjectForm(obj, __name__, args=[type, obj.id], cancel='Cancel'))
