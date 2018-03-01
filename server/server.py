@@ -128,7 +128,7 @@ class Server:
             )
         )
         self.websocket_factory = WebSocketServerFactory(
-            f'ws://{o.interface}:{o.websocket_port}'
+            f'wss://{o.interface}:{o.websocket_port}'
         )
         self.websocket_factory.protocol = MindspaceWebSocketProtocol
         self.websocket_listener = reactor.listenTCP(
