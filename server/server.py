@@ -85,7 +85,7 @@ class Server:
             raise SystemExit
         else:
             self.web_endpoint = endpoints.serverFromString(
-                reactor, 'ssl:6466:'
+                reactor, f'ssl:{o.web_port}:'
                 f'interface={o.interface}:privateKey={private_key}:'
                 f'certKey={certificate_key}'
             )
