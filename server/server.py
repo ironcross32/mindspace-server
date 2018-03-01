@@ -5,7 +5,10 @@ import os.path
 from time import time
 from datetime import datetime
 from json import dumps, loads
+from socket import getfqdn
+from urllib.parse import urljoin
 from msgpack.exceptions import UnpackException
+from klein import Klein
 from autobahn.twisted.websocket import (
     WebSocketServerProtocol, WebSocketServerFactory
 )
@@ -22,6 +25,18 @@ from .web.app import app
 from .web import routes  # noqa
 
 logger = logging.getLogger(__name__)
+hostname = getfqdn().encode()
+insecure_app = Klein()
+
+
+@insecure_app.route('/', branch=True)
+def redirect(request):
+    return request.redirect(
+        urljoin(
+            b'https://%s:%d' % (hostname, ServerOptions.get().https_port),
+            request.path
+        )
+    )
 
 
 @transmition_parser.command
@@ -73,14 +88,21 @@ class Server:
             'Now listening on %s:%d.',
             self.tcp_listener.interface, self.tcp_listener.port
         )
+        self.insecure_endpoint = endpoints.TCP4ServerEndpoint(
+            reactor, o.http_port, interface=o.interface
+        )
+        self.site = Site(app.resource())  # Either secure or insecure.
         if private_key is None and certificate_key is None:
-            self.web_endpoint = endpoints.TCP4ServerEndpoint(
-                reactor, o.http_port, interface=o.interface
+            # We are running without SSL.
+            logger.warning(
+                'Running without SSL. Voice communication will not be '
+                'possible.'
             )
+            self.web_endpoint = self.insecure_endpoint
         elif private_key is None or certificate_key is None:
             logger.critical(
                 'Both private key file and certificate key file must be '
-                'provided.'
+                'provided or neither.'
             )
             raise SystemExit
         else:
@@ -89,7 +111,15 @@ class Server:
                 f'interface={o.interface}:privateKey={private_key}:'
                 f'certKey={certificate_key}'
             )
-        self.site = Site(app.resource())
+            insecure_site = Site(insecure_app.resource())
+            d = self.insecure_endpoint.listen(insecure_site)
+            d.addErrback(logger.warning)
+            d.addCallback(
+                lambda value: logger.info(
+                    'HTTP redirects running from %s:%d.', value.interface,
+                    value.port
+                )
+            )
         d = self.web_endpoint.listen(self.site)
         d.addErrback(logger.warning)
         d.addCallback(
