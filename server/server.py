@@ -61,7 +61,7 @@ class Server:
         self.tcp_factory = ServerFactory()
         self.udp_factory = UDPProtocol()
 
-    def start_listening(self):
+    def start_listening(self, private_key, certificate_key):
         """Start everything listening."""
         self.started = datetime.utcnow()
         o = ServerOptions.get()
@@ -73,9 +73,22 @@ class Server:
             'Now listening on %s:%d.',
             self.tcp_listener.interface, self.tcp_listener.port
         )
-        self.web_endpoint = endpoints.TCP4ServerEndpoint(
-            reactor, o.web_port, interface=o.interface
-        )
+        if private_key is None and certificate_key is None:
+            self.web_endpoint = endpoints.TCP4ServerEndpoint(
+                reactor, o.web_port, interface=o.interface
+            )
+        elif private_key is None or certificate_key is None:
+            logger.critical(
+                'Both private key file and certificate key file must be '
+                'provided.'
+            )
+            raise SystemExit
+        else:
+            self.web_endpoint = endpoints.serverFromString(
+                reactor, 'ssl:6466:'
+                f'interface={o.interface}:privateKey={private_key}:'
+                f'certKey={certificate_key}'
+            )
         self.site = Site(app.resource())
         d = self.web_endpoint.listen(self.site)
         d.addErrback(logger.warning)

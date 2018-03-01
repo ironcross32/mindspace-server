@@ -19,7 +19,7 @@ parser.add_argument(
 
 parser.add_argument(
     '-l', '--log-file', type=FileType('w'), default='mindspace.log',
-    help='Where to log server output'
+    metavar='FILENAME', help='Where to log server output'
 )
 
 parser.add_argument(
@@ -27,6 +27,14 @@ parser.add_argument(
     '--test-db',
     action='store_true',
     help='Try and load the database then exit'
+)
+
+parser.add_argument(
+    '-p', '--private-key', metavar='FILENAME', help='Private key file'
+)
+
+parser.add_argument(
+    '-c', '--cert-key', metavar='FILENAME', help='Certificate key file'
 )
 
 
@@ -52,7 +60,7 @@ if __name__ == '__main__':
         logging.info(repr(ServerOptions.get()))
     build_context()
     try:
-        server.start_listening()
+        server.start_listening(args.private_key, args.cert_key)
         tasks_task.start(1.0, now=False).addErrback(tasks_errback)
     except error.CannotListenError as e:
         logging.critical('Listening failed.')
