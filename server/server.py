@@ -140,11 +140,8 @@ class ProtocolBase:
         self.last_active = 0
         self.locked = False
         self.transport.setTcpNoDelay(True)
-        self.shell = None
         self.walk_task = None
         self.player_id = None
-        self.object_id = None
-        self.search_string = ''
         peer = self.transport.getPeer()
         self.host = peer.host
         self.port = peer.port
@@ -155,7 +152,6 @@ class ProtocolBase:
         message(self, ServerOptions.get().connect_msg)
 
     def on_disconnect(self, reason):
-        self.shell = None
         if getattr(self, 'walk_task', None) is not None:
             try:
                 self.walk_task.stop()
@@ -165,26 +161,25 @@ class ProtocolBase:
             server.connections.remove(self)
         getattr(self, 'logger', logger).info(reason)
         if getattr(self, 'player_id', None) is not None:
-            with session() as s:
-                player = self.get_player(s)
-                player.connected = False
-                for account in Player.query(disconnect_notifications=True):
-                    obj = account.object
-                    if obj is None:
-                        continue
-                    connection = obj.get_connection()
-                    if connection is not None:
-                        name = player.get_name(obj.is_staff)
-                        msg = f'{name} has disconnected.'
-                        account.object.message(msg, channel='Connection')
-                        interface_sound(
-                            connection, get_sound(
-                                os.path.join('notifications', 'disconnect.wav')
-                            )
+            player = self.get_player()
+            player.connected = False
+            for account in Player.query(disconnect_notifications=True):
+                obj = account.object
+                if obj is None:
+                    continue
+                connection = obj.get_connection()
+                if connection is not None:
+                    name = player.get_name(obj.is_staff)
+                    msg = f'{name} has disconnected.'
+                    account.object.message(msg, channel='Connection')
+                    interface_sound(
+                        connection, get_sound(
+                            os.path.join('notifications', 'disconnect.wav')
                         )
-                player.player.transmition_id = None
-                player.register_connection(None)
-                s.add_all([player, player.player])
+                    )
+            player.player.transmition_id = None
+            player.register_connection(None)
+            Session.add_all([player, player.player])
 
     def set_locked(self, value):
         """Lock or unlock this connection."""
@@ -197,19 +192,17 @@ class ProtocolBase:
             message(self, text)
         self.transport.loseConnection()
 
-    def get_player(self, s=None):
+    @property
+    def player(self):
         """Get the player object associated with this connection."""
-        if s is None:
-            s = Session
         if self.player_id is not None:
-            return s.query(Object).get(self.player_id)
+            return Object.get(self.player_id)
 
     def handle_string(self, string):
         self.last_active = time()
         if self.logged:
             Session.add(LoggedCommand(string=string, owner_id=self.player_id))
             Session.commit()
-        if self.locked:
             message(self, 'Your connection has been locked.')
         else:
             try:
