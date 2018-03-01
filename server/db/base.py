@@ -23,6 +23,7 @@ from ..forms import Label, Field, text
 rounds = 10000
 ambiences_dir = os.path.join(sounds_dir, 'ambiences')
 random_sounds_dir = os.path.join(sounds_dir, 'random')
+datas = {}
 
 
 class _Base:
@@ -573,3 +574,19 @@ class CreatedMixin:
     created = Column(
         DateTime(timezone=True), nullable=False, default=func.now()
     )
+
+
+class DataMixin:
+    """Add data to an object."""
+
+    _data = Column(String(5000000), nullable=True)
+
+    @property
+    def data(self):
+        return datas.get(self.__class__, {}).get(self.id, {})
+
+    @data.setter
+    def data(self, value):
+        class_registry = datas.get(self.__class__, {})
+        class_registry[self.id] = value
+        datas[self.__class__] = class_registry
