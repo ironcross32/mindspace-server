@@ -10,7 +10,7 @@ from yaml import dump, load
 from db_dumper import load as dumper_load, dump as dumper_dump
 from .engine import engine
 from .session import Session, session
-from .base import Base
+from .base import Base, DataMixin
 from .rooms import Room, RoomRandomSound, RoomFloorType, RoomAirlock
 from .players import Player
 from .objects import Object, ObjectRandomSound
@@ -66,7 +66,10 @@ def get_classes():
 
 def dump_object(obj):
     """Return object obj as a dictionary."""
-    columns = inspect(obj.__class__).columns
+    cls = obj.__class__
+    if DataMixin in cls.__bases__:
+        obj.save_data()
+    columns = inspect(cls).columns
     d = {}
     for name, column in columns.items():
         value = getattr(obj, name)
