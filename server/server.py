@@ -27,30 +27,29 @@ logger = logging.getLogger(__name__)
 @transmition_parser.command
 def transmit(udp, host, port, type, id, data):
     """Send data out to players."""
-    with session() as s:
-        player = s.query(Player).filter_by(transmition_id=id).first()
-        if player is None:
-            return  # Just drop it.
-        con = player.object.get_connection()
-        if con is None or con.host != host:
-            return logger.warning(
-                '%s:%d attempted to transmit as %r.', host, port, player
-            )
-        player_obj = player.object
-        if player.transmition_banned:
-            return  # They've been naughty.
-        args = [
-            Object.connected.is_(True),
-            Object.player_id.isnot(None)
-        ]
-        if not player_obj.monitor_transmitions:
-            args.append(Object.id.isnot(player_obj.id))
-        for obj in player_obj.get_visible(*args):
-            obj_con = obj.get_connection()
-            udp.transport.write(
-                login_parser.prepare_data(type, player_obj.id, data),
-                (obj_con.host, server.udp_port)
-            )
+    player = Player.query(transmition_id=id).first()
+    if player is None:
+        return  # Just drop it.
+    con = player.object.get_connection()
+    if con is None or con.host != host:
+        return logger.warning(
+            '%s:%d attempted to transmit as %r.', host, port, player
+        )
+    player_obj = player.object
+    if player.transmition_banned:
+        return  # They've been naughty.
+    args = [
+        Object.connected.is_(True),
+        Object.player_id.isnot(None)
+    ]
+    if not player_obj.monitor_transmitions:
+        args.append(Object.id.isnot(player_obj.id))
+    for obj in player_obj.get_visible(*args):
+        obj_con = obj.get_connection()
+        udp.transport.write(
+            login_parser.prepare_data(type, player_obj.id, data),
+            (obj_con.host, server.udp_port)
+        )
 
 
 class Server:
@@ -202,7 +201,7 @@ class ProtocolBase:
         if s is None:
             s = Session
         if self.player_id is not None:
-            return s.query(Object).get(self.player_id)
+            return Object.get(self.player_id)
 
     def handle_string(self, string):
         self.last_active = time()

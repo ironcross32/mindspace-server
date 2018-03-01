@@ -196,7 +196,7 @@ class WalkTask(LoopingCall):
     def walk(self):
         """Make the player walk."""
         with db.session() as s:
-            obj = s.query(db.Object).get(self.id)
+            obj = db.Object.get(self.id)
             if obj is None:
                 return self.stop()
             obj.clear_following()
@@ -214,6 +214,7 @@ class WalkTask(LoopingCall):
                 kwargs[name] = value
             if any(kwargs.values()):
                 res = walk(obj, **kwargs)
+                s.add(obj)
             else:
                 res = False
             if res is False:

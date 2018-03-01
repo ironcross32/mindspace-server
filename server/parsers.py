@@ -19,7 +19,7 @@ class MainParser(MindspaceParser):
         connection = args[1]
         args = args[2:]
         with session() as s:
-            cmd = s.query(Command).filter_by(name=name).first()
+            cmd = Command.query(name=name).first()
             if cmd is None:
                 return super().huh(name, *args, **kwargs)
             # Save these in case of an error to prevent DetachedInstanceError.
@@ -51,7 +51,7 @@ def key(con, *args, **kwargs):
 def login(con, username, password):
     """Login or create a player."""
     with session() as s:
-        q = s.query(Player).filter_by(username=username)
+        q = Player.query(username=username)
         if q.count():
             player = q.first()
             if player.check_password(password):
@@ -64,7 +64,7 @@ def login(con, username, password):
         else:
             player = Player(username=username)
             player.set_password(password)
-            if not s.query(Player).count():
+            if not Player.count():
                 player.builder = True
                 player.admin = True
             obj = Object(
