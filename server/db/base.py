@@ -5,6 +5,7 @@ import os.path
 from time import time
 from inspect import isclass
 from random import choice, uniform
+from yaml import dump, load
 from passlib.hash import sha256_crypt as crypt
 from attr import asdict
 from sqlalchemy import (
@@ -583,10 +584,26 @@ class DataMixin:
 
     @property
     def data(self):
-        return datas.get(self.__class__, {}).get(self.id, {})
+        cls = self.__class__
+        if cls not in datas:
+            datas[cls] = {}
+        class_registry = datas[cls]
+        if self.id not in class_registry:
+            if self._data is None:
+                class_registry[self.id] = {}
+            else:
+                class_registry[self.id] = load(self._data)
+        return class_registry[self.id]
 
     @data.setter
     def data(self, value):
         class_registry = datas.get(self.__class__, {})
         class_registry[self.id] = value
         datas[self.__class__] = class_registry
+
+    def save_data(self):
+        d = self.data
+        if d:
+            self._data = dump(d)
+        else:
+            self._data = None
