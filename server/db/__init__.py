@@ -210,6 +210,5 @@ __all__ = (
     'Credit', 'StarshipEngine', 'RoomFloorType', 'ObjectTypeActionSecondary',
     'ObjectTypeHotkeySecondary', 'ObjectTypeSecondary', 'ObjectType', 'Orbit',
     'Starship', 'StarshipSensors', 'Star', 'Word', 'Task', 'TransitStop',
-    'TransitRoute', 'load_db_old', 'dump_db_old', 'get_classes', 'finalise_db',
-    'RoomAirlock', 'Gender'
+    'TransitRoute', 'get_classes', 'finalise_db', 'RoomAirlock', 'Gender'
 )
