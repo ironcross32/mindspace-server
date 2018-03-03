@@ -1024,7 +1024,7 @@ function create_socket(obj) {
                     microphone_processor.connect(audio.destination)
                     microphone_source.connect(microphone_processor)
                     microphone_processor.onaudioprocess = (e) => {
-                        console.log(e.inputBuffer)
+                        console.log(typeof(e.inputBuffer))
                     }
                 }
             )
