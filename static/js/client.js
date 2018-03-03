@@ -1021,6 +1021,7 @@ function create_socket(obj) {
                 (stream) => {
                     microphone_source = audio.createMediaStreamSource(stream)
                     microphone_processor = audio.createScriptProcessor(1024, 1, 1)
+                    microphone_processor.connect(audio.destination)
                     microphone_source.connect(microphone_processor)
                     microphone_processor.onaudioprocess = (e) => {
                         console.log(e.inputBuffer)
