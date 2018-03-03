@@ -30,11 +30,11 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    '-p', '--private-key', metavar='FILENAME', help='Private key file'
+    'private_key', metavar='PRIVATE-KEY', help='Private key file'
 )
 
 parser.add_argument(
-    '-c', '--cert-key', metavar='FILENAME', help='Certificate key file'
+    'cert_key', metavar='CERTIFICATE-KEY', help='Certificate key file'
 )
 
 

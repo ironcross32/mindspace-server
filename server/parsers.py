@@ -37,8 +37,6 @@ class MainParser(MindspaceParser):
 
 login_parser = MindspaceParser()
 main_parser = MainParser()
-transmition_parser = MindspaceParser()
-transmition_parser.loads_kwargs['encoding'] = None
 
 
 @login_parser.command

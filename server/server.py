@@ -7,19 +7,17 @@ from datetime import datetime
 from json import dumps, loads
 from socket import getfqdn
 from urllib.parse import urljoin
-from msgpack.exceptions import UnpackException
 from klein import Klein
 from autobahn.twisted.websocket import (
-    WebSocketServerProtocol, WebSocketServerFactory
+    WebSocketServerProtocol, WebSocketServerFactory, listenWS
 )
-from twisted.protocols.basic import NetstringReceiver
-from twisted.internet import reactor, protocol, endpoints, task
+from twisted.internet import reactor, ssl
 from twisted.web.server import Site
 from .protocol import interface_sound, message
 from .sound import get_sound
-from .parsers import login_parser, transmition_parser
+from .parsers import login_parser
 from .db import (
-    Session, session, Object, Player, ServerOptions, BannedIP, LoggedCommand
+    Session, session, Object, Player, ServerOptions, LoggedCommand
 )
 from .web.app import app
 from .web import routes  # noqa
@@ -39,134 +37,46 @@ def redirect(request):
     )
 
 
-@transmition_parser.command
-def transmit(udp, host, port, type, id, data):
-    """Send data out to players."""
-    player = Player.query(transmition_id=id).first()
-    if player is None:
-        return  # Just drop it.
-    con = player.object.get_connection()
-    if con is None or con.host != host:
-        return logger.warning(
-            '%s:%d attempted to transmit as %r.', host, port, player
-        )
-    player_obj = player.object
-    if player.transmition_banned:
-        return  # They've been naughty.
-    args = [
-        Object.connected.is_(True),
-        Object.player_id.isnot(None)
-    ]
-    if not player_obj.monitor_transmitions:
-        args.append(Object.id.isnot(player_obj.id))
-    for obj in player_obj.get_visible(*args):
-        obj_con = obj.get_connection()
-        udp.transport.write(
-            login_parser.prepare_data(type, player_obj.id, data),
-            (obj_con.host, server.udp_port)
-        )
-
-
 class Server:
     def __init__(self):
         """Leave everything in one place."""
         self.started = None
         self.logged_players = set()
         self.connections = []
-        self.tcp_factory = ServerFactory()
-        self.udp_factory = UDPProtocol()
 
     def start_listening(self, private_key, certificate_key):
         """Start everything listening."""
         self.started = datetime.utcnow()
         o = ServerOptions.get()
-        self.udp_port = o.udp_port
-        self.tcp_listener = reactor.listenTCP(
-            o.port, self.tcp_factory, interface=o.interface
+        web = Site(app.resource())
+        ssl_context = ssl.DefaultOpenSSLContextFactory(
+            private_key, certificate_key
+        )
+        insecure_site = Site(insecure_app.resource())
+        http_port = reactor.listenTCP(
+            o.http_port, insecure_site, interface=o.interface
         )
         logger.info(
-            'Now listening on %s:%d.',
-            self.tcp_listener.interface, self.tcp_listener.port
+            'Redirecting HTTP traffic from %s:%d.', http_port.interface,
+            http_port.port
         )
-        self.insecure_endpoint = endpoints.TCP4ServerEndpoint(
-            reactor, o.http_port, interface=o.interface
+        https_port = reactor.listenSSL(
+            o.https_port, web, ssl_context, interface=o.interface
         )
-        self.site = Site(app.resource())  # Either secure or insecure.
-        if private_key is None and certificate_key is None:
-            # We are running without SSL.
-            logger.warning(
-                'Running without SSL. Voice communication will not be '
-                'possible.'
-            )
-            self.web_endpoint = self.insecure_endpoint
-        elif private_key is None or certificate_key is None:
-            logger.critical(
-                'Both private key file and certificate key file must be '
-                'provided or neither.'
-            )
-            raise SystemExit
-        else:
-            self.web_endpoint = endpoints.serverFromString(
-                reactor, f'ssl:{o.https_port}:'
-                f'interface={o.interface}:privateKey={private_key}:'
-                f'certKey={certificate_key}'
-            )
-            insecure_site = Site(insecure_app.resource())
-            d = self.insecure_endpoint.listen(insecure_site)
-            d.addErrback(logger.warning)
-            d.addCallback(
-                lambda value: logger.info(
-                    'HTTP redirects running from %s:%d.', value.interface,
-                    value.port
-                )
-            )
-        d = self.web_endpoint.listen(self.site)
-        d.addErrback(logger.warning)
-        d.addCallback(
-            lambda value: logger.info(
-                'Web server listening on %s:%d.', value.interface, value.port
-            )
+        logger.info(
+            'Serving HTTPS from %s:%d.', https_port.interface, https_port.port
         )
-        self.websocket_factory = WebSocketServerFactory(
+        websocket_factory = WebSocketServerFactory(
             f'wss://{o.interface}:{o.websocket_port}'
         )
-        self.websocket_factory.protocol = MindspaceWebSocketProtocol
-        self.websocket_listener = reactor.listenTCP(
-            o.websocket_port, self.websocket_factory, interface=o.interface
+        websocket_factory.protocol = MindspaceWebSocketProtocol
+        websocket_port = listenWS(
+            websocket_factory, ssl_context, interface=o.interface
         )
         logger.info(
-            'Listening for web sockets on %s:%d.',
-            self.websocket_listener.interface, self.websocket_listener.port
+            'Listening for web sockets on %s:%d.', websocket_port.interface,
+            websocket_port.port
         )
-        self.udp_factory = UDPProtocol()
-        self.udp_listener = reactor.listenUDP(self.udp_port, self.udp_factory)
-        logger.info('UDP listening on port %d.', self.udp_listener.port)
-        self.clear_transferred = task.LoopingCall(self.clear_udp_transferred)
-        self.clear_transferred.start(1.0, now=False)
-
-    def clear_udp_transferred(self):
-        """Clear transfer logs so that clients can resume sending."""
-        if hasattr(self.udp_factory, 'transferred'):
-            self.udp_factory.transferred.clear()
-
-
-class UDPProtocol(protocol.DatagramProtocol):
-    """Handles voice transmitions."""
-
-    def startProtocol(self):
-        self.transferred = {}
-
-    def datagramReceived(self, data, source):
-        """Decode the data."""
-        if source not in self.transferred:
-            self.transferred[source] = 0
-        if self.transferred[source] > 200000:
-            return  # Greedy connection.
-        try:
-            transmition_parser.handle_string(data, self, *source)
-        except UnpackException as e:
-            logger.warning('Failed to unpack data:')
-            logger.exception(e)
 
 
 class ProtocolBase:
@@ -297,40 +207,6 @@ class MindspaceWebSocketProtocol(WebSocketServerProtocol, ProtocolBase):
 
     def onClose(self, wasClean, code, reason):
         self.on_disconnect(reason)
-
-
-class MindspaceProtocol(NetstringReceiver, ProtocolBase):
-    """Handle connections from TCP clients."""
-
-    def _handle_string(self, string):
-        """Protocol-specific string handling."""
-        self.parser.handle_string(string, self)
-
-    def send(self, name, *args, **kwargs):
-        """Prepare data and send it via self.sendString."""
-        data = self.parser.prepare_data(name, *args, **kwargs)
-        self.sendString(data)
-
-    def connectionMade(self):
-        self.on_connect()
-
-    def connectionLost(self, reason):
-        self.on_disconnect(reason.getErrorMessage())
-
-    def stringReceived(self, string):
-        self.handle_string(string)
-
-
-class ServerFactory(protocol.ServerFactory):
-
-    def buildProtocol(self, addr):
-        if BannedIP.query(ip=addr.host).count():
-            logger.warning('Blocked connection from banned IP %s.', addr.host)
-        else:
-            logger.info(
-                'Incoming connection from %s:%d.', addr.host, addr.port
-            )
-            return MindspaceProtocol()
 
 
 server = Server()
