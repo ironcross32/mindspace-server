@@ -1024,7 +1024,10 @@ function create_socket(obj) {
                     microphone_processor.connect(audio.destination)
                     microphone_source.connect(microphone_processor)
                     microphone_processor.onaudioprocess = (e) => {
-                        console.log(typeof(e.inputBuffer) === Array)
+                        let buf = e.inputBuffer
+                        let data = buf.getChannelData(0) // There is only one channel.
+                        // Let the server compress the data:
+                        soc.send(data)
                     }
                 }
             )
