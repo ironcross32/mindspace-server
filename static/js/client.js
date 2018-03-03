@@ -13,6 +13,8 @@ let convolvers = {}
 let convolver = null
 let convolver_url = null
 let convolver_mixer = null
+let microphone_source = null
+let microphone_processor = null
 
 let ambience_mixer = null
 let room = null
@@ -248,7 +250,7 @@ voice_rate.onchange = () => {
 
 let map = document.getElementById("map")
 map.width = map.height = Math.min(window.screen.height, window.screen.width)
-let gl = map.getContext("2d", { alpha: false })
+// let gl = map.getContext("2d", { alpha: false })
 let output = document.getElementById("output")
 document.getElementById("username").focus()
 
@@ -1011,11 +1013,23 @@ function create_socket(obj) {
     soc.onopen = () => {
         connected = true
         let AudioContext = window.AudioContext || window.webkitAudioContext
-        audio = new AudioContext()
-        reverbjs.extend(audio)
-        audio.listener.setOrientation(0, 1, 0, 0, 0, 1)
-        clear_element(output)
+        if (AudioContext) {
+            audio = new AudioContext()
+            reverbjs.extend(audio)
+            audio.listener.setOrientation(0, 1, 0, 0, 0, 1)
+            navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(
+                (stream) => {
+                    microphone_source = audio.createMediaStreamSource(stream)
+                    microphone_processor = audio.createScriptProcessor(1024, 1, 1)
+                    microphone_source.connect(microphone_processor)
+                    microphone_processor.onaudioprocess = (e) => {
+                        console.log(e.inputBuffer)
+                    }
+                }
+            )
+        }
         write_special("Connection Open")
+        clear_element(output)
         send(
             {
                 "name": "login",
