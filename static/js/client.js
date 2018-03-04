@@ -1032,9 +1032,10 @@ function create_socket(obj) {
                         }
                         rms /= data.length
                         rms = Math.sqrt(rms)
-                        console.log(`RMS = ${rms}.`)
-                        // Let the server compress the data:
-                        soc.send(data)
+                        if (rms > 0) {
+                            // Let the server compress the data:
+                            soc.send(data)
+                        }
                     }
                 }
             )
