@@ -1027,7 +1027,7 @@ function create_socket(obj) {
                         let buf = e.inputBuffer
                         let data = buf.getChannelData(0) // There is only one channel.
                         let total = 0
-                        for (let i of data) {
+                        for (let i = 0; i < data.length; i++) {
                             total += data[i]
                         }
                         let average = total / data.length
