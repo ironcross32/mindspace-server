@@ -1031,7 +1031,7 @@ function create_socket(obj) {
                             total += data[i]
                         }
                         let average = total / data.length
-                        console.log(`Average is ${average}.`)
+                        console.log(`Total is ${total}, average is ${average}.`)
                         // Let the server compress the data:
                         soc.send(data)
                     }
