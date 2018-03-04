@@ -203,7 +203,7 @@ class MindspaceWebSocketProtocol(WebSocketServerProtocol, ProtocolBase):
         if not is_binary:
             self.handle_string(payload)
         else:
-            print(f'<binary {payload}>')
+            print(f'<binary {len(payload)}>')
 
     def onClose(self, wasClean, code, reason):
         self.on_disconnect(reason)
