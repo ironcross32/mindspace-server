@@ -1026,12 +1026,13 @@ function create_socket(obj) {
                     microphone_processor.onaudioprocess = (e) => {
                         let buf = e.inputBuffer
                         let data = buf.getChannelData(0) // There is only one channel.
-                        let total = 0
+                        let rms = 0
                         for (let i = 0; i < data.length; i++) {
-                            total += data[i]
+                            rms += data[i] * data[i]
                         }
-                        let average = total / data.length
-                        console.log(`Total is ${total}, average is ${average}.`)
+                        rms /= data.length
+                        rms = Math.sqrt(rms)
+                        console.log(`RMS = ${rms}.`)
                         // Let the server compress the data:
                         soc.send(data)
                     }
