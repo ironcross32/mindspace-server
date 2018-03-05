@@ -58,7 +58,7 @@ class Room(
     cant_go_sound = Column(
         String(100), nullable=False, default=os.path.join('cantgo', 'default')
     )
-    cantgo_msg = Column(
+    cant_go_msg = Column(
         String(50), nullable=False, default='You cannot go that way.'
     )
     airlock_id = Column(Integer, ForeignKey('room_airlocks.id'), nullable=True)

@@ -176,8 +176,8 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
             s.add_all(players)
             return True
         else:
-            player.message(loc.cantgo_msg)
-            player.sound(get_sound(loc.cantgo_sound), private=True)
+            player.message(loc.cant_go_msg)
+            player.sound(get_sound(loc.cant_go_sound), private=True)
             return False
 
 
