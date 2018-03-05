@@ -13,8 +13,6 @@ let convolvers = {}
 let convolver = null
 let convolver_url = null
 let convolver_mixer = null
-let microphone_source = null
-let microphone_processor = null
 
 let ambience_mixer = null
 let room = null
@@ -1017,28 +1015,6 @@ function create_socket(obj) {
             audio = new AudioContext()
             reverbjs.extend(audio)
             audio.listener.setOrientation(0, 1, 0, 0, 0, 1)
-            navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(
-                (stream) => {
-                    microphone_source = audio.createMediaStreamSource(stream)
-                    microphone_processor = audio.createScriptProcessor(1024, 1, 1)
-                    microphone_processor.connect(audio.destination)
-                    microphone_source.connect(microphone_processor)
-                    microphone_processor.onaudioprocess = (e) => {
-                        let buf = e.inputBuffer
-                        let data = buf.getChannelData(0) // There is only one channel.
-                        let rms = 0
-                        for (let i = 0; i < data.length; i++) {
-                            rms += data[i] * data[i]
-                        }
-                        rms /= data.length
-                        rms = Math.sqrt(rms)
-                        if (rms > 0) {
-                            // Let the server compress the data:
-                            soc.send(data)
-                        }
-                    }
-                }
-            )
         }
         write_special("Connection Open")
         clear_element(output)
