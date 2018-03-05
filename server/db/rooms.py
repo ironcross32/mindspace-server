@@ -60,7 +60,7 @@ class Room(
     convolver_volume = Column(Float, nullable=False, default=1.0)
     max_distance = Column(Float, nullable=False, default=100.0)
     visibility = Column(Float, nullable=False, default=1500.0)
-    floor_type = message('grass', nullable=True)
+    floor_type = Column(Sound, nullable=True, default='grass')
 
     def convolver_choices(self):
         res = [None]
