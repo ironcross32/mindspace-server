@@ -198,9 +198,10 @@ class PermissionsMixin:
     admin = Column(Boolean, nullable=False, default=False)
 
 
-class RandomSoundMixin(NameMixin):
+class RandomSoundMixin:
     """A random sound."""
 
+    name = Column(Sound, nullable=False)
     min_volume = Column(Float, nullable=False, default=0.01)
     max_volume = Column(Float, nullable=False, default=1.0)
 
