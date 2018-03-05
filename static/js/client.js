@@ -591,8 +591,6 @@ let objects = {}
 // The current player object:
 let player = {
     name: null,
-    transmition_id: null,
-    recording_threshold: null,
     sound_volume: null,
     ambience_volume: null,
     music_volume: null,
@@ -913,11 +911,9 @@ let mindspace_functions = {
         }
     },
     options: obj => {
-        let [username, transmition_id, recording_threshold, sound_volume, ambience_volume, music_volume] = obj.args
+        let [username, sound_volume, ambience_volume, music_volume] = obj.args
         set_title(username)
         player.name = username
-        player.transmition_id = transmition_id
-        player.recording_threshold = recording_threshold
         player.sound_volume = sound_volume
         if (environment !== null) {
             environment.gain.value = sound_volume

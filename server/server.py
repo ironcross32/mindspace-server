@@ -134,7 +134,6 @@ class ProtocolBase:
                                 os.path.join('notifications', 'disconnect.wav')
                             )
                         )
-                player.player.transmition_id = None
                 player.register_connection(None)
                 s.add_all([player, player.player])
 

@@ -1,6 +1,5 @@
 """Provides the Player class."""
 
-from random import randint
 from sqlalchemy import (Column, String, Float, Boolean, Interval, DateTime)
 from .base import Base, PermissionsMixin, PasswordMixin
 from ..protocol import options
@@ -29,5 +28,4 @@ class Player(Base, PermissionsMixin, PasswordMixin):
 
     def send_options(self, connection):
         """Send player options over connection."""
-        self.transmition_id = randint(0, 5000000)
         return options(connection, self)
