@@ -143,6 +143,7 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
     True then the maximum speed of the player is ignored (used by WalkTask). If
     sound is None then the default walk sound for the current room will be
     used."""
+    loc = player.location
     s = db.Session
     players = [player]
     players.extend(player.followers)
@@ -157,6 +158,8 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
             player.last_walked = now
             direction = db.Direction.query(x=x, y=y, z=z).first()
             for obj in players:
+                if obj.location is not loc:
+                    continue
                 obj.recent_direction = direction
                 obj.steps += 1
                 obj.recent_exit_id = None
@@ -165,16 +168,16 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
                 if obj is player:
                     wsound = sound
                     if wsound is None:
-                        wsound = obj.location.get_walk_sound(obj.coordinates)
+                        wsound = loc.get_walk_sound(obj.coordinates)
                 else:
-                    wsound = obj.location.get_walk_sound(obj.coordinates)
+                    wsound = loc.get_walk_sound(obj.coordinates)
                 if wsound is not None:
                     obj.sound(wsound)
             s.add_all(players)
             return True
         else:
             player.message('You cannot go that way.')
-            player.sound(get_sound('cantgo'), private=True)
+            player.sound(get_sound(loc.cantgo_sound), private=True)
             return False
 
 

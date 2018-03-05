@@ -55,6 +55,9 @@ class Room(
     """A room."""
 
     __tablename__ = 'rooms'
+    cant_go_sound = Column(
+        String(100), nullable=False, default=os.path.join('cantgo', 'default')
+    )
     airlock_id = Column(Integer, ForeignKey('room_airlocks.id'), nullable=True)
     airlock = relationship(
         'RoomAirlock', backref=backref('room', uselist=False)
