@@ -128,7 +128,10 @@ class _Base:
         return n
 
     def make_field(self, name, **kwargs):
-        return Field(name, getattr(self, name), **kwargs)
+        value = getattr(self, name)
+        if isinstance(value, float):
+            value = round(value, 2)
+        return Field(name, value, **kwargs)
 
     def get_all_fields(self):
         """Return a list of user-modifiable fields."""
