@@ -152,5 +152,5 @@ def convolver(con, filename, volume):
     if filename is None:
         c = None
     else:
-        c = get_sound(os.path.join('impulses', filename)).dump()
+        c = get_sound(filename).dump()
     con.send('convolver', c, volume)
