@@ -2,7 +2,7 @@
 hard-coding."""
 
 import os.path
-from .sound import get_sound, get_ambience
+from .sound import get_sound
 
 
 def message(con, message, channel=None):
@@ -29,7 +29,7 @@ def location(con, obj=None):
     if obj.ambience is None:
         sound = None
     else:
-        sound = get_ambience(obj.ambience)
+        sound = get_sound(obj.ambience)
         sound = sound.dump()
     if obj.music is None:
         music = None
@@ -57,7 +57,7 @@ def identify(con, obj):
     if not hasattr(obj, 'ambience') or obj.ambience is None:
         sound = None
     else:
-        sound = get_ambience(obj.ambience)
+        sound = get_sound(obj.ambience)
         sound = sound.dump()
     if obj.location is None:
         max_distance = 0.0
@@ -137,7 +137,7 @@ def zone(con, zone=None):
     if zone.ambience is None:
         sound = None
     else:
-        sound = get_ambience(zone.ambience)
+        sound = get_sound(zone.ambience)
         sound = sound.dump()
     con.send('zone', sound, zone.ambience_rate, zone.ambience_volume)
 

@@ -54,14 +54,6 @@ def get_sound(path):
         raise NoSuchSound(path)
 
 
-def get_ambience(path):
-    if path.startswith('/'):
-        path = path[1:]
-    else:
-        path = os.path.join('ambiences', path)
-    return get_sound(path)
-
-
 nonempty_room = get_sound(
     os.path.join('notifications', 'look_objects.wav')
 )
