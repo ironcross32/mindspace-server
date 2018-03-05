@@ -2,9 +2,9 @@
 
 from socket import getfqdn
 from datetime import timedelta
-from sqlalchemy import Column, Integer, Interval, String, ForeignKey
+from sqlalchemy import Column, Integer, Interval, ForeignKey
 from sqlalchemy.orm import relationship
-from .base import Base, NameMixin
+from .base import Base, NameMixin, message
 from .session import Session
 
 
@@ -13,12 +13,9 @@ class ServerOptions(Base, NameMixin):
 
     __tablename__ = 'server_options'
     instance_id = 1
-    connect_msg = Column(
-        String(100), nullable=False, default='Welcome to Mindspace.'
-    )
-    disconnect_msg = Column(String(100), nullable=False, default='Goodbye.')
-    interface = Column(String(25), nullable=False, default='0.0.0.0')
-    port = Column(Integer, nullable=False, default=6463)
+    connect_msg = message('Welcome to Mindspace.')
+    disconnect_msg = message('Goodbye.')
+    interface = message('0.0.0.0')
     http_port = Column(Integer, nullable=False, default=6464)
     websocket_port = Column(Integer, nullable=False, default=6465)
     https_port = Column(Integer, nullable=False, default=6466)
@@ -29,12 +26,8 @@ class ServerOptions(Base, NameMixin):
     first_room_id = Column(Integer, ForeignKey('rooms.id'), nullable=False)
     first_room = relationship('Room', backref='first_room_options')
     purge_after = Column(Interval, nullable=False, default=timedelta(days=30))
-    mail_from_name = Column(
-        String(50), nullable=False, default='Mindspace Webmaster'
-    )
-    mail_from_address = Column(
-        String(50), nullable=False, default=f'webmaster@{getfqdn()}'
-    )
+    mail_from_name = message('Mindspace Webmaster')
+    mail_from_address = message(f'webmaster@{getfqdn()}')
     time_difference = Column(
         Interval, nullable=False, default=timedelta(days=2000 * 365)
     )

@@ -3,16 +3,15 @@
 import sys
 import os
 import os.path
-from sqlalchemy import Column, Float, String, Integer, ForeignKey
+from sqlalchemy import Column, Float, Integer, ForeignKey
 from sqlalchemy.orm import relationship, backref
 from .base import (
     Base, SizeMixin, NameMixin, DescriptionMixin, AmbienceMixin,
     RandomSoundMixin, RandomSoundContainerMixin, CoordinatesMixin, ZoneMixin,
-    BoardMixin, LeaveMixin
+    BoardMixin, LeaveMixin, Sound, message
 )
 from ..protocol import hidden_sound
 from ..sound import get_sound, sounds_dir
-from ..forms import Label
 
 floor_types_dir = os.path.join(sounds_dir, 'Footsteps')
 music_dir = os.path.join(sounds_dir, 'music')
@@ -40,13 +39,6 @@ class RoomAirlock(Base, CoordinatesMixin, BoardMixin, LeaveMixin):
 
     __tablename__ = 'room_airlocks'
 
-    def get_all_fields(self):
-        fields = super().get_all_fields()
-        for name in dir(self):
-            if name.endswith('_msg') or name.endswith('_sound'):
-                fields.append(self.make_field(name))
-        return fields
-
 
 class Room(
     Base, NameMixin, DescriptionMixin, SizeMixin, AmbienceMixin,
@@ -56,42 +48,19 @@ class Room(
 
     __tablename__ = 'rooms'
     cant_go_sound = Column(
-        String(100), nullable=False, default=os.path.join('cantgo', 'default')
+        Sound, nullable=False, default=os.path.join('cantgo', 'default')
     )
-    cant_go_msg = Column(
-        String(50), nullable=False, default='You cannot go that way.'
-    )
+    cant_go_msg = message('You cannot go that way.')
     airlock_id = Column(Integer, ForeignKey('room_airlocks.id'), nullable=True)
     airlock = relationship(
         'RoomAirlock', backref=backref('room', uselist=False)
     )
-    music = Column(String(100), nullable=True)
-    convolver = Column(String(100), nullable=True)
+    music = Column(Sound, nullable=True)
+    convolver = Column(Sound, nullable=True)
     convolver_volume = Column(Float, nullable=False, default=1.0)
     max_distance = Column(Float, nullable=False, default=100.0)
     visibility = Column(Float, nullable=False, default=1500.0)
-    floor_type = Column(String(20), nullable=True, default='grass')
-
-    def get_all_fields(self):
-        fields = super().get_all_fields()
-        fields.append(Label('Distances'))
-        for name in ('visibility', 'max_distance'):
-            fields.append(self.make_field(name, type=float))
-        fields.extend(RandomSoundContainerMixin.get_all_fields(self))
-        fields.append(Label('Background'))
-        for name in ('music', 'floor_type', 'convolver'):
-            fields.append(
-                self.make_field(
-                    name, type=getattr(
-                        self, f'{name}_choices'
-                    )()
-                )
-            )
-        fields.append(self.make_field('convolver_volume', type=float))
-        return fields
-
-    def music_choices(self):
-        return [None] + sorted(os.listdir(music_dir))
+    floor_type = message('grass', nullable=True)
 
     def convolver_choices(self):
         res = [None]
@@ -122,9 +91,6 @@ class Room(
                         description = 'No description available.'
                     res.append([full, f'{filename}: {description.strip()}'])
         return res
-
-    def floor_type_choices(self):
-        return [None] + sorted(os.listdir(floor_types_dir))
 
     @property
     def exits(self):

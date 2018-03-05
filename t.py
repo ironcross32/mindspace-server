@@ -1,2 +1,6 @@
-from server.db import *  # noqa
+from server import db
+for x in dir(db):
+    if not x.startswith('_'):
+        locals()[x] = getattr(db, x)
 load_db()  # noqa
+o = Object.first()  # noqa

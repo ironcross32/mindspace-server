@@ -1,5 +1,6 @@
 """Provides the Base class and various mixins."""
 
+import logging
 import os
 import os.path
 from time import time
@@ -21,10 +22,40 @@ from ..sound import sounds_dir, get_sound
 from ..util import now
 from ..forms import Label, Field, text
 
+logger = logging.getLogger(__name__)
 rounds = 10000
 ambiences_dir = os.path.join(sounds_dir, 'ambiences')
 random_sounds_dir = os.path.join(sounds_dir, 'random')
 datas = {}
+
+
+class Message(String):
+    """Message type."""
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('length', 250)
+        super().__init__(*args, **kwargs)
+
+
+def message(string, nullable=False):
+    """Shortcut for creating Message columns."""
+    return Column(Message, nullable=nullable, default=string)
+
+
+class Sound(Message):
+    """Sound type."""
+
+
+class Code(String):
+    """Code type."""
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('length', 1000000)
+        super().__init__(*args, **kwargs)
+
+
+class Text(Code):
+    """Text type."""
 
 
 class _Base:
@@ -38,7 +69,7 @@ class _Base:
     def __repr__(self):
         res = f'{self.__class__.__name__} ('
         strings = []
-        for name in inspect(self.__class__).columns.keys():
+        for name in inspect(self.__class__).c.keys():
             strings.append(f'{name}={getattr(self, name)}')
         return res + ', '.join(strings) + ')'
 
@@ -100,12 +131,41 @@ class _Base:
         return Field(name, getattr(self, name), **kwargs)
 
     def get_all_fields(self):
+        """Return a list of user-modifiable fields."""
+        field_names = set()
         fields = []
         for base in self.__class__.__bases__:
             if not hasattr(base, 'get_fields'):
                 continue
             fields.append(Label(base.__name__[:-len('Mixin')]))
-            fields.extend(base.get_fields(self))
+            for field in base.get_fields(self):
+                if isinstance(field, Field):
+                    field_names.add(field.name)
+                fields.append(field)
+        for column in inspect(self.__class__).c:
+            name = column.name
+            if name in field_names:
+                continue
+            cls = column.type.__class__
+            if cls is Boolean:
+                if column.nullable:
+                    type = [True, False, None]
+                else:
+                    type = bool
+            elif cls is Float:
+                type = float
+            elif cls is Integer and not (
+                column.foreign_keys or column.primary_key
+            ):
+                type = int
+            elif cls in (Sound, Message):
+                type = str
+            elif cls is Text:
+                type = text
+            else:
+                logger.info('Ignoring type %r.', cls)
+                continue
+            fields.append(self.make_field(name, type=type))
         return fields
 
 
@@ -113,12 +173,8 @@ Base = declarative_base(cls=_Base, bind=engine)
 
 
 class NameMixin:
-    name = Column(String(50), nullable=True)
+    name = Column(Message, nullable=True)
     last_name_change = Column(DateTime(timezone=True), nullable=True)
-
-    @classmethod
-    def get_fields(cls, instance):
-        return [instance.make_field('name')]
 
     def get_name(self, verbose=False):
         """Return a proper name for this object."""
@@ -141,13 +197,6 @@ class PermissionsMixin:
     builder = Column(Boolean, nullable=False, default=False)
     admin = Column(Boolean, nullable=False, default=False)
 
-    @classmethod
-    def get_fields(cls, instance):
-        fields = []
-        for name in ('builder', 'admin'):
-            fields.append(instance.make_field(name, type=bool))
-        return fields
-
 
 class RandomSoundMixin(NameMixin):
     """A random sound."""
@@ -155,23 +204,10 @@ class RandomSoundMixin(NameMixin):
     min_volume = Column(Float, nullable=False, default=0.01)
     max_volume = Column(Float, nullable=False, default=1.0)
 
-    def get_all_fields(self):
-        fields = [
-            Label('Edit'),
-            self.make_field('name', type=sorted(os.listdir(random_sounds_dir)))
-        ]
-        for name in ('min_volume', 'max_volume'):
-            fields.append(self.make_field(name, type=float))
-        return fields
-
 
 class DescriptionMixin:
     """Add a description."""
-    description = Column(String(500), nullable=True)
-
-    @classmethod
-    def get_fields(cls, instance):
-        return [instance.make_field('description')]
+    description = Column(Text, nullable=True)
 
     def get_description(self):
         return self.description or 'You see nothing special.'
@@ -184,12 +220,6 @@ class CoordinatesMixin:
     x = Column(Float, nullable=False, default=0.0)
     y = Column(Float, nullable=False, default=0.0)
     z = Column(Float, nullable=False, default=0.0)
-
-    @classmethod
-    def get_fields(cls, instance):
-        return [
-            instance.make_field(name, type=int) for name in ('x', 'y', 'z')
-        ]
 
     @property
     def coordinates(self):
@@ -204,14 +234,6 @@ class SizeMixin:
     size_x = Column(Float, nullable=False, default=10.0)
     size_y = Column(Float, nullable=False, default=10.0)
     size_z = Column(Float, nullable=False, default=10.0)
-
-    @classmethod
-    def get_fields(cls, instance):
-        return [
-            instance.make_field(
-                f'size_{name}', type=int
-            ) for name in ('x', 'y', 'z')
-        ]
 
     @property
     def size(self):
@@ -242,18 +264,8 @@ class SizeMixin:
 
 
 class AmbienceMixin:
-    ambience = Column(String(100), nullable=True)
+    ambience = Column(Sound, nullable=True)
     ambience_volume = Column(Float, nullable=False, default=1.0)
-
-    @classmethod
-    def get_fields(cls, instance):
-        return [
-            instance.make_field('ambience', type=instance.ambience_choices()),
-            instance.make_field('ambience_volume', type=float)
-        ]
-
-    def ambience_choices(self):
-        return [None] + sorted(os.listdir(ambiences_dir))
 
 
 class LocationMixin:
@@ -299,11 +311,11 @@ class OwnerMixin:
 
 
 class CodeMixin:
-    code = Column(String(1000000), nullable=False, default='print("Code me.")')
+    code = Column(Code, nullable=False, default='print("Code me.")')
 
     def set_code(self, code):
         """Compile the code to ensure it's all going to work."""
-        compile(code, self.name, 'exec')
+        compile(code, self.name, 'exec')  # Raises an error if it fails.
         if self.id is not None and self.code is not None and \
            self.revision is None:
             self.backup()
@@ -426,20 +438,9 @@ class RandomSoundContainerMixin:
             self.min_random_sound_interval, self.max_random_sound_interval
         )
 
-    def get_all_fields(self):
-        fields = []
-        fields.append(Label('Random Sounds'))
-        for name in ('min_random_sound_interval', 'max_random_sound_interval'):
-            fields.append(self.make_field(name, type=int))
-        return fields
-
 
 class TextMixin:
-    text = Column(String(10000), nullable=False)
-
-    @classmethod
-    def get_fields(cls, instance):
-        return [instance.make_field('text')]
+    text = Column(Text, nullable=False)
 
 
 class PasswordMixin:
@@ -476,10 +477,6 @@ class PasswordMixin:
 
 class PauseMixin:
     paused = Column(Boolean, nullable=False, default=False)
-
-    @classmethod
-    def get_fields(cls, instance):
-        return [instance.make_field('paused', type=bool)]
 
 
 class ZoneMixin:
@@ -529,46 +526,48 @@ class StarshipMixin:
         return [instance.make_field('starship_id', type=starships)]
 
 
-def message(string=None, nullable=False):
-    """A message column."""
-    return Column(String(150), nullable=nullable, default=string)
-
-
 class BoardMixin:
     board_msg = message('%1n|normal board%1s %2n.')
     board_follow_msg = message('%1n|normal follow%1s %2n onto %3n.')
-    board_sound = message('ambiences/AirlockEnter.wav', True)
+    board_sound = Column(
+        Sound, nullable=True, default='ambiences/AirlockEnter.wav'
+    )
     board_other_msg = message('%1n|normal arrive%1s.')
-    board_other_sound = message('ambiences/AirlockEnter.wav', True)
+    board_other_sound = Column(
+        Sound, nullable=True, default='ambiences/AirlockEnter.wav'
+    )
 
 
 class LeaveMixin:
     leave_msg = message('%1n|normal disembark%1s from %2n.')
     leave_follow_msg = message('%1n|normal follow%1s %2n.')
-    leave_sound = message('ambiences/AirlockExit.wav', True)
+    leave_sound = Column(
+        Sound, nullable=True, default='ambiences/AirlockExit.wav'
+    )
     leave_other_msg = message('%1n|normal disembark%1s.')
-    leave_other_sound = message('ambiences/AirlockExit.wav', True)
+    leave_other_sound = Column(
+        Sound, nullable=True, default='ambiences/AirlockExit.wav'
+    )
 
 
 class HiddenMixin:
     hidden = Column(Boolean, nullable=False, default=False)
-
-    def get_all_fields(self):
-        return [self.make_field('hidden', type=bool)]
 
 
 class LaunchMixin:
     """Messages and sounds for launchable things."""
 
     launch_msg = message('%1n|normal begin%1s rising into the air.')
-    launch_sound = message('starship/launch/1.wav', True)
+    launch_sound = Column(
+        Sound, nullable=True, default='starship/launch/1.wav'
+        )
 
 
 class LandMixin:
     """Sounds and messages for landing things."""
 
     land_msg = message('%1n|normal complete%1s its landing.')
-    land_sound = message('starship/land/1.wav', True)
+    land_sound = Column(Sound, nullable=True, default='starship/land/1.wav')
 
 
 class CreatedMixin:

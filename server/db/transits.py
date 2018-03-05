@@ -1,10 +1,10 @@
 """Classes to make trains and the like work."""
 
-from sqlalchemy import Column, Integer, Float, ForeignKey, String
+from sqlalchemy import Column, Integer, Float, ForeignKey
 from sqlalchemy.orm import relationship, backref
 from .base import (
     Base, NameMixin, CoordinatesMixin, LocationMixin, PauseMixin, BoardMixin,
-    LeaveMixin
+    LeaveMixin, message, Sound
 )
 
 
@@ -21,12 +21,6 @@ class TransitStop(Base, LocationMixin, CoordinatesMixin):
         'TransitRoute', backref='stops', foreign_keys=[transit_route_id]
     )
 
-    def get_all_fields(self):
-        fields = super().get_all_fields()
-        for name in ('before_departure', 'after_departure'):
-            fields.append(self.make_field(name, type=int))
-        return fields
-
     def total_time(self):
         """The total time taken up by this stop."""
         return sum([self.before_departure, self.after_departure])
@@ -38,35 +32,23 @@ class TransitRoute(
     """Holds 0 or more transit stops."""
 
     __tablename__ = 'transit_routes'
-    cant_peer_msg = Column(
-        String(100), nullable=False,
-        default="You can't see anything during transit."
+    cant_peer_msg = message("You can't see anything during transit.")
+    arrive_msg = message('%1n|normal arrive%1s abruptly.')
+    arrive_sound = Column(Sound, nullable=True)
+    arrive_other_msg = message(
+        'Now arriving into {}. Our next stop will be {} in approximately {}.'
     )
-    arrive_msg = Column(
-        String(100), nullable=False, default='%1n|normal arrive%1s abruptly.'
+    arrive_other_sound = Column(Sound, nullable=True)
+    depart_msg = message('%1n|normal depart%1s.')
+    depart_sound = Column(Sound, nullable=True)
+    depart_other_msg = message(
+        'Now departing {}. Our next stop will be {} in approximately {}.'
     )
-    arrive_sound = Column(String(100), nullable=True)
-    arrive_other_msg = Column(
-        String(100), nullable=False,
-        default='Now arriving into {}. Our next stop will be {} in '
-        'approximately {}.'
+    depart_other_sound = Column(Sound, nullable=True)
+    cant_leave_msg = message(
+        '%1n|normal tr%1y %2n only to find it locked during transit.'
     )
-    arrive_other_sound = Column(String(100), nullable=True)
-    depart_msg = Column(
-        String(100), nullable=False, default='%1n|normal depart%1s.'
-    )
-    depart_sound = Column(String(100), nullable=True)
-    depart_other_msg = Column(
-        String(100), nullable=False,
-        default='Now departing {}. Our next stop will be {} in approximately '
-        '{}.'
-    )
-    depart_other_sound = Column(String(100), nullable=True)
-    cant_leave_msg = Column(
-        String(100), nullable=False,
-        default='%1n|normal tr%1y %2n only to find it locked during transit.'
-    )
-    cant_leave_sound = Column(String(100), nullable=True)
+    cant_leave_sound = Column(Sound, nullable=True)
     next_move = Column(Float, nullable=True)
     next_stop_id = Column(
         Integer, ForeignKey('transit_stops.id'), nullable=True
@@ -78,10 +60,3 @@ class TransitRoute(
     room = relationship(
         'Room', backref=backref('transit_route', uselist=False)
     )
-
-    def get_all_fields(self):
-        fields = super().get_all_fields()
-        for name in dir(self):
-            if name.endswith('_msg') or name.endswith('_sound'):
-                fields.append(self.make_field(name))
-        return fields

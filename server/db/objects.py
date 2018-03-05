@@ -3,19 +3,19 @@
 import os.path
 from datetime import datetime
 from sqlalchemy import (
-    Column, Integer, ForeignKey, Boolean, Float, func, or_, and_, String
+    Column, Integer, ForeignKey, Boolean, Float, func, or_, and_
 )
 from sqlalchemy.orm import relationship, backref
 from .base import (
     Base, CoordinatesMixin, NameMixin, AmbienceMixin, LocationMixin,
     DescriptionMixin, OwnerMixin, RandomSoundMixin, RandomSoundContainerMixin,
-    StarshipMixin, HiddenMixin, CreatedMixin, DataMixin
+    StarshipMixin, HiddenMixin, CreatedMixin, DataMixin, message, Sound
 )
 from .session import Session
 from .communication import CommunicationChannel
 from ..protocol import (
-    object_sound, location, message, identify, delete, zone, random_sound,
-    remember_quit
+    object_sound, location, message as _message, identify, delete, zone,
+    random_sound, remember_quit
 )
 from ..forms import Label, Field
 from ..sound import get_sound, get_ambience
@@ -43,12 +43,9 @@ class Object(
     gender_id = Column(Integer, ForeignKey('genders.id'), nullable=True)
     gender = relationship('Gender', backref='objects')
     max_distance_multiplier = Column(Float, nullable=False, default=1.0)
-    teleport_msg = Column(
-        String(100), nullable=False,
-        default='%1n|normal vanish%1e in a column of light.'
-    )
+    teleport_msg = message('%1n|normal vanish%1e in a column of light.')
     teleport_sound = Column(
-        String(100), nullable=False,
+        Sound, nullable=False,
         default=os.path.join('ambiences', 'teleport.wav')
     )
     transit_route_id = Column(
@@ -88,7 +85,6 @@ class Object(
     )
     window_id = Column(Integer, ForeignKey('windows.id'), nullable=True)
     window = relationship('Window', backref=backref('object', uselist=False))
-    monitor_transmitions = Column(Boolean, nullable=False, default=False)
     speed = Column(Float, nullable=False, default=0.5)
     last_walked = Column(Float, nullable=False, default=0.0)
     following_id = Column(Integer, ForeignKey('objects.id'), nullable=True)
@@ -96,42 +92,20 @@ class Object(
         'Object', backref='followers', foreign_keys=[following_id],
         remote_side='Object.id'
     )
-    pose = Column(String(20), nullable=True)
-    follow_msg = Column(
-        String(200), nullable=False,
-        default='%1n|normal start%1s to follow %2n.'
-    )
-    unfollow_msg = Column(
-        String(200), nullable=False,
-        default='%1n|normal stop%1s following %2n.'
-    )
-    ditch_msg = Column(
-        String(200), nullable=False, default='%1n|normal ditch%1e %2n.'
-    )
-    start_use_msg = Column(
-        String(200), nullable=False, default='%1n|normal start%1s using %2n.'
-    )
-    stop_use_msg = Column(
-        String(200), nullable=False, default='%1n|normal stop%1s using %2n.'
-    )
-    get_msg = Column(
-        String(200), nullable=False, default='%1n|normal get%1s %2n.'
-    )
-    drop_msg = Column(
-        String(200), nullable=False, default='%1n|normal drop%1s %2n.'
-    )
-    give_msg = Column(
-        String(200), nullable=False, default='%1n|normal give%1s %2n to %3n.'
-    )
-    knock_msg = Column(
-        String(100), nullable=False, default='%1n|normal knock%1s on %2n.'
-    )
-    knock_sound = Column(
-        String(100), nullable=True, default='objects/knock1.wav'
-    )
-    get_sound = Column(String(200), nullable=True)
-    drop_sound = Column(String(200), nullable=True)
-    give_sound = Column(String(200), nullable=True)
+    pose = message(None, nullable=True)
+    follow_msg = message('%1n|normal start%1s to follow %2n.')
+    unfollow_msg = message('%1n|normal stop%1s following %2n.')
+    ditch_msg = message('%1n|normal ditch%1e %2n.')
+    start_use_msg = message('%1n|normal start%1s using %2n.')
+    stop_use_msg = message('%1n|normal stop%1s using %2n.')
+    get_msg = message('%1n|normal get%1s %2n.')
+    drop_msg = message('%1n|normal drop%1s %2n.')
+    give_msg = message('%1n|normal give%1s %2n to %3n.')
+    knock_msg = message('%1n|normal knock%1s on %2n.')
+    knock_sound = Column(Sound, nullable=True, default='objects/knock1.wav')
+    get_sound = Column(Sound, nullable=True)
+    drop_sound = Column(Sound, nullable=True)
+    give_sound = Column(Sound, nullable=True)
 
     def same_coordinates(self):
         """Returns a set of sqlalchemy filters which expect the same
@@ -193,18 +167,6 @@ class Object(
         for g in Gender.query():
             genders.append([g.id, g.get_name(True)])
         fields.append(self.make_field('gender_id', type=genders))
-        fields.append(self.make_field('pose'))
-        for name in ('anchored', 'log_commands'):
-            fields.append(self.make_field(name, type=bool))
-        for name in (
-            'start_use_msg', 'stop_use_msg', 'get_msg', 'drop_msg', 'give_msg',
-            'get_sound', 'drop_sound', 'give_sound', 'follow_msg',
-            'unfollow_msg', 'ditch_msg', 'knock_msg', 'knock_sound',
-            'teleport_msg', 'teleport_sound'
-        ):
-            fields.append(self.make_field(name))
-        for name in ('max_distance_multiplier',):
-            fields.append(self.make_field(name, type=float))
         for name in ('window', 'exit', 'mobile', 'player'):
             obj = getattr(self, name)
             if obj is not None:
@@ -213,7 +175,7 @@ class Object(
                     if isinstance(field, Field):
                         field.name = f'{name}.{field.name}'
                     fields.append(field)
-        return fields + RandomSoundContainerMixin.get_all_fields(self)
+        return fields
 
     @property
     def log_commands(self):
@@ -297,7 +259,7 @@ class Object(
         """Send a message to this object."""
         con = self.get_connection()
         if con is not None:
-            return message(con, *args, **kwargs)
+            return _message(con, *args, **kwargs)
         return False
 
     def identify_location(self):

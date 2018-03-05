@@ -45,7 +45,6 @@ from .object_types import (
 )
 from .orbits import Orbit
 from .stars import Star
-from .words import Word
 from .tasks import Task
 from .transits import TransitStop, TransitRoute
 from .genders import Gender
@@ -212,6 +211,6 @@ __all__ = (
     'Idea', 'IdeaComment', 'ChangelogEntry', 'MailMessage', 'LoggedCommand',
     'Credit', 'StarshipEngine', 'RoomFloorType', 'ObjectTypeActionSecondary',
     'ObjectTypeHotkeySecondary', 'ObjectTypeSecondary', 'ObjectType', 'Orbit',
-    'Starship', 'StarshipSensors', 'Star', 'Word', 'Task', 'TransitStop',
+    'Starship', 'StarshipSensors', 'Star', 'Task', 'TransitStop',
     'TransitRoute', 'get_classes', 'finalise_db', 'RoomAirlock', 'Gender'
 )
