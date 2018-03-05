@@ -26,18 +26,3 @@ class Hotkey(Base, NameMixin, DescriptionMixin, CodeMixin, PermissionsMixin):
     objects = relationship(
         'Object', backref='hotkeys', secondary=HotkeySecondary.__table__
     )
-
-    def get_all_fields(self):
-        fields = super().get_all_fields()
-        fields.append(self.make_field('reusable', type=bool))
-        for name in ('ctrl', 'shift', 'alt'):
-            fields.append(
-                self.make_field(
-                    name, type=[
-                        [None, 'Either'],
-                        [True, 'Down'],
-                        [False, 'Up']
-                    ]
-                )
-            )
-        return fields
