@@ -13,7 +13,7 @@ from .base import (
 from ..protocol import hidden_sound
 from ..sound import get_sound, sounds_dir
 
-floor_types_dir = os.path.join(sounds_dir, 'Footsteps')
+floor_types_dir = os.path.join(sounds_dir, 'footsteps')
 music_dir = os.path.join(sounds_dir, 'music')
 impulses_dir = os.path.join(sounds_dir, 'impulses')
 
