@@ -78,7 +78,6 @@ def options(con, obj):
         'options', obj.username, obj.sound_volume, obj.ambience_volume,
         obj.music_volume
     )
-    mute_mic(con, obj.mic_muted)
 
 
 def hidden_sound(
@@ -129,11 +128,6 @@ def get_text(
 def copy(con, text):
     """Tell the client to copy the text to the clipboard."""
     con.send('copy', text)
-
-
-def mute_mic(con, value):
-    """Mute or unmute the player's microphone."""
-    con.send('mute_mic', value)
 
 
 def zone(con, zone=None):
