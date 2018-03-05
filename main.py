@@ -39,6 +39,7 @@ parser.add_argument(
 
 
 if __name__ == '__main__':
+    started = time()
     args = parser.parse_args()
     logging.basicConfig(
         level='INFO', format='%(name)s.%(levelname)s: %(message)s',
@@ -71,6 +72,7 @@ if __name__ == '__main__':
         for t in Task.query():
             t.next_run = time() + t.interval
             s.add(t)
+    logging.info('Initialisation completed in %.2f seconds.', time() - started)
     reactor.run()
     started = time()
     n = dump_db()
