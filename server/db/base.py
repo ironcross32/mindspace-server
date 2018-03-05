@@ -419,7 +419,7 @@ class RandomSoundContainerMixin:
         sound = choice(self.random_sounds)
         min_volume = sound.min_volume
         max_volume = sound.max_volume
-        sound = get_sound(os.path.join(random_sounds_dir, sound.name))
+        sound = get_sound(sound.name)
         cls = self.__class__
         if cls.__name__ == 'Object':
             self.sound(sound)
