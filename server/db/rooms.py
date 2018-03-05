@@ -155,9 +155,7 @@ class Room(
         if self.floor_type is not None and covering is None:
             name = self.floor_type
         if name is not None:
-            return get_sound(
-                os.path.join('Footsteps', name)
-            )
+            return get_sound(name)
 
     def make_random_sound(self, name):
         """Make an instance of RoomRandomSound."""
