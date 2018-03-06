@@ -4,8 +4,8 @@ import os
 import os.path
 from time import time
 from random import uniform, choice
-from sqlalchemy import Column, String, Float, Boolean
-from .base import Base
+from sqlalchemy import Column, Float, Boolean
+from .base import Base, Sound
 from .directions import Direction
 from .rooms import floor_types_dir
 from .objects import Object
@@ -20,7 +20,7 @@ class Mobile(Base):
     """Make an object mobile."""
 
     __tablename__ = 'mobiles'
-    move_sound = Column(String(50), nullable=True)
+    move_sound = Column(Sound, nullable=True)
     next_move = Column(Float, nullable=False, default=0.0)
     min_move_interval = Column(Float, nullable=False, default=5.0)
     max_move_interval = Column(Float, nullable=False, default=15.0)
