@@ -226,6 +226,10 @@ class Object(
         return self.window is not None
 
     @property
+    def is_chair(self):
+        return self.chair is not None
+
+    @property
     def is_player(self):
         return self.player is not None
 
