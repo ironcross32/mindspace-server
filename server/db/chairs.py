@@ -10,7 +10,7 @@ class Chair(Base):
     """Make an object sittable."""
 
     __tablename__ = 'chairs'
-    max_occupants = Column(Integer, nullable=False, default=0)
+    max_occupants = Column(Integer, nullable=False, default=1)
     sit_msg = message('%1n|normal sit%1s on %2n.')
     sit_sound = Column(Sound, nullable=False, default='chairs/sit.wav')
     lie_msg = message('%1n|normal lie%1s on %2n.')
