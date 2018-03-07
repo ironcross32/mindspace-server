@@ -184,12 +184,7 @@ class Object(
 
     def get_all_fields(self):
         fields = super().get_all_fields()
-        Gender = Base._decl_class_registry['Gender']
-        genders = [None]
-        for g in Gender.query():
-            genders.append([g.id, g.get_name(True)])
-        fields.append(self.make_field('gender_id', type=genders))
-        for name in ('window', 'exit', 'mobile', 'player'):
+        for name in ('chair', 'window', 'exit', 'mobile', 'player'):
             obj = getattr(self, name)
             if obj is not None:
                 fields.append(Label(name.title()))
