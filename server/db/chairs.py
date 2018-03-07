@@ -9,7 +9,7 @@ class Chair(Base):
     """Make an object sittable."""
 
     __tablename__ = 'chairs'
-    max_occupants = Column(Integer, nullable=True)
+    max_occupants = Column(Integer, nullable=False, default=0)
     sit_msg = message('%1n|normal sit%1s on %2n.')
     sit_sound = Column(Sound, nullable=False, default='chairs/sit.wav')
     lie_msg = message('%1n|normal lie%1s on %2n.')
@@ -32,7 +32,7 @@ class Chair(Base):
             # The player wants to sit or lie or something.
             if player.resting_state is not RestingStates.standing:
                 return player.message('You must be standing first.')
-            elif self.max_occupants is not None and len(
+            elif self.max_occupants and len(
                 self.occupants
             ) > self.max_occupants:
                 return player.message(self.no_room_msg)
