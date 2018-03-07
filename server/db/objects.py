@@ -89,6 +89,10 @@ class Object(
     resting_state = Column(
         Enum(RestingStates), nullable=False, default=RestingStates.standing
     )
+    inside_id = Column(Integer, ForeignKey('containers.id'), nullable=True)
+    inside = relationship(
+        'Container', backref='contents', foreign_keys=[inside_id]
+    )
     player_id = Column(Integer, ForeignKey('players.id'), nullable=True)
     player = relationship('Player', backref=backref('object', uselist=False))
     mobile_id = Column(Integer, ForeignKey('mobiles.id'), nullable=True)
@@ -106,6 +110,11 @@ class Object(
     chair = relationship(
         'Chair', backref=backref('object', uselist=False),
         foreign_keys=[chair_id]
+    )
+    container_id = Column(Integer, ForeignKey('containers.id'), nullable=True)
+    container = relationship(
+        'Container', backref=backref('object', uselist=False),
+        foreign_keys=[container_id]
     )
     speed = Column(Float, nullable=False, default=0.5)
     last_walked = Column(Float, nullable=False, default=0.0)
@@ -229,6 +238,10 @@ class Object(
     @property
     def is_chair(self):
         return self.chair is not None
+
+    @property
+    def is_container(self):
+        return self.container is not None
 
     @property
     def is_player(self):
