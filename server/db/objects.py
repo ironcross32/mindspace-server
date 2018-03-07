@@ -154,6 +154,10 @@ class Object(
     def get_full_name(self, *args, **kwargs):
         """Get name including pose."""
         name = self.get_name(*args, **kwargs)
+        if self.sitting:
+            msg = str(self.resting_state)[len(RestingStates.__name__) + 1:]
+            msg = getattr(self.sitting, f'{msg}_msg')
+            name = f'{name} {msg.format(self)}'
         if self.pose:
             name = f'{name} {self.pose}'
         return name

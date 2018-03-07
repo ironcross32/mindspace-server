@@ -17,6 +17,8 @@ class Chair(Base):
     lie_sound = Column(Sound, nullable=False, default='chairs/sit.wav')
     stand_msg = message('%1n|normal get%1s up from %2n.')
     stand_sound = Column(Sound, nullable=False, default='chairs/stand.wav')
+    sitting_msg = message('is sitting on {}')
+    lying_msg = message('is lying on {}')
     no_room_msg = message('There is no more room on that.')
     no_sit_msg = message('You cannot sit on that.')
     no_lie_msg = message('You cannot lie on that.')
