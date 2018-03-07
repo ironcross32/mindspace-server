@@ -156,8 +156,8 @@ class Object(
         name = self.get_name(*args, **kwargs)
         if self.sitting:
             msg = str(self.resting_state)[len(RestingStates.__name__) + 1:]
-            msg = getattr(self.sitting, f'{msg}_msg')
-            name = f'{name} {msg.format(self)}'
+            msg = getattr(self.sitting, f'{msg}_msg').format(self.sitting)
+            name = f'{name} {msg}'
         if self.pose:
             name = f'{name} {self.pose}'
         return name
