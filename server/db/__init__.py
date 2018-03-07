@@ -13,7 +13,7 @@ from .session import Session, session
 from .base import Base, DataMixin
 from .rooms import Room, RoomRandomSound, RoomFloorType, RoomAirlock
 from .players import Player
-from .objects import Object, ObjectRandomSound
+from .objects import Object, ObjectRandomSound, RestingStates
 from .actions import Action, ObjectAction
 from .entrances import Entrance
 from .starships import Starship, StarshipSensors, StarshipEngine
@@ -48,6 +48,7 @@ from .stars import Star
 from .tasks import Task
 from .transits import TransitStop, TransitRoute
 from .genders import Gender
+from .chairs import Chair
 
 logger = logging.getLogger(__name__)
 db_file = 'world.yaml'
@@ -212,5 +213,6 @@ __all__ = (
     'Credit', 'StarshipEngine', 'RoomFloorType', 'ObjectTypeActionSecondary',
     'ObjectTypeHotkeySecondary', 'ObjectTypeSecondary', 'ObjectType', 'Orbit',
     'Starship', 'StarshipSensors', 'Star', 'Task', 'TransitStop',
-    'TransitRoute', 'get_classes', 'finalise_db', 'RoomAirlock', 'Gender'
+    'TransitRoute', 'get_classes', 'finalise_db', 'RoomAirlock', 'Gender',
+    'Chair', 'RestingStates'
 )

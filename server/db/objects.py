@@ -1,9 +1,10 @@
 """Provides the Object class."""
 
+import enum
 import os.path
 from datetime import datetime
 from sqlalchemy import (
-    Column, Integer, ForeignKey, Boolean, Float, func, or_, and_
+    Column, Integer, ForeignKey, Boolean, Float, func, or_, and_, Enum
 )
 from sqlalchemy.orm import relationship, backref
 from .base import (
@@ -22,6 +23,14 @@ from ..sound import get_sound
 from ..socials import factory
 
 connections = {}
+
+
+class RestingStates(enum.Enum):
+    """Possible values for sitting."""
+
+    standing = 0
+    sitting = 1
+    lying = 2
 
 
 class ObjectRandomSound(RandomSoundMixin, Base):
@@ -72,6 +81,14 @@ class Object(
         'Object', backref='holding', foreign_keys=[holder_id],
         remote_side='Object.id'
     )
+    sitting_id = Column(Integer, ForeignKey('chairs.id'), nullable=True)
+    sitting = relationship(
+        'Chair', backref='occupants', foreign_keys=[sitting_id]
+    )
+    # None = standing, True = sitting, False = lying:
+    resting_state = Column(
+        Enum(RestingStates), nullable=False, default=RestingStates.standing
+    )
     player_id = Column(Integer, ForeignKey('players.id'), nullable=True)
     player = relationship('Player', backref=backref('object', uselist=False))
     mobile_id = Column(Integer, ForeignKey('mobiles.id'), nullable=True)
@@ -85,6 +102,11 @@ class Object(
     )
     window_id = Column(Integer, ForeignKey('windows.id'), nullable=True)
     window = relationship('Window', backref=backref('object', uselist=False))
+    chair_id = Column(Integer, ForeignKey('chairs.id'), nullable=True)
+    chair = relationship(
+        'Chair', backref=backref('object', uselist=False),
+        foreign_keys=[chair_id]
+    )
     speed = Column(Float, nullable=False, default=0.5)
     last_walked = Column(Float, nullable=False, default=0.0)
     following_id = Column(Integer, ForeignKey('objects.id'), nullable=True)
