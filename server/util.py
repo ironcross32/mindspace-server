@@ -143,6 +143,8 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
     True then the maximum speed of the player is ignored (used by WalkTask). If
     sound is None then the default walk sound for the current room will be
     used."""
+    if player.resting_state is not db.RestingStates.standing:
+        return player.message('You must stand up first.')
     loc = player.location
     s = db.Session
     players = [player]
