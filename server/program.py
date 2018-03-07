@@ -41,7 +41,7 @@ def check_location(player, obj):
     """Ensure player is at obj.location."""
     if player.location_id != obj.location_id:
         player.message(
-            f'{obj.get_name(player.is_staff)} is nowhere to be seen.'
+            f'{obj.get_name(player.is_staff).title()} is nowhere to be seen.'
         )
         end()
 
