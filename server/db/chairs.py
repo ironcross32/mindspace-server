@@ -37,7 +37,7 @@ class Chair(Base):
                 return player.message('You must be standing first.')
             elif self.max_occupants and len(
                 self.occupants
-            ) > self.max_occupants:
+            ) >= self.max_occupants:
                 return player.message(self.no_room_msg)
             else:
                 if state is RestingStates.sitting:
