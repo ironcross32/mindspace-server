@@ -971,63 +971,67 @@ function create_socket(obj) {
     voice_voice.value = Cookies.get("voice_voice") || -1
     hide(connect)
     game.hidden = false
-    soc = new WebSocket(`wss://${window.location.hostname}:6465`)
-    soc.onclose = (e) => {
-        if (audio !== null) {
-            audio.close()
-            audio = null
-        }
-        mixer = null
-        room = null
-        ambience_mixer = null
-        zone = null
-        music = null
-        environment = null
-        convolver = null
-        convolver_mixer = null
-        convolver_url = null
-        convolvers = {}
-        sounds = {}
-        objects = {}
-        if (quitting) {
-            connected = false
-            connect.hidden = false
-            set_title()
-            let reason = null
-            if (e.wasClean) {
-                reason = "Connection was closed cleanly."
+    if (window.WebSocket === undefined) {
+        write_message("Your browser doesn't support this client. Please use a browser like FIrefox or Chrome.")
+    } else {
+        soc = new window.WebSocket(`wss://${window.location.hostname}:6465`)
+        soc.onclose = (e) => {
+            if (audio !== null) {
+                audio.close()
+                audio = null
+            }
+            mixer = null
+            room = null
+            ambience_mixer = null
+            zone = null
+            music = null
+            environment = null
+            convolver = null
+            convolver_mixer = null
+            convolver_url = null
+            convolvers = {}
+            sounds = {}
+            objects = {}
+            if (quitting) {
+                connected = false
+                connect.hidden = false
+                set_title()
+                let reason = null
+                if (e.wasClean) {
+                    reason = "Connection was closed cleanly."
+                } else {
+                    reason = `Connection failed: ${e.reason}.`
+                }
+                write_special(reason)
             } else {
-                reason = `Connection failed: ${e.reason}.`
+                create_socket(obj)
             }
-            write_special(reason)
-        } else {
-            create_socket(obj)
         }
-    }
-    soc.onopen = () => {
-        connected = true
-        let AudioContext = window.AudioContext || window.webkitAudioContext
-        if (AudioContext) {
-            audio = new AudioContext()
-            reverbjs.extend(audio)
-            audio.listener.setOrientation(0, 1, 0, 0, 0, 1)
-        }
-        write_special("Connection Open")
-        clear_element(output)
-        send(
-            {
-                "name": "login",
-                "args": [obj.username, obj.password]
+        soc.onopen = () => {
+            connected = true
+            let AudioContext = window.AudioContext || window.webkitAudioContext
+            if (AudioContext) {
+                audio = new AudioContext()
+                reverbjs.extend(audio)
+                audio.listener.setOrientation(0, 1, 0, 0, 0, 1)
             }
-        )
-    }
-    soc.onmessage = (e) => {
-        let obj = JSON.parse(e.data)
-        let func = mindspace_functions[obj.name]
-        if (func !== undefined) {
-            func(obj)
-        } else {
-            write_message(`Unrecognised command: ${e.data}.`)
+            write_special("Connection Open")
+            clear_element(output)
+            send(
+                {
+                    "name": "login",
+                    "args": [obj.username, obj.password]
+                }
+            )
+        }
+        soc.onmessage = (e) => {
+            let obj = JSON.parse(e.data)
+            let func = mindspace_functions[obj.name]
+            if (func !== undefined) {
+                func(obj)
+            } else {
+                write_message(`Unrecognised command: ${e.data}.`)
+            }
         }
     }
 }
