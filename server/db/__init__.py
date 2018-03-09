@@ -32,7 +32,6 @@ from .help import HelpTopicKeyword, HelpTopic, HelpKeyword
 from .server_options import ServerOptions
 from .mobiles import Mobile
 from .socials import Social
-from .banned_ips import BannedIP
 from .windows import Window
 from .ideas import IdeaVote, Idea, IdeaComment
 from .changelog import ChangelogEntry
@@ -209,9 +208,9 @@ __all__ = (
     'CommunicationChannelListener', 'CommunicationChannelMessage',
     'CommunicationChannelBan', 'TransmitionError', 'Rule', 'HelpTopicKeyword',
     'HelpTopic', 'HelpKeyword', 'ServerOptions', 'Mobile', 'Social',
-    'ObjectRandomSound', 'BannedIP', 'output_directory', 'Window', 'IdeaVote',
-    'Idea', 'IdeaComment', 'ChangelogEntry', 'MailMessage', 'LoggedCommand',
-    'Credit', 'StarshipEngine', 'RoomFloorType', 'ObjectTypeActionSecondary',
+    'ObjectRandomSound', 'output_directory', 'Window', 'IdeaVote', 'Idea',
+    'IdeaComment', 'ChangelogEntry', 'MailMessage', 'LoggedCommand', 'Credit',
+    'StarshipEngine', 'RoomFloorType', 'ObjectTypeActionSecondary',
     'ObjectTypeHotkeySecondary', 'ObjectTypeSecondary', 'ObjectType', 'Orbit',
     'Starship', 'StarshipSensors', 'Star', 'Task', 'TransitStop',
     'TransitRoute', 'get_classes', 'finalise_db', 'RoomAirlock', 'Gender',
