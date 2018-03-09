@@ -49,11 +49,11 @@ class CommunicationChannel(
     __tablename__ = 'communication_channels'
     listeners = relationship(
         'Object', secondary=CommunicationChannelListener.__table__,
-        backref='communication_channels'
+        backref='communication_channels', cascade='all'
     )
     banned = relationship(
         'Object', secondary=CommunicationChannelBan.__table__,
-        backref='banned_channels'
+        backref='banned_channels', cascade='all'
     )
 
     def transmit(
@@ -111,4 +111,5 @@ class CommunicationChannelMessage(
     """A message to a channel."""
 
     __tablename__ = 'communication_channel_messages'
+    __owner_cascade__ = 'all'
     channel = relationship('CommunicationChannel', backref='messages')

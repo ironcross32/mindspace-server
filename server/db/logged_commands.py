@@ -10,6 +10,7 @@ class LoggedCommand(Base, OwnerMixin, CreatedMixin):
     """A logged string from a connection."""
 
     __tablename__ = 'logged_commands'
+    __owner_cascade__ = 'all'
     string = Column(String(1000000), nullable=False)
 
     def get_data(self):
