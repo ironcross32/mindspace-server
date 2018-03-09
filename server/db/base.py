@@ -617,13 +617,9 @@ class CurrencyMixin:
 
     @declared_attr
     def currency_id(cls):
-        def get_id(cls):
-            def inner():
-                return cls.first().id
-            return inner
         return Column(
             Integer, ForeignKey('currencies.id'), nullable=False,
-            default=get_id(cls)
+            default=lambda: Base._decl_class_registry['Currency'].first().id
         )
 
     @declared_attr
