@@ -178,27 +178,22 @@ class Object(
 
     def get_type(self):
         """Returns a human-readable type for this object."""
+        t = 'object'
         if self.is_player:
             if self.is_admin:
-                return 'Admin'
+                t = 'admin'
             elif self.is_builder:
-                return 'Builder'
+                t = 'builder'
             else:
-                return 'Player'
-        elif self.is_transit:
-            return 'Transit'
-        elif self.is_chair:
-            return 'chair'
-        elif self.is_container:
-            return 'container'
-        elif self.is_window:
-            return 'Window'
-        elif self.is_mobile:
-            return 'Mobile'
-        elif self.is_exit:
-            return 'Exit'
-        else:
-            return 'Object'
+                t = 'player'
+        prefix = 'is_'
+        for name in dir(self):
+            if not name.startswith(prefix):
+                continue
+            if getattr(self, name):
+                t = name[len(prefix):]
+                break
+        return t.title()
 
     def identify(self, con):
         """Identify this object to connection con."""
