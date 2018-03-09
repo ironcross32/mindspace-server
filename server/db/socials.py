@@ -1,7 +1,7 @@
 """Provides the Social class."""
 
 from sqlalchemy import Column, Integer, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from .base import Base, NameMixin, message
 
 
@@ -13,4 +13,4 @@ class Social(Base, NameMixin):
     second = message(None)
     third = message(None)
     object_id = Column(Integer, ForeignKey('objects.id'), nullable=False)
-    object = relationship('Object', backref='socials')
+    object = relationship('Object', backref=backref('socials', cascade='all'))

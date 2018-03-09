@@ -308,11 +308,13 @@ class OwnerMixin:
     @declared_attr
     def owner(cls):
         return relationship(
-            'Object', backref=f'owned_{cls.__tablename__}',
+            'Object', backref=backref(
+                f'owned_{cls.__tablename__}', cascade=getattr(
+                    cls, '__owner_cascade__', 'merge,save-update'
+                )
+            ),
             foreign_keys=[cls.owner_id],
-            remote_side='Object.id', cascade=getattr(
-                cls, '__owner_cascade__', 'merge,save-update'
-            )
+            remote_side='Object.id'
         )
 
 

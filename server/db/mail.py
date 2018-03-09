@@ -2,7 +2,7 @@
 
 import os.path
 from sqlalchemy import Column, Integer, ForeignKey, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from .base import Base, NameMixin, TextMixin, OwnerMixin, CreatedMixin
 from ..sound import get_sound
 from ..protocol import interface_sound
@@ -12,6 +12,7 @@ class MailMessage(Base, NameMixin, TextMixin, OwnerMixin, CreatedMixin):
     """An out of character mail message."""
 
     __tablename__ = 'mail_messages'
+    __owner_cascade__ = 'all'
     read = Column(Boolean, nullable=False, default=False)
     to_id = Column(
         Integer,
@@ -19,7 +20,8 @@ class MailMessage(Base, NameMixin, TextMixin, OwnerMixin, CreatedMixin):
         nullable=False
     )
     to = relationship(
-        'Object', backref='received_mail', foreign_keys=[to_id]
+        'Object', backref=backref('received_mail', cascade='all'),
+        foreign_keys=[to_id]
     )
     parent_id = Column(
         Integer,

@@ -41,7 +41,9 @@ class ObjectRandomSound(RandomSoundMixin, Base):
 
     __tablename__ = 'object_random_sounds'
     object_id = Column(Integer, ForeignKey('objects.id'), nullable=False)
-    object = relationship('Object', backref='random_sounds')
+    object = relationship(
+        'Object', backref=backref('random_sounds', cascade='all')
+    )
 
 
 class Object(
@@ -65,7 +67,7 @@ class Object(
         Integer, ForeignKey('transit_routes.id'), nullable=True
     )
     transit_route = relationship(
-        'TransitRoute', backref=backref('object', uselist=False)
+        'TransitRoute', backref=backref('object', uselist=False), cascade='all'
     )
     scanned_id = Column(Integer, ForeignKey('objects.id'), nullable=True)
     scanned = relationship(
@@ -98,30 +100,40 @@ class Object(
         'Container', backref='contents', foreign_keys=[inside_id]
     )
     player_id = Column(Integer, ForeignKey('players.id'), nullable=True)
-    player = relationship('Player', backref=backref('object', uselist=False))
+    player = relationship(
+        'Player', backref=backref('object', uselist=False), cascade='all'
+    )
     mobile_id = Column(Integer, ForeignKey('mobiles.id'), nullable=True)
-    mobile = relationship('Mobile', backref=backref('object', uselist=False))
+    mobile = relationship(
+        'Mobile', backref=backref('object', uselist=False), cascade='all'
+    )
     exit_id = Column(Integer, ForeignKey('entrances.id'), nullable=True)
-    exit = relationship('Entrance', backref=backref('object', uselist=False))
+    exit = relationship(
+        'Entrance', backref=backref('object', uselist=False), cascade='all'
+    )
     recent_exit_id = Column(Integer, ForeignKey('objects.id'), nullable=True)
     recent_exit = relationship(
         'Object', backref='recent_users', foreign_keys=[recent_exit_id],
         remote_side='Object.id'
     )
     window_id = Column(Integer, ForeignKey('windows.id'), nullable=True)
-    window = relationship('Window', backref=backref('object', uselist=False))
+    window = relationship(
+        'Window', backref=backref('object', uselist=False), cascade='all'
+    )
     chair_id = Column(Integer, ForeignKey('chairs.id'), nullable=True)
     chair = relationship(
-        'Chair', backref=backref('object', uselist=False),
+        'Chair', backref=backref('object', uselist=False), cascade='all',
         foreign_keys=[chair_id]
     )
     container_id = Column(Integer, ForeignKey('containers.id'), nullable=True)
     container = relationship(
-        'Container', backref=backref('object', uselist=False),
+        'Container', backref=backref('object', uselist=False), cascade='all',
         foreign_keys=[container_id]
     )
     shop_id = Column(Integer, ForeignKey('shops.id'), nullable=True)
-    shop = relationship('Shop', backref=backref('object', uselist=False))
+    shop = relationship(
+        'Shop', backref=backref('object', uselist=False), cascade='all'
+    )
     speed = Column(Float, nullable=False, default=0.5)
     last_walked = Column(Float, nullable=False, default=0.0)
     following_id = Column(Integer, ForeignKey('objects.id'), nullable=True)

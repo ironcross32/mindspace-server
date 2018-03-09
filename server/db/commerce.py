@@ -1,7 +1,7 @@
 """Provides classes related to finances."""
 
 from sqlalchemy import Column, Integer, Float, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from .base import Base, message, Sound, NameMixin, CurrencyMixin
 
 
@@ -33,5 +33,5 @@ class ShopItem(Base):
     shop_id = Column(Integer, ForeignKey('shops.id'), nullable=False)
     shop = relationship('Shop', backref='items')
     object_id = Column(Integer, ForeignKey('objects.id'), nullable=False)
-    object = relationship('Object', backref='shops')
+    object = relationship('Object', backref=backref('shops', cascade='all'))
     price = Column(Float, nullable=False, default=1000000.0)
