@@ -175,15 +175,19 @@ class Object(
 
     def get_type(self):
         """Returns a human-readable type for this object."""
-        if self.is_transit:
-            return 'Transit'
-        elif self.is_player:
+        if self.is_player:
             if self.is_admin:
                 return 'Admin'
             elif self.is_builder:
                 return 'Builder'
             else:
                 return 'Player'
+        elif self.is_transit:
+            return 'Transit'
+        elif self.is_chair:
+            return 'chair'
+        elif self.is_container:
+            return 'container'
         elif self.is_window:
             return 'Window'
         elif self.is_mobile:
