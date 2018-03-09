@@ -49,6 +49,7 @@ from .transits import TransitStop, TransitRoute
 from .genders import Gender
 from .chairs import Chair
 from .containers import Container
+from .commerce import Currency, Shop, ShopItem
 
 logger = logging.getLogger(__name__)
 db_file = 'world.yaml'
@@ -214,5 +215,5 @@ __all__ = (
     'ObjectTypeHotkeySecondary', 'ObjectTypeSecondary', 'ObjectType', 'Orbit',
     'Starship', 'StarshipSensors', 'Star', 'Task', 'TransitStop',
     'TransitRoute', 'get_classes', 'finalise_db', 'RoomAirlock', 'Gender',
-    'Chair', 'RestingStates', 'Container'
+    'Chair', 'RestingStates', 'Container', 'Currency', 'Shop', 'ShopItem'
 )

@@ -49,6 +49,7 @@ class Object(
     """A player-facing object."""
 
     __tablename__ = 'objects'
+    fertile = Column(Boolean, nullable=False, default=False)
     gender_id = Column(Integer, ForeignKey('genders.id'), nullable=True)
     gender = relationship('Gender', backref='objects')
     max_distance_multiplier = Column(Float, nullable=False, default=1.0)
@@ -116,6 +117,8 @@ class Object(
         'Container', backref=backref('object', uselist=False),
         foreign_keys=[container_id]
     )
+    shop_id = Column(Integer, ForeignKey('shops.id'), nullable=True)
+    shop = relationship('Shop', backref=backref('object', uselist=False))
     speed = Column(Float, nullable=False, default=0.5)
     last_walked = Column(Float, nullable=False, default=0.0)
     following_id = Column(Integer, ForeignKey('objects.id'), nullable=True)
@@ -230,6 +233,10 @@ class Object(
     @property
     def has_zone(self):
         return self.zone is not None
+
+    @property
+    def is_shop(self):
+        return self.shop is not None
 
     @property
     def is_transit(self):

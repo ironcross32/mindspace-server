@@ -610,3 +610,15 @@ class DataMixin:
             self._data = dump(d)
         else:
             self._data = None
+
+
+class CurrencyMixin:
+    """Add currency to an object."""
+
+    @declared_attr
+    def currency_id(cls):
+        return Column(Integer, ForeignKey('currencies.id'), nullable=False)
+
+    @declared_attr
+    def currency(cls):
+        return relationship('Currency', backref=cls.__tablename__)
