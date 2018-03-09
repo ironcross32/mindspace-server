@@ -1,10 +1,11 @@
 """Provides the Object class."""
 
 import enum
+import logging
 import os.path
 from datetime import datetime
 from sqlalchemy import (
-    Column, Integer, ForeignKey, Boolean, Float, func, or_, and_, Enum
+    Column, Integer, ForeignKey, Boolean, Float, func, or_, and_, Enum, event
 )
 from sqlalchemy.orm import relationship, backref
 from .base import (
@@ -21,6 +22,8 @@ from ..protocol import (
 from ..forms import Label, Field
 from ..sound import get_sound
 from ..socials import factory
+
+logger = logging.getLogger(__name__)
 
 connections = {}
 
@@ -224,10 +227,6 @@ class Object(
         con = self.get_connection()
         if con is not None:
             con.logged = value
-
-    @property
-    def has_zone(self):
-        return self.zone is not None
 
     @property
     def is_shop(self):
@@ -548,3 +547,11 @@ class Object(
         else:
             gid = self.gender_id
         return Base._decl_class_registry['Gender'].get(gid)
+
+
+@event.listens_for(Session, 'before_flush')
+def receive_before_flush(session, flush_context, instances):
+    for obj in session.deleted:
+        if isinstance(obj, Object):
+            logger.info('Delete: %r.', obj)
+            obj.delete_data()

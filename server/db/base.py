@@ -604,6 +604,14 @@ class DataMixin:
         class_registry[self.id] = value
         datas[self.__class__] = class_registry
 
+    def delete_data(self):
+        """Remove this object's data from datas."""
+        cls = self.__class__
+        if cls in datas:
+            class_registry = datas[cls]
+            if self.id in class_registry:
+                del class_registry[self.id]
+
     def save_data(self):
         d = self.data
         if d:
