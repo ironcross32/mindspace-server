@@ -310,7 +310,9 @@ class OwnerMixin:
         return relationship(
             'Object', backref=f'owned_{cls.__tablename__}',
             foreign_keys=[cls.owner_id],
-            remote_side='Object.id'
+            remote_side='Object.id', cascade=getattr(
+                cls, '__owner_cascade__', 'merge,save-update'
+            )
         )
 
 
