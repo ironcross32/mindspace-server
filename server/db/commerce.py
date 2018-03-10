@@ -12,6 +12,10 @@ class Currency(Base, NameMixin):
     __tablename__ = 'currencies'
     value = Column(Float, nullable=False, default=1.0)
 
+    def convert(self, other, value):
+        """Convert this currency to other."""
+        return (value / self.value) * other.value
+
 
 class Shop(Base, CurrencyMixin):
     """A shop which can be attached to an object."""
