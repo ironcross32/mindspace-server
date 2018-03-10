@@ -63,6 +63,13 @@ class _Base:
 
     id = Column(Integer, primary_key=True)
 
+    @classmethod
+    def get_class(cls, table):
+        """Return the class which reflects this table."""
+        for thing in cls._decl_class_registry.values():
+            if getattr(thing, '__table__', None) is table:
+                return thing
+
     def __str__(self):
         return f'{getattr(self, "name", self.__class__.__name__)} (#{self.id})'
 
@@ -145,7 +152,8 @@ class _Base:
                 if isinstance(field, Field):
                     field_names.add(field.name)
                 fields.append(field)
-        for column in inspect(self.__class__).c:
+        i = inspect(self.__class__)
+        for column in i.c:
             name = column.name
             if name in field_names:
                 continue
@@ -157,10 +165,24 @@ class _Base:
                     type = bool
             elif cls is Float:
                 type = float
-            elif cls is Integer and not (
-                column.foreign_keys or column.primary_key
-            ):
-                type = int
+            elif cls is Integer and not column.primary_key:
+                suffix = '_id'
+                if column.foreign_keys and column.name.endswith(suffix):
+                    if column.nullable:
+                        type = [[None, 'null']]
+                    else:
+                        type = []
+                    other_column = list(column.foreign_keys)[0].column
+                    other_class = Base.get_class(other_column.table)
+                    relationship_name = column.name[:-len(suffix)]
+                    relationship = i.relationships[relationship_name]
+                    if not isinstance(relationship.backref, str):
+                        logger.info('Ignoring primary key %r.', column)
+                        continue
+                    for obj in other_class.query():
+                        type.append([obj.id, str(obj)])
+                else:
+                    type = int
             elif cls in (Sound, Message):
                 type = str
             elif cls is Text:
