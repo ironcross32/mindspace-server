@@ -11,9 +11,9 @@ class Container(Base):
     __tablename__ = 'containers'
     max_contents = Column(Integer, nullable=False, default=0)
     no_room_msg = message('There is no more room in there.')
-    store_msg = message('%1n|normal put%1s %2n in %3n.')
+    store_msg = message('%1N put%1s %2n in %3n.')
     store_sound = Column(Sound, nullable=True)
-    retrieve_msg = message('%1n|normal retrieve%1s %2n from %3n.')
+    retrieve_msg = message('%1N retrieve%1s %2n from %3n.')
     retrieve_sound = Column(Sound, nullable=True)
 
     def store(self, player, thing):

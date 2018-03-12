@@ -21,7 +21,7 @@ class Shop(Base, CurrencyMixin):
     """A shop which can be attached to an object."""
 
     __tablename__ = 'shops'
-    buy_msg = message('%1n|normal buy%1s %2n from %3n.')
+    buy_msg = message('%1N buy%1s %2n from %3n.')
     buy_sound = Column(Sound, nullable=True)
 
     def add_item(self, obj, price):

@@ -33,20 +33,20 @@ class TransitRoute(
 
     __tablename__ = 'transit_routes'
     cant_peer_msg = message("You can't see anything during transit.")
-    arrive_msg = message('%1n|normal arrive%1s abruptly.')
+    arrive_msg = message('%1N arrive%1s abruptly.')
     arrive_sound = Column(Sound, nullable=True)
     arrive_other_msg = message(
         'Now arriving into {}. Our next stop will be {} in approximately {}.'
     )
     arrive_other_sound = Column(Sound, nullable=True)
-    depart_msg = message('%1n|normal depart%1s.')
+    depart_msg = message('%1N depart%1s.')
     depart_sound = Column(Sound, nullable=True)
     depart_other_msg = message(
         'Now departing {}. Our next stop will be {} in approximately {}.'
     )
     depart_other_sound = Column(Sound, nullable=True)
     cant_leave_msg = message(
-        '%1n|normal tr%1y %2n only to find it locked during transit.'
+        '%1N tr%1y %2n only to find it locked during transit.'
     )
     cant_leave_sound = Column(Sound, nullable=True)
     next_move = Column(Float, nullable=True)

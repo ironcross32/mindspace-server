@@ -58,7 +58,7 @@ class Object(
     gender_id = Column(Integer, ForeignKey('genders.id'), nullable=True)
     gender = relationship('Gender', backref='objects')
     max_distance_multiplier = Column(Float, nullable=False, default=1.0)
-    teleport_msg = message('%1n|normal vanish%1e in a column of light.')
+    teleport_msg = message('%1N vanish%1e in a column of light.')
     teleport_sound = Column(
         Sound, nullable=False,
         default=os.path.join('ambiences', 'teleport.wav')
@@ -142,15 +142,15 @@ class Object(
         remote_side='Object.id'
     )
     pose = message(None, nullable=True)
-    follow_msg = message('%1n|normal start%1s to follow %2n.')
-    unfollow_msg = message('%1n|normal stop%1s following %2n.')
-    ditch_msg = message('%1n|normal ditch%1e %2n.')
-    start_use_msg = message('%1n|normal start%1s using %2n.')
-    stop_use_msg = message('%1n|normal stop%1s using %2n.')
-    get_msg = message('%1n|normal get%1s %2n.')
-    drop_msg = message('%1n|normal drop%1s %2n.')
-    give_msg = message('%1n|normal give%1s %2n to %3n.')
-    knock_msg = message('%1n|normal knock%1s on %2n.')
+    follow_msg = message('%1N start%1s to follow %2n.')
+    unfollow_msg = message('%1N stop%1s following %2n.')
+    ditch_msg = message('%1N ditch%1e %2n.')
+    start_use_msg = message('%1N start%1s using %2n.')
+    stop_use_msg = message('%1N stop%1s using %2n.')
+    get_msg = message('%1N get%1s %2n.')
+    drop_msg = message('%1N drop%1s %2n.')
+    give_msg = message('%1N give%1s %2n to %3n.')
+    knock_msg = message('%1N knock%1s on %2n.')
     knock_sound = Column(Sound, nullable=True, default='objects/knock1.wav')
     get_sound = Column(Sound, nullable=True)
     drop_sound = Column(Sound, nullable=True)
@@ -440,7 +440,7 @@ class Object(
         other_side = entrance.get_other_side()
         if other_side is None:
             recent_exit_id = self.id
-            msg = '%1n|normal arrive%1s.'
+            msg = '%1N arrive%1s.'
         else:
             if other_side.exit.ambience is not None:
                 other_side.sound(get_sound(other_side.exit.ambience))

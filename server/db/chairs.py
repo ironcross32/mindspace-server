@@ -11,11 +11,11 @@ class Chair(Base):
 
     __tablename__ = 'chairs'
     max_occupants = Column(Integer, nullable=False, default=1)
-    sit_msg = message('%1n|normal sit%1s on %2n.')
+    sit_msg = message('%1N sit%1s on %2n.')
     sit_sound = Column(Sound, nullable=False, default='chairs/sit.wav')
-    lie_msg = message('%1n|normal lie%1s on %2n.')
+    lie_msg = message('%1N lie%1s on %2n.')
     lie_sound = Column(Sound, nullable=False, default='chairs/sit.wav')
-    stand_msg = message('%1n|normal get%1s up from %2n.')
+    stand_msg = message('%1N get%1s up from %2n.')
     stand_sound = Column(Sound, nullable=False, default='chairs/stand.wav')
     sitting_msg = message('is sitting on {}')
     lying_msg = message('is lying on {}')

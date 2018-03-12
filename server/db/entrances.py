@@ -16,34 +16,34 @@ class Entrance(
     __tablename__ = 'entrances'
     no_mobiles = Column(Boolean, nullable=False, default=False)
     cantuse_msg = message('You cannot go that way.')
-    follow_msg = message('%1n|normal follow%1s %2n through %3n.')
-    leave_msg = message('%1n|normal leave%1s through %2n.')
-    arrive_msg = message('%1n|normal arrive%1s from %2n.')
+    follow_msg = message('%1N follow%1s %2n through %3n.')
+    leave_msg = message('%1N leave%1s through %2n.')
+    arrive_msg = message('%1N arrive%1s from %2n.')
     locked = Column(Boolean, nullable=False, default=False)
-    locked_msg = message('%1n|normal tr%1y %2n only to find it locked.')
+    locked_msg = message('%1N tr%1y %2n only to find it locked.')
     locked_sound = Column(Sound, nullable=True)
     lockable = Column(Boolean, nullable=False, default=False)
     other_locked_msg = message(
-        '%1n|normal rattle%1s as someone on the other side tries to open it.'
+        '%1N rattle%1s as someone on the other side tries to open it.'
     )
     other_locked_sound = Column(Sound, nullable=True)
-    enter_code_msg = message('%1n|normal step%1s up to %2n.')
+    enter_code_msg = message('%1N step%1s up to %2n.')
     enter_code_sound = Column(Sound, nullable=True)
-    correct_code_msg = message('%1n|normal fiddle%1s with %2n.')
+    correct_code_msg = message('%1N fiddle%1s with %2n.')
     correct_code_sound = Column(Sound, nullable=True)
     incorrect_code_msg = message(
-        '%1n|normal fiddle%1s with %2n which beep%2s loudly.'
+        '%1N fiddle%1s with %2n which beep%2s loudly.'
     )
     incorrect_code_sound = Column(Sound, nullable=True)
-    unlock_msg = message('%1n|normal unlock%1s %2n.')
+    unlock_msg = message('%1N unlock%1s %2n.')
     unlock_sound = Column(Sound, nullable=True)
-    lock_msg = message('%1n|normal lock%1s %2n.')
+    lock_msg = message('%1N lock%1s %2n.')
     lock_sound = Column(Sound, nullable=True)
-    other_unlock_msg = message('%1n|normal %1is unlocked from the other side.')
+    other_unlock_msg = message('%1N %1is unlocked from the other side.')
     other_unlock_sound = Column(Sound, nullable=True)
-    other_lock_msg = message('%1n|normal %1is locked from the other side.')
+    other_lock_msg = message('%1N %1is locked from the other side.')
     other_lock_sound = Column(Sound, nullable=True)
-    chime_msg = message('%1n|normal ring%1s the chime on %2n.')
+    chime_msg = message('%1N ring%1s the chime on %2n.')
     chime_sound = Column(
         Sound, nullable=False, default='ambiences/doorbell.wav'
     )

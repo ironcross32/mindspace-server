@@ -15,8 +15,8 @@ class Window(Base):
         default=lambda: Base._decl_class_registry['Room'].first().id
     )
     overlooking = relationship('Room', backref='windows')
-    open_msg = message('%1n|normal open%1s %2n.')
-    close_msg = message('%1n|normal close%1s %2n.')
+    open_msg = message('%1N open%1s %2n.')
+    close_msg = message('%1N close%1s %2n.')
     open_sound = Column(Sound, nullable=True)
     close_sound = Column(Sound, nullable=True)
 

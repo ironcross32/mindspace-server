@@ -557,24 +557,24 @@ class StarshipMixin:
 
 
 class BoardMixin:
-    board_msg = message('%1n|normal board%1s %2n.')
-    board_follow_msg = message('%1n|normal follow%1s %2n onto %3n.')
+    board_msg = message('%1N board%1s %2n.')
+    board_follow_msg = message('%1N follow%1s %2n onto %3n.')
     board_sound = Column(
         Sound, nullable=True, default='ambiences/AirlockEnter.wav'
     )
-    board_other_msg = message('%1n|normal arrive%1s.')
+    board_other_msg = message('%1N arrive%1s.')
     board_other_sound = Column(
         Sound, nullable=True, default='ambiences/AirlockEnter.wav'
     )
 
 
 class LeaveMixin:
-    leave_msg = message('%1n|normal disembark%1s from %2n.')
-    leave_follow_msg = message('%1n|normal follow%1s %2n.')
+    leave_msg = message('%1N disembark%1s from %2n.')
+    leave_follow_msg = message('%1N follow%1s %2n.')
     leave_sound = Column(
         Sound, nullable=True, default='ambiences/AirlockExit.wav'
     )
-    leave_other_msg = message('%1n|normal disembark%1s.')
+    leave_other_msg = message('%1N disembark%1s.')
     leave_other_sound = Column(
         Sound, nullable=True, default='ambiences/AirlockExit.wav'
     )
@@ -587,7 +587,7 @@ class HiddenMixin:
 class LaunchMixin:
     """Messages and sounds for launchable things."""
 
-    launch_msg = message('%1n|normal begin%1s rising into the air.')
+    launch_msg = message('%1N begin%1s rising into the air.')
     launch_sound = Column(
         Sound, nullable=True, default='starship/launch/1.wav'
         )
@@ -596,7 +596,7 @@ class LaunchMixin:
 class LandMixin:
     """Sounds and messages for landing things."""
 
-    land_msg = message('%1n|normal complete%1s its landing.')
+    land_msg = message('%1N complete%1s its landing.')
     land_sound = Column(Sound, nullable=True, default='starship/land/1.wav')
 
 
