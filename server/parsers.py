@@ -3,7 +3,6 @@
 import os.path
 import logging
 from random import randint
-from sqlalchemy import or_
 from mindspace_protocol import MindspaceParser
 from .program import run_program, OK
 from .protocol import character_id, interface_sound, remember_quit, message
@@ -29,9 +28,7 @@ class MainParser(MindspaceParser):
                 for perm in ('builder', 'admin'):
                     if not getattr(player, f'is_{perm}'):
                         column = getattr(Command, perm)
-                        query_args.append(
-                            or_(column.is_(None), column.is_(False))
-                        )
+                        query_args.append(column.is_(False))
             cmd = Command.query(*query_args).first()
             if cmd is None:
                 return super().huh(name, *args, **kwargs)
@@ -39,7 +36,8 @@ class MainParser(MindspaceParser):
             friendly = cmd.get_name(True)
             try:
                 run_program(
-                    connection, s, cmd, a=args, kw=kwargs, __name__=name
+                    connection, s, cmd, a=args, kw=kwargs, __name__=name,
+                    player=player
                 )
             except OK:
                 pass  # Return from command.
