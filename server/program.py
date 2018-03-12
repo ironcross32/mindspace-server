@@ -222,9 +222,9 @@ def run_program(con, s, prog, **context):
     if con is None:
         player = None
     else:
-        context['con'] = con
         player = con.get_player(s)
-        context['player'] = player
+    context['con'] = con
+    context['player'] = player
     context.update(ctx)
     context['logger'] = logging.getLogger(
         f'{prog}{" (%s)" % player.get_name(True) if player else ""}'
