@@ -96,7 +96,6 @@ class ProtocolBase:
         self.walk_task = None
         self.player_id = None
         self.object_id = None
-        self.search_string = ''
         peer = self.transport.getPeer()
         self.host = peer.host
         self.port = peer.port
