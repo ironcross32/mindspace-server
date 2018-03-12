@@ -3,6 +3,7 @@
 import os.path
 import logging
 from random import randint
+from sqlalchemy import or_
 from mindspace_protocol import MindspaceParser
 from .program import run_program, OK
 from .protocol import character_id, interface_sound, remember_quit, message
@@ -19,7 +20,19 @@ class MainParser(MindspaceParser):
         connection = args[1]
         args = args[2:]
         with session() as s:
-            cmd = Command.query(name=name).first()
+            query_args = [Command.name == name]
+            if connection is not None:
+                player = connection.get_player(s)
+            else:
+                player = None
+            if player is not None:
+                for perm in ('builder', 'admin'):
+                    if not getattr(player, f'is_{perm}'):
+                        column = getattr(Command, perm)
+                        query_args.append(
+                            or_(column.is_(None), column.is_(False))
+                        )
+            cmd = Command.query(*query_args).first()
             if cmd is None:
                 return super().huh(name, *args, **kwargs)
             # Save these in case of an error to prevent DetachedInstanceError.
