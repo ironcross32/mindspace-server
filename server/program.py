@@ -219,12 +219,13 @@ ctx = dict(
 def run_program(con, s, prog, **context):
     """Run a program with a sensible context."""
     context['s'] = s
-    if con is None:
-        player = None
-    else:
-        player = con.get_player(s)
+    if 'player' not in context:
+        if con is None:
+            player = None
+        else:
+            player = con.get_player(s)
+        context['player'] = player
     context['con'] = con
-    context['player'] = player
     context.update(ctx)
     context['logger'] = logging.getLogger(
         f'{prog}{" (%s)" % player.get_name(True) if player else ""}'
