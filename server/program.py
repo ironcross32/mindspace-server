@@ -225,6 +225,8 @@ def run_program(con, s, prog, **context):
         else:
             player = con.get_player(s)
         context['player'] = player
+    else:
+        player = context['player']
     context['con'] = con
     context.update(ctx)
     context['logger'] = logging.getLogger(
