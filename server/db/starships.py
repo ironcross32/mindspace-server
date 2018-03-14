@@ -46,6 +46,23 @@ class Starship(Base, LandMixin, LaunchMixin):
     filter_star = Column(Boolean, nullable=False, default=False)
     filter_starship = Column(Boolean, nullable=False, default=False)
     filter_blackhole = Column(Boolean, nullable=False, default=False)
+    target_object_id = Column(Integer, ForeignKey('zones.id'), nullable=True)
+    target_object = relationship(
+        'Zone', backref='converging', foreign_keys=[target_object_id]
+    )
+    target_x = Column(Float, nullable=True)
+    target_y = Column(Float, nullable=True)
+    target_z = Column(Float, nullable=True)
+
+    @property
+    def target_coordinates(self):
+        coords = (self.target_x, self.target_y, self.target_z)
+        if all(c is not None for c in coords):
+            return coords
+
+    @target_coordinates.setter
+    def target_coordinates(self, value):
+        (self.target_x, self.target_y, self.target_z) = value
 
     def get_sound_coordinates(self, obj, player):
         """Return the coordinates where relative sounds should be played,
