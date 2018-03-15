@@ -404,13 +404,6 @@ class DirectionMixin:
             'Direction', backref=f'traveling_{cls.__tablename__}'
         )
 
-    @classmethod
-    def get_fields(cls, instance):
-        directions = [[None, 'None']]
-        for direction in Base._decl_class_registry['Direction'].query():
-            directions.append([direction.id, direction.get_name(True)])
-        return [instance.make_field('direction_id', type=directions)]
-
 
 class CommunicationChannelMixin:
     @declared_attr
@@ -522,16 +515,6 @@ class ZoneMixin:
             'Zone', backref=cls.__tablename__, foreign_keys=[cls.zone_id]
         )
 
-    @classmethod
-    def get_fields(cls, instance):
-        Zone = Base._decl_class_registry['Zone']
-        zones = [None]
-        for zone in Zone.query().order_by(Zone.name.desc()):
-            zones.append([zone.id, zone.get_name(True)])
-        return [
-            instance.make_field('zone_id', type=zones)
-        ]
-
 
 class StarshipMixin:
     @declared_attr
@@ -544,16 +527,6 @@ class StarshipMixin:
             'Starship', backref=backref(cls.__name__.lower(), uselist=False),
             foreign_keys=[cls.starship_id]
         )
-
-    @classmethod
-    def get_fields(cls, instance):
-        starships = [None]
-        Zone = Base._decl_class_registry['Zone']
-        for obj in Zone.query(
-            Zone.starship_id.isnot(None)
-        ).order_by(Zone.name):
-            starships.append([obj.starship_id, obj.get_name(True)])
-        return [instance.make_field('starship_id', type=starships)]
 
 
 class BoardMixin:

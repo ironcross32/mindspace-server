@@ -6,7 +6,6 @@ from .base import (
     Base, CoordinatesMixin, NameMixin, DescriptionMixin, OwnerMixin,
     DirectionMixin, AmbienceMixin, StarshipMixin, HiddenMixin
 )
-from ..forms import Label
 from ..protocol import zone
 from ..util import distance_between
 
@@ -44,16 +43,6 @@ class Zone(
             return 'Star'
         else:
             return 'Debris'
-
-    def get_all_fields(self):
-        fields = [Label(f'Configure {self.get_name(True)}')]
-        fields.extend(NameMixin.get_fields(self))
-        fields.extend(DescriptionMixin.get_fields(self))
-        fields.extend(DirectionMixin.get_fields(self))
-        fields.extend(CoordinatesMixin.get_fields(self))
-        for name in ('ambience_rate', 'ambience_volume', 'speed'):
-            fields.append(self.make_field(name, type=float))
-        return fields
 
     def update_occupants(self):
         """Tell everyone inside this zone it has changed."""
