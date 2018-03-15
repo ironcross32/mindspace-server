@@ -106,10 +106,13 @@ class Starship(Base, LandMixin, LaunchMixin):
                 filters.append(x[7:].title())
         return filters
 
-    def set_acceleration(self, factor, accelerating=True):
-        """Set how much this ship is accelerating by."""
+    def set_acceleration(self, factor, accelerating=None):
+        """Set how much this ship is accelerating by. Factor should be between
+        0.0 (not accelerating) and 1.0 (full thrust). Can overload for fun. If
+        accelerating is left at None then it will remain unchanged."""
         z = self.zone
         z.acceleration = self.engine.max_acceleration * factor
-        z.accelerating = accelerating
+        if accelerating is not None:
+            z.accelerating = accelerating
         z.ambience_rate = factor
         z.update_occupants()
