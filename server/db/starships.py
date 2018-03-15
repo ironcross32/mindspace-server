@@ -1,6 +1,7 @@
 """Provides the StarshipEngine class."""
 
 import os.path
+from datetime import timedelta
 from sqlalchemy import Column, Float, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from .base import Base, NameMixin, LandMixin, LaunchMixin
@@ -116,3 +117,13 @@ class Starship(Base, LandMixin, LaunchMixin):
             z.accelerating = accelerating
         z.ambience_rate = factor
         z.update_occupants()
+
+    def get_deceleration_time(self, thrust=None):
+        """Return a timedelta representing how long it will take this ship to
+        decelerate at the given thrust (defaults to full thrust)."""
+        e = self.engine
+        z = self.zone
+        if thrust is None:
+            thrust = e.max_acceleration
+        duration = z.speed / e.max_acceleration
+        return timedelta(seconds=duration)
