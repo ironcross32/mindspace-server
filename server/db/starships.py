@@ -105,3 +105,11 @@ class Starship(Base, LandMixin, LaunchMixin):
             if x.startswith('filter_') and getattr(self, x):
                 filters.append(x[7:].title())
         return filters
+
+    def set_acceleration(self, factor, accelerating=True):
+        """Set how much this ship is accelerating by."""
+        z = self.zone
+        z.acceleration = self.engine.max_acceleration * factor
+        z.accelerating = accelerating
+        z.ambience_rate = factor
+        z.update_occupants()
