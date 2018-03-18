@@ -72,7 +72,9 @@ class Starship(Base, LandMixin, LaunchMixin):
 
     @target_coordinates.setter
     def target_coordinates(self, value):
-        (self.target_x, self.target_y, self.target_z) = value
+        if value is None:
+            value = (None, None, None)
+            (self.target_x, self.target_y, self.target_z) = value
 
     @property
     def target(self):
