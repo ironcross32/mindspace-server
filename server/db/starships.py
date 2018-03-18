@@ -2,12 +2,21 @@
 
 import os.path
 from datetime import timedelta
+from attr import attrs, attrib
 from sqlalchemy import Column, Float, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from .base import Base, NameMixin, LandMixin, LaunchMixin
 from ..distance import km, ly
 from ..sound import get_sound, NoSuchSound
 from ..protocol import hidden_sound
+
+
+@attrs
+class StarshipTarget:
+    """Starship autopilot information."""
+
+    coordinates = attrib()
+    object = attrib()
 
 
 class StarshipEngine(Base, NameMixin):
@@ -64,6 +73,17 @@ class Starship(Base, LandMixin, LaunchMixin):
     @target_coordinates.setter
     def target_coordinates(self, value):
         (self.target_x, self.target_y, self.target_z) = value
+
+    def get_target(self):
+        """Return a Target instance representing this starship's autopilot
+        status or None if no target is set."""
+        obj = self.target_obj
+        coords = self.target_coordinates
+        if obj is not None or coords is not None:
+            t = StarshipTarget(coords, obj)
+            if obj is not None:
+                t.coordinates = obj.coordinates
+            return t
 
     def get_sound_coordinates(self, obj, player):
         """Return the coordinates where relative sounds should be played,
