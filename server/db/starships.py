@@ -74,10 +74,11 @@ class Starship(Base, LandMixin, LaunchMixin):
     def target_coordinates(self, value):
         (self.target_x, self.target_y, self.target_z) = value
 
-    def get_target(self):
+    @property
+    def target(self):
         """Return a Target instance representing this starship's autopilot
         status or None if no target is set."""
-        obj = self.target_obj
+        obj = self.target_object
         coords = self.target_coordinates
         if obj is not None or coords is not None:
             t = StarshipTarget(coords, obj)
