@@ -131,7 +131,8 @@ class Starship(Base, LandMixin, LaunchMixin):
     def set_acceleration(self, factor, accelerating=None):
         """Set how much this ship is accelerating by. Factor should be between
         0.0 (not accelerating) and 1.0 (full thrust). Can overload for fun. If
-        accelerating is left at None then it will remain unchanged."""
+        accelerating is left at None then the accelerating state of the
+        starship will remain unchanged."""
         z = self.zone
         z.acceleration = self.engine.max_acceleration * factor
         if accelerating is not None:
