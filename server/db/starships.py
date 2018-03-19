@@ -159,4 +159,4 @@ class Starship(Base, LandMixin, LaunchMixin):
         z = self.zone
         if thrust is None:
             thrust = e.max_acceleration
-        return timedelta(seconds=len(frange(0, z.speed, thrust)))
+        return timedelta(seconds=len(list(frange(0, z.speed, thrust))))
