@@ -453,3 +453,9 @@ def truncate(s, n=80, after='...'):
     if len(s) > n:
         s = s[:n] + after
     return s
+
+
+def frange(start, stop, step):
+    while start < stop:
+        yield start
+        start += step
