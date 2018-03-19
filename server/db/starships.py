@@ -149,7 +149,7 @@ class Starship(Base, LandMixin, LaunchMixin):
         z = self.zone
         if thrust is None:
             thrust = e.max_acceleration
-        return z.speed / thrust
+        return sum(range(0, z.speed, thrust))
 
     def get_deceleration_time(self, thrust=None):
         """Return a timedelta representing how long it will take this ship to
