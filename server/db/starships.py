@@ -142,16 +142,6 @@ class Starship(Base, LandMixin, LaunchMixin):
         z.ambience_rate = factor
         z.update_occupants()
 
-    def get_deceleration_time(self, thrust=None):
-        """Return a timedelta representing how long it will take this ship to
-        decelerate at the given thrust (defaults to full thrust)."""
-        e = self.engine
-        z = self.zone
-        if thrust is None:
-            thrust = e.max_acceleration
-        duration = z.speed / thrust
-        return timedelta(seconds=duration)
-
     def get_deceleration_distance(self, thrust=None):
         """Return a float representing how long it will take this ship to
         decelerate at the given thrust (defaults to full thrust)."""
@@ -160,3 +150,8 @@ class Starship(Base, LandMixin, LaunchMixin):
         if thrust is None:
             thrust = e.max_acceleration
         return z.speed / thrust
+
+    def get_deceleration_time(self, thrust=None):
+        """Return a timedelta representing how long it will take this ship to
+        decelerate at the given thrust (defaults to full thrust)."""
+        return timedelta(seconds=self.get_deceleration_time())
