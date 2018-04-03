@@ -195,6 +195,7 @@ class MindspaceWebSocketProtocol(WebSocketServerProtocol, ProtocolBase):
         self.sendMessage(data.encode())
 
     def connectionMade(self):
+        super().connectionMade()
         self.on_connect()
 
     def onMessage(self, payload, is_binary):
@@ -202,6 +203,7 @@ class MindspaceWebSocketProtocol(WebSocketServerProtocol, ProtocolBase):
             self.handle_string(payload)
 
     def connectionLost(self, reason):
+        super().connectionLost(reason)
         self.on_disconnect(reason)
 
 
