@@ -194,14 +194,14 @@ class MindspaceWebSocketProtocol(WebSocketServerProtocol, ProtocolBase):
         data = dumps(dict(name=name, args=args, kwargs=kwargs))
         self.sendMessage(data.encode())
 
-    def onOpen(self):
+    def connectionMade(self):
         self.on_connect()
 
     def onMessage(self, payload, is_binary):
         if not is_binary:
             self.handle_string(payload)
 
-    def onClose(self, wasClean, code, reason):
+    def connectionLost(self, reason):
         self.on_disconnect(reason)
 
 
