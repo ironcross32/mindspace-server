@@ -1,57 +1,14 @@
 /* global Cookies, reverbjs */
 
-// Below function code copied (and modified) from:
-// https://gist.github.com/revolunet/e620e2c532b7144c62768a36b8b96da2
-//
-// loads remote file using fetch() streams and "pipe" it to webaudio API
-// remote file must have CORS enabled if on another domain
-//
-// mostly from http://stackoverflow.com/questions/20475982/choppy-inaudible-playback-with-chunked-audio-through-web-audio-api
-// 
+let media_stream = null
 
-function stream_url(url) {
-    let g = audio.createGain()
-    g.connect(environment)
-    let audio_stack = []
-    let next_time = 0
-    fetch(url).then((response) => {
-        let reader = response.body.getReader()
-        function read() {
-            return reader.read().then(({ value, done })=> {
-                audio.decodeAudioData(value.buffer, (buffer) => {
-                    audio_stack.push(buffer)
-                    if (audio_stack.length) {
-                        schedule_buffers()
-                    }
-                }, (err) => {
-                    console.log(`Error while decoding audio data: ${err}`)
-                })
-                if (done) {
-                    console.log("done")
-                    return
-                }
-                read()
-            })
-        }
-        read()
-    })
-
-    function schedule_buffers() {
-        while ( audio_stack.length) {
-            let buffer    = audio_stack.shift()
-            var source    = audio.createBufferSource()
-            source.buffer = buffer
-            source.connect(g)
-            if (next_time == 0) {
-                next_time = audio.currentTime + 0.01  /// add 50ms latency to work well across systems - tune this if you like
-            }
-            source.start(next_time)
-            next_time += source.buffer.duration // Make the next buffer wait the length of the last buffer before being played
-        }
+navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(
+    stream => {
+        media_stream = stream
+    }, () => {
+        alert("Failed to use microphone.")
     }
-    
-    return g
-}
+)
 
 let field_names = ["username", "password"]
 let default_title = document.title
