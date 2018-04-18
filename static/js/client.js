@@ -156,7 +156,7 @@ function create_environment() {
                     microphone = audio.createMediaStreamSource(stream)
                     processor = audio.createScriptProcessor(0, 1, 1)
                     processor.onaudioprocess = (e) => {
-                        microphone_data = e.data
+                        microphone_data = e.inputBuffer
                     }
                     microphone.connect(processor)
                 }
