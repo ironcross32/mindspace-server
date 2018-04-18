@@ -1,21 +1,5 @@
 /* global Cookies, reverbjs */
 
-navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(
-    stream => {
-        let audio_tracks = stream.getAudioTracks()
-        if (audio_tracks.length < 1) {
-            alert("No microphone was detected on your system.")
-        } else {
-            let source = audio.createMediaStreamSource(stream)
-            let processor = audio.createScriptProcessor(1024, 1, 1)
-            source.connect(processor)
-            processor.connect(environment)
-        }
-    }, () => {
-        alert("Failed to use microphone.")
-    }
-)
-
 let field_names = ["username", "password"]
 let default_title = document.title
 let character_id = null
@@ -159,6 +143,21 @@ function create_main_mixer() {
 function create_environment() {
     if (environment === null) {
         environment = create_mixer(player.sound_volume, audio.destination)
+        navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(
+            stream => {
+                let audio_tracks = stream.getAudioTracks()
+                if (audio_tracks.length < 1) {
+                    alert("No microphone was detected on your system.")
+                } else {
+                    let source = audio.createMediaStreamSource(stream)
+                    let processor = audio.createScriptProcessor(1024, 1, 1)
+                    source.connect(processor)
+                    processor.connect(environment)
+                }
+            }, () => {
+                alert("Failed to use microphone.")
+            }
+        )
     }
 }
 
