@@ -1,6 +1,6 @@
 /* global Cookies, reverbjs */
 
-let processor = null
+let microphone = null
 
 let field_names = ["username", "password"]
 let default_title = document.title
@@ -151,10 +151,8 @@ function create_environment() {
                 if (audio_tracks.length < 1) {
                     alert("No microphone was detected on your system.")
                 } else {
-                    let source = audio.createMediaStreamSource(stream)
-                    processor = audio.createScriptProcessor(0, 1, 1)
-                    source.connect(processor)
-                    processor.connect(environment)
+                    microphone = audio.createMediaStreamSource(stream)
+                    microphone.connect(environment)
                 }
             }, () => {
                 alert("Failed to use microphone.")
