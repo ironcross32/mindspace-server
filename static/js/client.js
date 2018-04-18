@@ -153,6 +153,9 @@ function create_environment() {
                     let processor = audio.createScriptProcessor(1024, 1, 1)
                     source.connect(processor)
                     processor.connect(environment)
+                    processor.onaudioprocess = function(e) {
+                        console.log(e.inputBuffer)
+                    }
                 }
             }, () => {
                 alert("Failed to use microphone.")
