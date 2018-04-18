@@ -1,5 +1,6 @@
 /* global Cookies, reverbjs */
 
+let recording_threshold = 0.01
 let recording = false
 let recorded_data = []
 let microphone = null
@@ -161,7 +162,10 @@ function create_environment() {
                         if (recording) {
                             microphone_data = e.inputBuffer.getChannelData(0)
                             for (let i = 0; i < microphone_data.length; i++) {
-                                recorded_data.push(microphone_data[i])
+                                let value = microphone_data[i]
+                                if (value > recording_threshold) {
+                                    recorded_data.push(value)
+                                }
                             }
                         }
                     }
