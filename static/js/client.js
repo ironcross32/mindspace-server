@@ -1,14 +1,15 @@
 /* global Cookies, reverbjs */
 
-let microphone = null
-
 navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(
     stream => {
         let audio_tracks = stream.getAudioTracks()
         if (audio_tracks.length < 1) {
             alert("No microphone was detected on your system.")
         } else {
-            microphone = audio_tracks[0]
+            let source = audio.createMediaStreamSource(stream)
+            let processor = audio.createScriptProcessor(1024, 1, 1)
+            source.connect(processor)
+            processor.connect(environment)
         }
     }, () => {
         alert("Failed to use microphone.")
