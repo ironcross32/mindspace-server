@@ -2,7 +2,7 @@
 
 let microphone = null
 let processor = null
-let microphone_data = 1234
+let microphone_data = null
 
 let field_names = ["username", "password"]
 let default_title = document.title
@@ -156,10 +156,10 @@ function create_environment() {
                     microphone = audio.createMediaStreamSource(stream)
                     processor = audio.createScriptProcessor(0, 1, 1)
                     processor.onaudioprocess = (e) => {
-                        console.error("Hello there.")
                         microphone_data = e.outputBuffer
                     }
                     microphone.connect(processor)
+                    processor.start(audio.destination)
                 }
             }, () => {
                 alert("Failed to use microphone.")
