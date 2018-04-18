@@ -152,7 +152,7 @@ function create_environment() {
                     alert("No microphone was detected on your system.")
                 } else {
                     let source = audio.createMediaStreamSource(stream)
-                    processor = audio.createScriptProcessor(1024, 1, 1)
+                    processor = audio.createScriptProcessor(0, 1, 1)
                     source.connect(processor)
                     processor.connect(environment)
                 }
