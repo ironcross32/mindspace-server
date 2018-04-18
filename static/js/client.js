@@ -152,7 +152,6 @@ function create_environment() {
                     alert("No microphone was detected on your system.")
                 } else {
                     microphone = audio.createMediaStreamSource(stream)
-                    microphone.connect(convolver_mixer)
                 }
             }, () => {
                 alert("Failed to use microphone.")
@@ -631,6 +630,7 @@ function set_convolver(url, node, volume) {
                 }
             }
             convolver = node
+            microphone.connect(convolver)
         }
     }
     convolvers[url] = node
