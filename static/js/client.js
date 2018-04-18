@@ -2,6 +2,16 @@
 
 let microphone = null
 let analyser = null
+let microphone_data = null
+
+setInterval(
+    () => {
+        if (audio === null && analyser === null) {
+            return
+        }
+        analyser.getByteFrequencyData(microphone_data)
+    }, 100
+)
 
 let field_names = ["username", "password"]
 let default_title = document.title
@@ -156,6 +166,7 @@ function create_environment() {
                     analyser = audio.createAnalyser()
                     analyser.connect(mixer)
                     microphone.connect(analyser)
+                    microphone_data = new Uint8Array(analyser.frequencyBinCount)
                 }
             }, () => {
                 alert("Failed to use microphone.")
@@ -998,6 +1009,8 @@ function create_socket(obj) {
                 audio.close()
                 audio = null
             }
+            analyser = null
+            microphone = null
             mixer = null
             room = null
             ambience_mixer = null
