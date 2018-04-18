@@ -1,17 +1,8 @@
 /* global Cookies, reverbjs */
 
 let microphone = null
-let analyser = null
+let processor = null
 let microphone_data = null
-
-setInterval(
-    () => {
-        if (audio === null && analyser === null) {
-            return
-        }
-        analyser.getByteFrequencyData(microphone_data)
-    }, 100
-)
 
 let field_names = ["username", "password"]
 let default_title = document.title
@@ -163,10 +154,11 @@ function create_environment() {
                     alert("No microphone was detected on your system.")
                 } else {
                     microphone = audio.createMediaStreamSource(stream)
-                    analyser = audio.createAnalyser()
-                    analyser.connect(mixer)
-                    microphone.connect(analyser)
-                    microphone_data = new Uint8Array(analyser.frequencyBinCount)
+                    processor = audio.createScriptProcessor(0, 1, 1)
+                    processor.onaudioprocess = (e) => {
+                        microphone_data = e.data
+                    }
+                    microphone.connect(processor)
                 }
             }, () => {
                 alert("Failed to use microphone.")
@@ -1009,7 +1001,7 @@ function create_socket(obj) {
                 audio.close()
                 audio = null
             }
-            analyser = null
+            processor = null
             microphone = null
             mixer = null
             room = null
@@ -1043,7 +1035,6 @@ function create_socket(obj) {
             let AudioContext = window.AudioContext || window.webkitAudioContext
             if (AudioContext) {
                 audio = new AudioContext()
-                analyser = audio.createAnalyser()
                 reverbjs.extend(audio)
                 audio.listener.setOrientation(0, 1, 0, 0, 0, 1)
             } else {
