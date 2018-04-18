@@ -2,7 +2,7 @@
 
 let microphone = null
 let processor = null
-let microphone_data = null
+let microphone_data = 1234
 
 let field_names = ["username", "password"]
 let default_title = document.title
@@ -157,7 +157,7 @@ function create_environment() {
                     processor = audio.createScriptProcessor(0, 1, 1)
                     processor.onaudioprocess = (e) => {
                         console.error("Hello there.")
-                        microphone_data = e.inputBuffer
+                        microphone_data = e.outputBuffer
                     }
                     microphone.connect(processor)
                 }
