@@ -1,5 +1,7 @@
 /* global Cookies, reverbjs */
 
+let recording = false
+let recorded_data = []
 let microphone = null
 let processor = null
 let microphone_data = null
@@ -156,7 +158,12 @@ function create_environment() {
                     microphone = audio.createMediaStreamSource(stream)
                     processor = audio.createScriptProcessor(0, 1, 1)
                     processor.onaudioprocess = (e) => {
-                        microphone_data = e.inputBuffer.getChannelData(0)
+                        if (recording) {
+                            microphone_data = e.inputBuffer.getChannelData(0)
+                            for (let i = 0; i < microphone_data.length; i++) {
+                                recorded_data.push(microphone_data[i])
+                            }
+                        }
                     }
                     microphone.connect(processor)
                     processor.connect(audio.destination)
@@ -644,6 +651,13 @@ function set_convolver(url, node, volume) {
 }
 
 let mindspace_functions = {
+    start_recording: () => {
+        recorded_data = []
+        recording = true
+    },
+    stop_recording: () => {
+        recording = false
+    },
     convolver: obj => {
         let [sound, volume] = obj.args
         if (sound === null) {
@@ -1002,6 +1016,7 @@ function create_socket(obj) {
                 audio.close()
                 audio = null
             }
+            recording = false
             processor = null
             microphone = null
             mixer = null
