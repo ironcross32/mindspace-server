@@ -1029,6 +1029,8 @@ function create_socket(obj) {
                 audio = new AudioContext()
                 reverbjs.extend(audio)
                 audio.listener.setOrientation(0, 1, 0, 0, 0, 1)
+            } else {
+                alert("Your web browser does not support audio.")
             }
             write_special("Connection Open")
             clear_element(output)
