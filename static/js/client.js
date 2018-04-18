@@ -657,6 +657,12 @@ let mindspace_functions = {
     },
     stop_recording: () => {
         recording = false
+        if (recorded_data) {
+            send({
+                name: "speak",
+                args: [recorded_data]
+            })
+        }
     },
     convolver: obj => {
         let [sound, volume] = obj.args
