@@ -159,7 +159,7 @@ function create_environment() {
                         microphone_data = e.outputBuffer
                     }
                     microphone.connect(processor)
-                    processor.start(audio.destination)
+                    processor.connect(audio.destination)
                 }
             }, () => {
                 alert("Failed to use microphone.")
