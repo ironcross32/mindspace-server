@@ -11,6 +11,9 @@ from klein import Klein
 from autobahn.twisted.websocket import (
     WebSocketServerProtocol, WebSocketServerFactory, listenWS
 )
+from autobahn.websocket.compress import (
+    PerMessageDeflateOffer, PerMessageDeflateOfferAccept
+)
 from twisted.internet import reactor, ssl
 from twisted.web.server import Site
 from .protocol import interface_sound, message
@@ -44,6 +47,12 @@ class Server:
         self.logged_players = set()
         self.connections = []
 
+    def accept(self, offers):
+        """Accept offers from the browser."""
+        for offer in offers:
+            if isinstance(offer, PerMessageDeflateOffer):
+                return PerMessageDeflateOfferAccept(offer)
+
     def start_listening(self, private_key, certificate_key):
         """Start everything listening."""
         self.started = datetime.utcnow()
@@ -68,6 +77,9 @@ class Server:
         )
         websocket_factory = WebSocketServerFactory(
             f'wss://{o.interface}:{o.websocket_port}'
+        )
+        websocket_factory.setProtocolOptions(
+            perMessageCompressionAccept=self.accept
         )
         websocket_factory.protocol = MindspaceWebSocketProtocol
         websocket_port = listenWS(
