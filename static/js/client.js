@@ -713,6 +713,21 @@ let mindspace_functions = {
             source.start()
         })
     },
+    speak: obj => {
+        let [id, data] = obj.args
+        let thing = objects[id]
+        if (thing === undefined) {
+            send({name: "identify", args: [id]})
+        } else {
+            let array = new Float32Array(data)
+            let buffer = audio.createBuffer(1, data.length, 44100)
+            buffer.copyToChannel(array, 0)
+            let source = audio.createBufferSource()
+            source.connect(thing.panner)
+            source.buffer = buffer
+            source.start()
+        }
+    },
     object_sound: obj => {
         let [id, path, sum] = obj.args
         let thing = objects[id]
