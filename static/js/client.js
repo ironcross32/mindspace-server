@@ -980,8 +980,9 @@ let mindspace_functions = {
         }
     },
     options: obj => {
-        let [username, sound_volume, ambience_volume, music_volume] = obj.args
+        let [username, threshold, sound_volume, ambience_volume, music_volume] = obj.args
         set_title(username)
+        recording_threshold = threshold
         player.name = username
         player.sound_volume = sound_volume
         if (environment !== null) {
