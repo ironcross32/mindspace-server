@@ -31,6 +31,7 @@ class ServerOptions(Base, NameMixin):
     time_difference = Column(
         Interval, nullable=False, default=timedelta(days=2000 * 365)
     )
+    max_speak_length = Column(Integer, nullable=False, default=1000000)
 
     @classmethod
     def get(cls):
