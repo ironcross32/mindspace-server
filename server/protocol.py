@@ -154,3 +154,7 @@ def convolver(con, filename, volume):
     else:
         c = get_sound(filename).dump()
     con.send('convolver', c, volume)
+
+
+def speak(con, id, data):
+    con.send('speak', id, data)

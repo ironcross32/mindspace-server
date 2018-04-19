@@ -17,7 +17,7 @@ from .session import Session
 from .communication import CommunicationChannel
 from ..protocol import (
     object_sound, location, message as _message, identify, delete, zone,
-    random_sound, remember_quit
+    random_sound, remember_quit, speak
 )
 from ..forms import Label, Field
 from ..sound import get_sound
@@ -155,6 +155,10 @@ class Object(
     get_sound = Column(Sound, nullable=True)
     drop_sound = Column(Sound, nullable=True)
     give_sound = Column(Sound, nullable=True)
+
+    def speak(self, data):
+        """Allow this object to speak an arbitrary array of floats."""
+        self.location.broadcast_command(speak, self.id, data, _who=self)
 
     def same_coordinates(self):
         """Returns a set of sqlalchemy filters which expect the same
