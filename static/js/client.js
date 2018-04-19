@@ -163,9 +163,10 @@ function create_environment() {
                             microphone_data = e.inputBuffer.getChannelData(0)
                             for (let i = 0; i < microphone_data.length; i++) {
                                 let value = microphone_data[i]
-                                if (value > recording_threshold) {
-                                    recorded_data.push(value)
+                                if (value < recording_threshold) {
+                                    value = 0.0
                                 }
+                                recorded_data.push(value)
                             }
                         }
                     }
