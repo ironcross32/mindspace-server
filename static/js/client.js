@@ -720,7 +720,7 @@ let mindspace_functions = {
             send({name: "identify", args: [id]})
         } else {
             let array = new Float32Array(data)
-            let buffer = audio.createBuffer(1, data.length, 44100)
+            let buffer = audio.createBuffer(1, data.length, audio.sampleRate)
             buffer.copyToChannel(array, 0)
             let source = audio.createBufferSource()
             source.connect(thing.panner)
