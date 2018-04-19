@@ -16,7 +16,7 @@ class Player(Base, PermissionsMixin, PasswordMixin):
     last_disconnected = Column(DateTime(timezone=True), nullable=True)
     email = Column(String(150), nullable=True)
     username = Column(String(50), nullable=False, unique=True)
-    recording_threshold = Column(Float, nullable=False, default=0.1)
+    recording_threshold = Column(Float, nullable=False, default=-1.0)
     sound_volume = Column(Float, nullable=False, default=1.0)
     ambience_volume = Column(Float, nullable=False, default=0.2)
     music_volume = Column(Float, nullable=False, default=1.0)
