@@ -655,6 +655,13 @@ function set_convolver(url, node, volume) {
 }
 
 let mindspace_functions = {
+    toggle_recording: () => {
+        if (recording) {
+            mindspace_functions.stop_recording()
+        } else {
+            mindspace_functions.start_recording()
+        }
+    },
     start_recording: () => {
         recorded_data = []
         recording = true
