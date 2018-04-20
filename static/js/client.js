@@ -4,6 +4,7 @@ let recording_threshold = 0.01
 let recording = false
 let recorded_data = []
 let microphone = null
+let recorder = null
 let processor = null
 let microphone_data = null
 
@@ -157,6 +158,7 @@ function create_environment() {
                     alert("No microphone was detected on your system.")
                 } else {
                     microphone = audio.createMediaStreamSource(stream)
+                    recorder = new MediaRecorder(stream)
                     processor = audio.createScriptProcessor(0, 1, 1)
                     processor.onaudioprocess = (e) => {
                         if (recording) {
