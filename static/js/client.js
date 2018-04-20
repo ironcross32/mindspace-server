@@ -156,6 +156,7 @@ function create_environment() {
                     let reader = new FileReader()
                     reader.onloadend = () => {
                         microphone_data = reader.result
+                        send({name: "talk", args: [microphone_data]})
                     }
                     reader.readAsBinaryString(ogg)
                 }
