@@ -161,7 +161,7 @@ function create_environment() {
                         microphone_data = decoder.decode(reader.result)
                         send({name: "speak", args: [microphone_data]})
                     }
-                    reader.readAsBinaryString(ogg)
+                    reader.readAsArrayBuffer(ogg)
                 }
             }, () => {
                 alert("Failed to use microphone.")
