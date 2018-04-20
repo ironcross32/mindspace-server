@@ -122,3 +122,10 @@ def login(con, username, password):
                 con, get_sound(os.path.join('notifications', 'mail.wav'))
             )
         con.parser = main_parser
+
+
+@main_parser.command
+def speak(con, data):
+    """Send out microphone data."""
+    data = data[:ServerOptions.get().max_speak_length]
+    con.get_player().speak(data)
