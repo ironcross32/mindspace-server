@@ -5,8 +5,24 @@ let recording = "recording"
 let recording_threshold = null
 let microphone_data = null
 let speech_data = null
-let encoder = new TextEncoder()
-let decoder = new TextDecoder()
+
+// The following code was taken from
+// https://developers.google.com/web/updates/2012/06/How-to-convert-ArrayBuffer-to-and-from-String
+// <code>
+
+function ab2str(buf) {
+    return String.fromCharCode.apply(null, new Uint16Array(buf))
+}
+
+function str2ab(str) {
+    let buf = new ArrayBuffer(str.length*2) // 2 bytes for each char
+    let bufView = new Uint16Array(buf)
+    for (let i=0, strLen=str.length; i < strLen; i++) {
+        bufView[i] = str.charCodeAt(i)
+    }
+    return buf
+}
+// </code>
 
 let field_names = ["username", "password"]
 let default_title = document.title
@@ -158,7 +174,7 @@ function create_environment() {
                     let ogg = new Blob(new Array(e.data), {type: "audio/ogg; codecs=opus"})
                     let reader = new FileReader()
                     reader.onloadend = () => {
-                        microphone_data = decoder.decode(reader.result)
+                        microphone_data = ab2str(reader.result)
                         send({name: "speak", args: [microphone_data]})
                     }
                     reader.readAsArrayBuffer(ogg)
@@ -704,7 +720,7 @@ let mindspace_functions = {
             send({name: "identify", args: [id]})
         } else {
             speech_data = data
-            let array = encoder.encode(speech_data)
+            let array = str2ab(speech_data)
             audio.decodeAudioData(array).then((buffer) => {
                 let source = audio.createBufferSource()
                 source.connect(thing.panner)
