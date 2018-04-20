@@ -1,6 +1,7 @@
 /* global Cookies, reverbjs */
 
 let recorder = null
+let cancel_recording = false
 let recording = "recording"
 let recording_threshold = null
 let microphone_data = null
@@ -172,6 +173,9 @@ function create_environment() {
             stream => {
                 recorder = new MediaRecorder(stream)
                 recorder.ondataavailable = (e) => {
+                    if (cancel_recording) {
+                        return
+                    }
                     let ogg = new Blob(new Array(e.data), {type: "audio/ogg; codecs=opus"})
                     let reader = new FileReader()
                     reader.onloadend = () => {
@@ -675,6 +679,10 @@ let mindspace_functions = {
     },
     stop_recording: () => {
         recorder.stop()
+    },
+    cancel_recording: () => {
+        cancel_recording = true
+        mindspace_functions.stop_recording()
     },
     convolver: obj => {
         let [sound, volume] = obj.args
