@@ -4,6 +4,7 @@ let recorder = null
 let recording = "recording"
 let recording_threshold = null
 let microphone_data = null
+let speech_data = null
 
 // Following code copies from
 // https://stackoverflow.com/questions/16363419/how-to-get-binary-string-from-arraybuffer
@@ -761,6 +762,7 @@ let mindspace_functions = {
         if (thing === undefined) {
             send({name: "identify", args: [id]})
         } else {
+            speech_data = data
             let array = StringToArrayBuffer(data)
             audio.decodeAudioData(array).then((buffer) => {
                 let source = audio.createBufferSource()
