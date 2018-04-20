@@ -75,8 +75,8 @@ def identify(con, obj):
 def options(con, obj):
     """Send player options to the client."""
     con.send(
-        'options', obj.username, obj.recording_threshold, obj.sound_volume,
-        obj.ambience_volume, obj.music_volume
+        'options', obj.username, obj.sound_volume, obj.ambience_volume,
+        obj.music_volume
     )
 
 

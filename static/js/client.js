@@ -3,7 +3,6 @@
 let recorder = null
 let cancel_recording = false
 let recording = "recording"
-let recording_threshold = null
 let microphone_data = null
 let speech_data = null
 
@@ -990,9 +989,8 @@ let mindspace_functions = {
         }
     },
     options: obj => {
-        let [username, threshold, sound_volume, ambience_volume, music_volume] = obj.args
+        let [username, sound_volume, ambience_volume, music_volume] = obj.args
         set_title(username)
-        recording_threshold = threshold
         player.name = username
         player.sound_volume = sound_volume
         if (environment !== null) {
