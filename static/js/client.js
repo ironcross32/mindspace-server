@@ -1,11 +1,8 @@
 /* global Cookies, reverbjs */
 
-let recording_threshold = 0.01
-let recording = false
-let recorded_data = []
-let microphone = null
 let recorder = null
-let processor = null
+let recording = "recording"
+let recording_threshold = null
 let microphone_data = null
 
 let field_names = ["username", "password"]
@@ -153,27 +150,14 @@ function create_environment() {
         environment = create_mixer(player.sound_volume, audio.destination)
         navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(
             stream => {
-                let audio_tracks = stream.getAudioTracks()
-                if (audio_tracks.length < 1) {
-                    alert("No microphone was detected on your system.")
-                } else {
-                    microphone = audio.createMediaStreamSource(stream)
-                    recorder = new MediaRecorder(stream)
-                    processor = audio.createScriptProcessor(0, 1, 1)
-                    processor.onaudioprocess = (e) => {
-                        if (recording) {
-                            microphone_data = e.inputBuffer.getChannelData(0)
-                            for (let i = 0; i < microphone_data.length; i++) {
-                                let value = microphone_data[i]
-                                if (value < recording_threshold) {
-                                    value = 0.0
-                                }
-                                recorded_data.push(value)
-                            }
-                        }
+                recorder = new MediaRecorder(stream)
+                recorder.ondataavailable = (e) => {
+                    let ogg = new Blob(new Array(e.data), {type: "audio/ogg; codecs=opus"})
+                    let reader = new FileReader()
+                    reader.onloadend = () => {
+                        microphone_data = reader.result
                     }
-                    microphone.connect(processor)
-                    processor.connect(audio.destination)
+                    reader.readAsArrayBuffer(ogg)
                 }
             }, () => {
                 alert("Failed to use microphone.")
@@ -659,24 +643,17 @@ function set_convolver(url, node, volume) {
 
 let mindspace_functions = {
     toggle_recording: () => {
-        if (recording) {
+        if (recorder.state == recording) {
             mindspace_functions.stop_recording()
         } else {
             mindspace_functions.start_recording()
         }
     },
     start_recording: () => {
-        recorded_data = []
-        recording = true
+        recorder.start()
     },
     stop_recording: () => {
-        recording = false
-        if (recorded_data) {
-            send({
-                name: "speak",
-                args: [recorded_data]
-            })
-        }
+        recorder.stop()
     },
     convolver: obj => {
         let [sound, volume] = obj.args
@@ -1052,9 +1029,6 @@ function create_socket(obj) {
                 audio.close()
                 audio = null
             }
-            recording = false
-            processor = null
-            microphone = null
             mixer = null
             room = null
             ambience_mixer = null
