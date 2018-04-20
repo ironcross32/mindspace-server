@@ -87,18 +87,18 @@ let room_ambience = null
 let zone = null
 let music = null
 
-let escape = null
+let escape_element = null
 
 let quitting = false
 
 function show(element) {
-    escape = element
+    escape_element = element
     element.hidden = false
 }
 
 function hide(element) {
-    if (escape === element) {
-        escape = null
+    if (escape_element === element) {
+        escape_element = null
     }
     element.hidden = true
     disconnect.focus()
@@ -426,7 +426,7 @@ document.onkeydown = (e) => {
         return
     }
     let key = e.key.toUpperCase()
-    if (escape === menu) {
+    if (escape_element === menu) {
         let func = menu_keys[key]
         if (func !== undefined) {
             return func(e)
@@ -444,9 +444,9 @@ document.onkeydown = (e) => {
     if (keyboard_transformations[key] !== undefined) {
         key = keyboard_transformations[key]
     }
-    if (!modifiers.count && key == "ESCAPE" && escape !== null) {
-        hide(escape)
-    } else if (escape === copy_div && current.type == "button" && !modifiers.count && [" ", "ENTER"].includes(key)) {
+    if (!modifiers.count && key == "ESCAPE" && escape_element !== null) {
+        hide(escape_element)
+    } else if (escape_element === copy_div && current.type == "button" && !modifiers.count && [" ", "ENTER"].includes(key)) {
         return
     } else {
         if (["'", "ENTER", " ", "TAB", "W", "Q", "T", "N"].includes(key) || key[0] == "F") {
@@ -614,7 +614,7 @@ disconnect.onclick = () => {
 }
 
 function menu_button(e) {
-    escape = null
+    escape_element = null
     let i = e.target
     hide(menu)
     send(
@@ -818,7 +818,7 @@ let mindspace_functions = {
         let [message, command, value, multiline, escapable, args, kwargs] = obj.args
         show(text)
         if (!escapable) {
-            escape = null
+            escape_element = null
         }
         text_label.innerText = message
         text_command.name = command
@@ -833,8 +833,8 @@ let mindspace_functions = {
         }
         e.value = value
         e.onkeyup = (evt) => {
-            if (evt.key == "Escape" && escape !== null) {
-                hide(escape)
+            if (evt.key == "Escape" && escape_element !== null) {
+                hide(escape_element)
             }
         }
         text_element = e
@@ -940,7 +940,7 @@ let mindspace_functions = {
         menu_last_search = 0
         show(menu)
         if (!escapable) {
-            escape = null
+            escape_element = null
         }
         menu_h.innerText = title
         menu_ul.title = title
