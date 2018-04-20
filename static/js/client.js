@@ -5,6 +5,67 @@ let recording = "recording"
 let recording_threshold = null
 let microphone_data = null
 
+// Following code copies from
+// https://stackoverflow.com/questions/16363419/how-to-get-binary-string-from-arraybuffer
+
+function ArrayBufferToString(buffer) {
+    return BinaryToString(String.fromCharCode.apply(null, Array.prototype.slice.apply(new Uint8Array(buffer))))
+}
+
+function StringToArrayBuffer(string) {
+    return StringToUint8Array(string).buffer
+}
+
+function BinaryToString(binary) {
+    var error
+
+    try {
+        return decodeURIComponent(escape(binary))
+    } catch (_error) {
+        error = _error
+        if (error instanceof URIError) {
+            return binary
+        } else {
+            throw error
+        }
+    }
+}
+
+function StringToBinary(string) {
+    let chars, code, i, isUCS2, len, _i
+
+    len = string.length
+    chars = []
+    isUCS2 = false
+    for (i = _i = 0; 0 <= len ? _i < len : _i > len; i = 0 <= len ? ++_i : --_i) {
+        code = String.prototype.charCodeAt.call(string, i)
+        if (code > 255) {
+            isUCS2 = true
+            chars = null
+            break
+        } else {
+            chars.push(code)
+        }
+    }
+    if (isUCS2 === true) {
+        return unescape(encodeURIComponent(string))
+    } else {
+        return String.fromCharCode.apply(null, Array.prototype.slice.apply(chars))
+    }
+}
+
+function StringToUint8Array(string) {
+    let binary, binLen, buffer, chars, i, _i
+    binary = StringToBinary(string)
+    binLen = binary.length
+    buffer = new ArrayBuffer(binLen)
+    chars  = new Uint8Array(buffer)
+    for (i = _i = 0; 0 <= binLen ? _i < binLen : _i > binLen; i = 0 <= binLen ? ++_i : --_i) {
+        chars[i] = String.prototype.charCodeAt.call(binary, i)
+    }
+    return chars
+}
+
 let field_names = ["username", "password"]
 let default_title = document.title
 let character_id = null
@@ -155,7 +216,7 @@ function create_environment() {
                     let ogg = new Blob(new Array(e.data), {type: "audio/ogg; codecs=opus"})
                     let reader = new FileReader()
                     reader.onloadend = () => {
-                        microphone_data = reader.result
+                        microphone_data = ArrayBufferToString(reader.result)
                         send({name: "speak", args: [microphone_data]})
                     }
                     reader.readAsBinaryString(ogg)
@@ -700,13 +761,13 @@ let mindspace_functions = {
         if (thing === undefined) {
             send({name: "identify", args: [id]})
         } else {
-            let array = new Float32Array(data)
-            let buffer = audio.createBuffer(1, data.length, audio.sampleRate)
-            buffer.copyToChannel(array, 0)
-            let source = audio.createBufferSource()
-            source.connect(thing.panner)
-            source.buffer = buffer
-            source.start()
+            let array = StringToArrayBuffer(data)
+            audio.decodeAudioData(array).then((buffer) => {
+                let source = audio.createBufferSource()
+                source.connect(thing.panner)
+                source.buffer = buffer
+                source.start()
+            })
         }
     },
     object_sound: obj => {
