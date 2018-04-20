@@ -675,6 +675,7 @@ let mindspace_functions = {
         }
     },
     start_recording: () => {
+        cancel_recording = false
         recorder.start()
     },
     stop_recording: () => {
