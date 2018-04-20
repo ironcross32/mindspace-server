@@ -157,7 +157,7 @@ function create_environment() {
                     reader.onloadend = () => {
                         microphone_data = reader.result
                     }
-                    reader.readAsArrayBuffer(ogg)
+                    reader.readAsBinaryString(ogg)
                 }
             }, () => {
                 alert("Failed to use microphone.")
