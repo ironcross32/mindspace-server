@@ -422,34 +422,30 @@ class Object(
     def get_visible(self, *args, **kwargs):
         """Get the objects in visual range of this object."""
         if self.location_id is not None:
-            lid = self.location_id
+            loc = self.location
         elif self.holder_id is not None:
-            lid = self.holder.location_id
+            loc = self.holder.location
         else:
             raise AssertionError(
                 'This object (%r) has no location and is not being held.' % (
                     self
                 )
             )
-        query_args = [Object.location_id == lid]
+        query_args = [Object.location_id == loc.id]
         if not self.is_staff:
             query_args.extend(
                 [
                     or_(
                         Object.hidden.is_(False),
-                        and_(
-                            Object.x == self.x,
-                            Object.y == self.y,
-                            Object.z == self.z
-                        )
+                        and_(*self.same_coordinates())
                     )
                 ]
             )
             for name in ('x', 'y', 'z'):
                 query_args.append(
                     getattr(Object, name).between(
-                        getattr(self, name) - self.location.visibility,
-                        getattr(self, name) + self.location.visibility
+                        getattr(self, name) - loc.visibility,
+                        getattr(self, name) + loc.visibility
                     )
                 )
         query_args.extend(args)
