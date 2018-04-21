@@ -329,7 +329,12 @@ class Object(
         con = self.get_connection()
         if con is not None:
             return _message(con, *args, **kwargs)
-        return False
+        elif self.is_phone:
+            print('I am a phone.')
+            print(*args, **kwargs)
+            return True
+        else:
+            return False
 
     def identify_location(self):
         """Notify this object of its location."""
