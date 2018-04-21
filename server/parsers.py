@@ -4,10 +4,16 @@ import os.path
 import logging
 from random import randint
 from mindspace_protocol import MindspaceParser
+from sqlalchemy import or_
 from .program import run_program, OK
-from .protocol import character_id, interface_sound, remember_quit, message
+from .protocol import (
+    character_id, interface_sound, remember_quit, message, menu
+)
 from .sound import get_sound
-from .db import Command, session, Player, ServerOptions, Object, MailMessage
+from .db import (
+    Command, session, Player, ServerOptions, Object, MailMessage, Hotkey
+)
+from .meny import Menu, LabelItem, Item
 
 logger = logging.getLogger(__name__)
 
@@ -50,8 +56,8 @@ login_parser = MindspaceParser()
 main_parser = MainParser()
 
 
-@login_parser.command
-def key(con, *args, **kwargs):
+@login_parser.command(name='key')
+def unauthenticated_key(con, *args, **kwargs):
     """Player isn't logged in but they're sending keys anyways."""
     message(con, 'You are not logged in.')
 
@@ -129,3 +135,86 @@ def speak(con, data):
     """Send out microphone data."""
     data = data[:ServerOptions.get().max_speak_length]
     con.get_player().speak(data)
+
+
+@main_parser.command(name='key')
+def authenticated_key(con, name, modifiers=None):
+    """Handle hotkeys."""
+    ESC = 'ESCAPE'
+    possible_modifiers = ('ctrl', 'shift', 'alt')
+
+    def check_hotkey(hotkey):
+        for mod in possible_modifiers:
+            value = getattr(hotkey, mod)
+            if value not in (None, mod in modifiers):
+                return False
+        return True
+
+    with session() as s:
+        player = con.get_player(s)
+        if player.data.get('debug', False):
+            player.message(f'{modifiers}: {name}.')
+        if con.object_id is None:
+            obj = None
+        else:
+            obj = Object.get(con.object_id)
+            if obj is None:
+                con.object_id = None
+        kwargs = dict(modifiers=modifiers)
+        if obj is None:
+            if name == ESC and not modifiers and player.player.help_mode:
+                player.player.help_mode = False
+                player.message('Help mode disabled.')
+                return
+            query_args = [Hotkey.name == name]
+            for perm in ('builder', 'admin'):
+                if not getattr(player.player, perm):
+                    column = getattr(Hotkey, perm)
+                    query_args.append(column.isnot(True))
+            for mod in possible_modifiers:
+                column = getattr(Hotkey, mod)
+                query_args.append(
+                    or_(
+                        column.is_(None),
+                        column.is_(mod in modifiers)
+                    )
+                )
+            keys = Hotkey.query(*query_args, reusable=False)
+        elif name == ESC:
+            con.object_id = None
+            player.do_social(obj.stop_use_msg, _others=[obj])
+            return
+        elif name == 'F1':
+            obj = Object.get(con.object_id)
+            items = [LabelItem('Hotkeys')]
+            for key in obj.get_hotkeys():
+                modifiers = []
+                args = [key.name, []]
+                for name in ('ctrl', 'shift', 'alt'):
+                    value = getattr(key, name)
+                    if value is None:
+                        modifiers.append(f'[{name}]')
+                    elif value is True:
+                        modifiers.append(name.upper())
+                        args[-1].append(name)
+                modifiers = f'{" ".join(modifiers)}{" " if modifiers else ""}'
+                name = key.get_name(player.is_staff)
+                description = key.get_description()
+                items.append(
+                    Item(
+                        f'{modifiers}{name}: {description}', 'key', args=args
+                    )
+                )
+            menu(con, Menu('Hotkeys', items, escapable=True))
+            return
+        else:
+            kwargs['obj'] = obj
+            keys = []
+            for hotkey in obj.get_hotkeys():
+                if hotkey.name == name and check_hotkey(hotkey):
+                    keys.append(hotkey)
+        for key in keys:
+            if player.player.help_mode:
+                player.message(key.get_description())
+            else:
+                run_program(con, s, key, **kwargs)

@@ -9,6 +9,7 @@ class Player(Base, PermissionsMixin, PasswordMixin):
     """Player options."""
 
     __tablename__ = 'players'
+    help_mode = Column(Boolean, nullable=False, default=False)
     donator = Column(Boolean, nullable=False, default=False)
     connected_time = Column(Interval, nullable=True)
     last_connected = Column(DateTime(timezone=True), nullable=True)
