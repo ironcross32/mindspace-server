@@ -332,6 +332,7 @@ class Object(
         elif self.is_phone:
             print('I am a phone.')
             print(*args)
+            print(kwargs)
             return True
         else:
             return False
