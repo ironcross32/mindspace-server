@@ -54,8 +54,11 @@ class MainParser(MindspaceParser):
                 tb = format_exception(
                     sys.last_type, sys.last_value, sys.last_traceback
                 )
-                for player in Player.query(admin=True):
-                    player.object.message(tb)
+                tb = ''.join(tb)
+                for player in Object.join(Object.player).filter(
+                    Object.connected.is_(True), Player.admin.is_(True)
+                ):
+                    player.message(tb)
                 raise e
 
 
