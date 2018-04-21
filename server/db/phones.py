@@ -87,3 +87,8 @@ class Phone(Base, PhoneAddressMixin):
             address = cls.random_address()
             if cls.address_is_unique(address):
                 return address
+
+    @classmethod
+    def by_address(cls, address):
+        """Get a phone by it's unique address."""
+        return cls.query(address=address).first()
