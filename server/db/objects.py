@@ -355,7 +355,14 @@ class Object(
                 object_sound(con, *args)
         else:
             if self.location is not None:
-                self.location.broadcast_command(object_sound, *args, _who=self)
+                if self.holder is not None:
+                    loc = self.holder.location
+                    who = self.holder
+                else:
+                    loc = self.location
+                    who = self
+                if loc is not None:
+                    loc.broadcast_command(object_sound, *args, _who=who)
 
     def teleport(self, location, coordinates):
         """Teleport this object to a new location."""
