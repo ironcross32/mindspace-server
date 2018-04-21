@@ -102,6 +102,19 @@ class Phone(Base, PhoneAddressMixin):
         self.call_to.call_disconnected()
         self.call_to_id = None
 
+    def reject_call(self, player):
+        """Used to reject an incoming call."""
+        obj = self.object
+        if self.state is not PhoneStates.ringing:
+            player.message('This phone is not ringing.')
+            return
+        self.state = PhoneStates.idle
+        player.do_social(self.reject_msg, _others=[obj])
+        if self.reject_sound is not None:
+            obj.sound(get_sound(self.reject_sound))
+        self.call_from.call_disconnected()
+        self.call_from = None
+
     def set_address(self):
         """Set this address to a random and unique address."""
         self.address = self.unique_address()
