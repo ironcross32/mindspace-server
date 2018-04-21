@@ -117,6 +117,19 @@ class Phone(Base, PhoneAddressMixin):
         self.call_from.call_disconnected()
         self.call_from = None
 
+    def answer_call(self, player):
+        """Used when player answers this phone."""
+        obj = self.object
+        self.state = PhoneStates.connected
+        player.do_social(self.answer_msg, _others=[obj])
+        if self.answer_sound is not None:
+            obj.sound(get_sound(self.answer_sound))
+        other_phone = self.call_from
+        other_obj = other_phone.object
+        other_obj.do_social(other_phone.answer_other_msg)
+        if other_phone.answer_other_sound is not None:
+            other_obj.sound(other_phone.answer_other_sound)
+
     def set_address(self):
         """Set this address to a random and unique address."""
         self.address = self.unique_address()
