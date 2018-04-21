@@ -155,9 +155,8 @@ class ProtocolBase:
         message(self, f'Your connection has been {state}.')
 
     def disconnect(self, text=None):
-        if text is not None:
-            message(self, text)
-        self.transport.loseConnection()
+        """Close this websocket, sending text as reason."""
+        self.sendClose(code=self.CLOSE_STATUS_CODE_NORMAL, reason=text)
 
     def get_player(self, s=None):
         """Get the player object associated with this connection."""
