@@ -416,7 +416,9 @@ class Object(
         if _others is not None:
             perspectives.extend(_others)
         strings = factory.get_strings(string, perspectives, **kwargs)
-        for obj in self.get_visible():
+        viewers = self.get_visible().all()
+        viewers.extend(self.holding)
+        for obj in viewers:
             if obj in perspectives:
                 msg = strings[perspectives.index(obj)]
             else:
