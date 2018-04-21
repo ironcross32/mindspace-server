@@ -636,3 +636,13 @@ class CurrencyMixin:
 
 class PhoneAddressMixin:
     address = Column(String(50), nullable=True)
+
+
+class PhoneMixin:
+    @declared_attr
+    def phone_id(cls):
+        return Column(Integer, ForeignKey('phones.id'), nullable=False)
+
+    @declared_attr
+    def phone(cls):
+        return relationship('Phone', backref=cls.__tablename__)

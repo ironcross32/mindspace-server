@@ -5,7 +5,9 @@ from string import digits
 from random_password import random_password
 from sqlalchemy import Column, Integer, Float, Enum, ForeignKey
 from sqlalchemy.orm import relationship, backref
-from .base import Base, Sound, message, NameMixin, PhoneAddressMixin
+from .base import (
+    Base, Sound, message, NameMixin, PhoneAddressMixin, PhoneMixin
+)
 from .server_options import ServerOptions
 
 
@@ -18,12 +20,16 @@ class PhoneStates(_Enum):
     connected = 3
 
 
-class PhoneContact(Base, NameMixin, PhoneAddressMixin):
+class BlockedPhoneAddress(Base, PhoneAddressMixin, PhoneMixin):
+    """A number which has been blocked by a particular phone."""
+
+    __tablename__ = 'blocked_phone_addresses'
+
+
+class PhoneContact(Base, NameMixin, PhoneAddressMixin, PhoneMixin):
     """An entry in a phone directory."""
 
     __tablename__ = 'phone_contacts'
-    phone_id = Column(Integer, ForeignKey('phones.id'), nullable=False)
-    phone = relationship('Phone', backref='contacts')
 
 
 class Phone(Base, PhoneAddressMixin):
@@ -51,7 +57,13 @@ class Phone(Base, PhoneAddressMixin):
 
     def add_contact(self, name, address):
         """Add a contact to this phone's contacts list."""
-        self.contacts.append(PhoneContact(name=name, address=address))
+        self.phone_contacts.append(PhoneContact(name=name, address=address))
+
+    def block_address(self, address):
+        """Add an address to this phone's blocked list."""
+        self.blocked_phone_addresses.append(
+            BlockedPhoneAddress(address=address)
+        )
 
     @classmethod
     def random_address(cls):
