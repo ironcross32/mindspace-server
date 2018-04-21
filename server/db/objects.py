@@ -334,7 +334,7 @@ class Object(
             phone = self.phone
             if channel == 'say' and phone.state is PhoneStates.connected:
                 obj = phone.other_side.object
-                obj.message(f'From {obj.get_name()}, {text}')
+                obj.do_social('From %1n, {text}', text=text)
             return True
         else:
             return False
