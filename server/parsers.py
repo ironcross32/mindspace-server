@@ -34,7 +34,7 @@ class MainParser(MindspaceParser):
                 player = None
             if player is not None:
                 for perm in ('builder', 'admin'):
-                    if not getattr(player, f'is_{perm}'):
+                    if not getattr(player.player, perm):
                         column = getattr(Command, perm)
                         query_args.append(column.is_(False))
             cmd = Command.query(*query_args).first()
