@@ -2,7 +2,6 @@
 
 from sqlalchemy import Column, Integer
 from .base import Base, message, Sound
-from ..sound import get_sound
 
 
 class Container(Base):
@@ -24,13 +23,11 @@ class Container(Base):
         thing.holder = None
         self.contents.append(thing)
         player.do_social(self.store_msg, _others=[thing, self.object])
-        if self.store_sound is not None:
-            player.sound(get_sound(self.store_sound))
+        player.sound(self.store_sound)
 
     def retrieve(self, player, thing):
         """Move thing from this object to player."""
         self.contents.remove(thing)
         player.holding.append(thing)
         player.do_social(self.retrieve_msg, _others=[thing, self.object])
-        if self.retrieve_sound is not None:
-            player.sound(get_sound(self.retrieve_sound))
+        player.sound(self.retrieve_sound)

@@ -343,7 +343,7 @@ class Object(
 
     def beep(self, private=False):
         """Make this object beep."""
-        return self.sound(get_sound('beeps'), private=private)
+        return self.sound('beeps', private=private)
 
     def sound(self, sound, private=False):
         """This object has made a sound. If private evaluates to True only tell
@@ -473,7 +473,7 @@ class Object(
             msg = '%1N arrive%1s.'
         else:
             if other_side.exit.ambience is not None:
-                other_side.sound(get_sound(other_side.exit.ambience))
+                other_side.sound(other_side.exit.ambience)
             recent_exit_id = other_side.id
             msg = other_side.exit.arrive_msg
         entrance.location.broadcast_command(
@@ -504,8 +504,7 @@ class Object(
             )
         Session.commit()
         if entrance.ambience is not None:
-            sound = get_sound(entrance.ambience)
-            self.sound(sound)
+            self.sound(entrance.ambience)
         else:
             sound = None
         for old_object in self.location.objects:

@@ -9,7 +9,6 @@ from .base import (
     Base, Sound, message, NameMixin, PhoneAddressMixin, PhoneMixin
 )
 from .server_options import ServerOptions
-from ..sound import get_sound
 
 
 class PhoneStates(_Enum):
@@ -70,12 +69,10 @@ class Phone(Base, PhoneAddressMixin):
         target = self.__class__.by_address(address)
         if target is None:
             player.message(self.invalid_address_msg)
-            if self.invalid_address_sound is not None:
-                obj.sound(get_sound(self.invalid_address_sound))
+            obj.sound(self.invalid_address_sound)
         elif target.state is not PhoneStates.idle:
             player.message(self.engaged_msg)
-            if self.engaged_sound is not None:
-                obj.sound(self.engaged_sound)
+            obj.sound(self.engaged_sound)
         elif target.is_blocked(address):
             self.call_disconnected()
         else:
@@ -83,24 +80,21 @@ class Phone(Base, PhoneAddressMixin):
             self.state = PhoneStates.calling
             self.call_to = target
             player.do_social(self.dial_msg, _others=[obj])
-            if self.dial_sound is not None:
-                obj.sound(get_sound(self.dial_sound))
+            obj.sound(self.dial_sound)
 
     def call_disconnected(self):
         """Called when the call is disconnected by the other side."""
         obj = self.object
         self.state = PhoneStates.idle
         obj.do_social(self.hangup_other_msg)
-        if self.hangup_other_sound is not None:
-            obj.sound(get_sound(self.hangup_other_sound))
+        obj.sound(self.hangup_other_sound)
 
     def disconnect_call(self, player):
         """Called when player disconnects an active phone call."""
         obj = self.object
         self.state = PhoneStates.idle
         player.do_social(self.hangup_msg, _others=[self.object])
-        if self.hangup_sound is not None:
-            obj.sound(get_sound(self.hangup_sound))
+        obj.sound(self.hangup_sound)
         self.call_to.call_disconnected()
         self.call_to_id = None
 
@@ -112,8 +106,7 @@ class Phone(Base, PhoneAddressMixin):
             return
         self.state = PhoneStates.idle
         player.do_social(self.reject_msg, _others=[obj])
-        if self.reject_sound is not None:
-            obj.sound(get_sound(self.reject_sound))
+        obj.sound(self.reject_sound)
         self.call_from.call_disconnected()
         self.call_from = None
 
@@ -122,13 +115,11 @@ class Phone(Base, PhoneAddressMixin):
         obj = self.object
         self.state = PhoneStates.connected
         player.do_social(self.answer_msg, _others=[obj])
-        if self.answer_sound is not None:
-            obj.sound(get_sound(self.answer_sound))
+        obj.sound(self.answer_sound)
         other_phone = self.call_from
         other_obj = other_phone.object
         other_obj.do_social(other_phone.answer_other_msg)
-        if other_phone.answer_other_sound is not None:
-            other_obj.sound(other_phone.answer_other_sound)
+        other_obj.sound(other_phone.answer_other_sound)
 
     def set_address(self):
         """Set this address to a random and unique address."""

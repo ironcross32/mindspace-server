@@ -3,7 +3,6 @@
 from sqlalchemy import Column, Integer, Boolean
 from .base import Base, message, Sound
 from .objects import RestingStates
-from ..sound import get_sound
 
 
 class Chair(Base):
@@ -57,5 +56,5 @@ class Chair(Base):
         social = getattr(self, f'{action}_msg')
         sound = getattr(self, f'{action}_sound')
         player.do_social(social, _others=[self.object])
-        player.sound(get_sound(sound))
+        player.sound(sound)
         player.resting_state = state

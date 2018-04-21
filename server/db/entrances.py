@@ -5,7 +5,6 @@ from .base import (
     Base, CoordinatesMixin, AmbienceMixin, LocationMixin, PasswordMixin, Sound,
     message
 )
-from ..sound import get_sound
 
 
 class Entrance(
@@ -52,23 +51,17 @@ class Entrance(
     def enter_code(self, player):
         """Play enter code sound and show enter code social."""
         player.do_social(self.enter_code_msg, _others=[self.object])
-        if self.enter_code_sound is not None:
-            sound = get_sound(self.enter_code_sound)
-            self.object.sound(sound)
+        self.object.sound(self.enter_code_sound)
 
     def correct_code(self, player):
         """Play correct code sound and show correct code social."""
         player.do_social(self.correct_code_msg, _others=[self.object])
-        if self.correct_code_sound is not None:
-            sound = get_sound(self.correct_code_sound)
-            self.object.sound(sound)
+        self.object.sound(self.correct_code_sound)
 
     def incorrect_code(self, player):
         """Play incorrect code sound and show incorrect code social."""
         player.do_social(self.incorrect_code_msg, _others=[self.object])
-        if self.incorrect_code_sound is not None:
-            sound = get_sound(self.incorrect_code_sound)
-            self.object.sound(sound)
+        self.object.sound(self.incorrect_code_sound)
 
     def get_other_side(self):
         cls = self.object.__class__

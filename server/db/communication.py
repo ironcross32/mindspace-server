@@ -8,7 +8,7 @@ from .base import (
     Base, NameMixin, DescriptionMixin, OwnerMixin, CommunicationChannelMixin,
     PermissionsMixin, CreatedMixin, TextMixin
 )
-from ..sound import get_sound, sounds_dir
+from ..sound import sounds_dir
 
 
 @attrs
@@ -86,7 +86,7 @@ class CommunicationChannel(
             sounds_dir, 'communication', f'{self.name.lower()}.wav'
         )
         if os.path.isfile(path):
-            sound = get_sound(path)
+            sound = path
         else:
             sound = None
         for l in self.listeners:
@@ -98,8 +98,7 @@ class CommunicationChannel(
                 ),
                 channel=self.name
             )
-            if sound:
-                l.sound(sound, private=True)
+            l.sound(sound, private=True)
         if m in self.messages and not store:
             self.messages.remove(m)
         return m
