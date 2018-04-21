@@ -13,7 +13,7 @@ from .sound import get_sound
 from .db import (
     Command, session, Player, ServerOptions, Object, MailMessage, Hotkey
 )
-from .menu import Menu, LabelItem, Item
+from .menus import Menu, LabelItem, Item
 
 logger = logging.getLogger(__name__)
 
