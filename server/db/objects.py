@@ -20,7 +20,7 @@ from ..protocol import (
     random_sound, remember_quit, speak
 )
 from ..forms import Label, Field
-from ..sound import get_sound
+from ..sound import Sound as _Sound, get_sound
 from ..socials import factory
 
 logger = logging.getLogger(__name__)
@@ -347,7 +347,12 @@ class Object(
 
     def sound(self, sound, private=False):
         """This object has made a sound. If private evaluates to True only tell
-        this object. Otherwise tell everyone."""
+        this object. Otherwise tell everyone. If sound is None then nothing
+        happens."""
+        if sound is None:
+            return
+        elif not isinstance(sound, _Sound):
+            sound = get_sound(sound)
         args = (self.id, sound)
         if private:
             con = self.get_connection()
