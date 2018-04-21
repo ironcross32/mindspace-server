@@ -22,6 +22,7 @@ from ..protocol import (
 from ..forms import Label, Field
 from ..sound import Sound as _Sound, get_sound
 from ..socials import factory
+from .phones import PhoneStates
 
 logger = logging.getLogger(__name__)
 
@@ -324,15 +325,16 @@ class Object(
         """Get the connection associated with this object."""
         return connections.get(self.id)
 
-    def message(self, *args, **kwargs):
+    def message(self, text, channel=None):
         """Send a message to this object."""
         con = self.get_connection()
         if con is not None:
-            return _message(con, *args, **kwargs)
+            return _message(con, text, channel=channel)
         elif self.is_phone:
-            print('I am a phone.')
-            print(*args)
-            print(kwargs)
+            phone = self.phone
+            if channel == 'say' and phone.state is PhoneStates.connected:
+                obj = phone.other_side.object
+                obj.message(f'From {obj.get_name()}, {text}')
             return True
         else:
             return False

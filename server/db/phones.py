@@ -146,6 +146,11 @@ class Phone(Base, PhoneAddressMixin):
             phone_id=self.id, address=address
         ).count()
 
+    @property
+    def other_side(self):
+        """Get the phone this phone is connected to if it is on a call."""
+        return self.call_to or self.call_from
+
     @classmethod
     def random_address(cls):
         """Generate a random (but possibly not unique) address."""
