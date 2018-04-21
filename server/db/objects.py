@@ -492,8 +492,13 @@ class Object(
         player.update_neighbours()
         for follower in player.followers:
             follower.update_neighbours()
-        if sound is not None and con is not None:
-            random_sound(con, sound, *player.coordinates, 1.0)
+        if sound is not None:
+            everyone = player.followers.copy()
+            everyone.append(player)
+            for person in everyone:
+                con = person.get_connection()
+                if con is not None:
+                    random_sound(con, sound, *player.coordinates, 1.0)
 
     def make_random_sound(self, name):
         """Make an instance of ObjectRandomSound."""
