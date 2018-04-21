@@ -419,6 +419,7 @@ class Object(
         viewers = self.get_visible().all()
         viewers.extend(self.holding)
         for obj in viewers:
+            self.message(f'Telling {obj.get_name(True)}.')
             if obj in perspectives:
                 msg = strings[perspectives.index(obj)]
             else:
