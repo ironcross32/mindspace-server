@@ -115,7 +115,7 @@ class Phone(Base, PhoneAddressMixin):
 
     def is_blocked(self, address):
         """Returns True if the given address is blocked by this phone."""
-        return not BlockedPhoneAddress(
+        return BlockedPhoneAddress(
             phone_id=self.id, address=address
         ).count()
 
