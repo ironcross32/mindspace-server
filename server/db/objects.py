@@ -514,7 +514,8 @@ class Object(
             )
         Session.commit()
         if entrance.ambience is not None:
-            self.sound(entrance.ambience)
+            sound = get_sound(entrance.ambience)
+            self.sound(sound)
         else:
             sound = None
         for old_object in self.location.objects:
