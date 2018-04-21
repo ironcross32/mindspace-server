@@ -126,7 +126,7 @@ class ProtocolBase:
                 pass  # Not running.
         if self in server.connections:
             server.connections.remove(self)
-        getattr(self, 'logger', logger).info(reason)
+        getattr(self, 'logger', logger).info(reason.getErrorMessage())
         if getattr(self, 'player_id', None) is not None:
             with session() as s:
                 player = self.get_player(s)
