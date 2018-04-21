@@ -632,3 +632,7 @@ class CurrencyMixin:
     @declared_attr
     def currency(cls):
         return relationship('Currency', backref=cls.__tablename__)
+
+
+class PhoneAddressMixin:
+    address = Column(String(50), nullable=True)

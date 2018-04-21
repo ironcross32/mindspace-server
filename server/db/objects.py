@@ -103,6 +103,10 @@ class Object(
     player = relationship(
         'Player', backref=backref('object', uselist=False), cascade='all'
     )
+    phone_id = Column(Integer, ForeignKey('phones.id'), nullable=True)
+    phone = relationship(
+        'Phone', backref=backref('object', uselist=False), cascade='all'
+    )
     mobile_id = Column(Integer, ForeignKey('mobiles.id'), nullable=True)
     mobile = relationship(
         'Mobile', backref=backref('object', uselist=False), cascade='all'
@@ -247,6 +251,10 @@ class Object(
     @property
     def is_shop(self):
         return self.shop is not None
+
+    @property
+    def is_phone(self):
+        return self.phone is not None
 
     @property
     def is_transit(self):

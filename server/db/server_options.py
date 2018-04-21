@@ -32,6 +32,7 @@ class ServerOptions(Base, NameMixin):
         Interval, nullable=False, default=timedelta(days=2000 * 365)
     )
     max_speak_length = Column(Integer, nullable=False, default=1000000)
+    max_phone_address_length = Column(Integer, nullable=False, default=8)
 
     @classmethod
     def get(cls):
