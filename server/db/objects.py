@@ -331,7 +331,7 @@ class Object(
             return _message(con, *args, **kwargs)
         elif self.is_phone:
             print('I am a phone.')
-            print(*args, **kwargs)
+            print(*args)
             return True
         else:
             return False
