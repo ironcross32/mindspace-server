@@ -2,7 +2,9 @@
 
 import os.path
 import logging
+import sys
 from random import randint
+from traceback import format_exception
 from mindspace_protocol import MindspaceParser
 from sqlalchemy import or_
 from .program import run_program, OK
@@ -49,6 +51,11 @@ class MainParser(MindspaceParser):
                 pass  # Return from command.
             except Exception as e:
                 logger.warning('%s threw an error:', friendly)
+                tb = format_exception(
+                    sys.last_type, sys.last_value, sys.last_traceback
+                )
+                for player in Player.query(admin=True):
+                    player.object.message(tb)
                 raise e
 
 
