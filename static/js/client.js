@@ -434,13 +434,6 @@ copy_button.onclick = () => {
 let connect_form = document.getElementById("connect-form")
 let connect = document.getElementById("connect")
 
-for (let name of field_names) {
-    let value = Cookies.get(name)
-    if (value !== undefined) {
-        document.getElementById(name).value = value
-    }
-}
-
 let game = document.getElementById("game")
 
 let menu = document.getElementById("menu")
@@ -1023,7 +1016,6 @@ connect_form.onsubmit = (e) => {
             ok = false
             break
         } else {
-            Cookies.set(name, field.value, cookies_options)
             obj[name] = field.value
         }
     }
