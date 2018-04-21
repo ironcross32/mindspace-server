@@ -122,6 +122,7 @@ class Phone(Base, PhoneAddressMixin):
         player.do_social(self.answer_msg, _others=[obj])
         obj.sound(self.answer_sound)
         other_phone = self.call_from
+        other_phone.state = PhoneStates.connected
         other_obj = other_phone.object
         other_obj.do_social(other_phone.answer_other_msg)
         other_obj.sound(other_phone.answer_other_sound)
