@@ -96,11 +96,11 @@ class Phone(Base, PhoneAddressMixin):
         """Called when player disconnects an active phone call."""
         obj = self.object
         self.state = PhoneStates.idle
-        self.call_to.call_disconnected()
-        self.call_to_id = None
         player.do_social(self.hangup_msg, _others=[self.object])
         if self.hangup_sound is not None:
             obj.sound(get_sound(self.hangup_sound))
+        self.call_to.call_disconnected()
+        self.call_to_id = None
 
     def set_address(self):
         """Set this address to a random and unique address."""
