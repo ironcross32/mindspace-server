@@ -76,9 +76,14 @@ class Phone(Base, PhoneAddressMixin):
         )
 
     @classmethod
+    def address_is_unique(cls, address):
+        """Check the given address is unique."""
+        return not cls.query(address=address).count()
+
+    @classmethod
     def unique_address(cls):
         """Generate a random and unique address."""
         while True:
             address = cls.random_address()
-            if not cls.query(address=address).count():
+            if cls.address_is_unique(address):
                 return address
