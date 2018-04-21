@@ -98,7 +98,7 @@ class Phone(Base, PhoneAddressMixin):
         self.state = PhoneStates.idle
         self.call_to.call_disconnected()
         self.call_to_id = None
-        player.do_social(self.hangup_msg, _others=[self])
+        player.do_social(self.hangup_msg, _others=[self.object])
         if self.hangup_sound is not None:
             obj.sound(get_sound(self.hangup_sound))
 
