@@ -217,4 +217,7 @@ def authenticated_key(con, name, modifiers=None):
             if player.player.help_mode:
                 player.message(key.get_description())
             else:
-                run_program(con, s, key, **kwargs)
+                try:
+                    run_program(con, s, key, **kwargs)
+                except OK:
+                    pass  # Command exited successfully.
