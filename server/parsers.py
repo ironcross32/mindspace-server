@@ -140,6 +140,8 @@ def speak(con, data):
 @main_parser.command(name='key')
 def authenticated_key(con, name, modifiers=None):
     """Handle hotkeys."""
+    if modifiers is None:
+        modifiers = []
     ESC = 'ESCAPE'
     possible_modifiers = ('ctrl', 'shift', 'alt')
 
