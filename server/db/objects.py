@@ -491,7 +491,6 @@ class Object(
                     delete(c, old_object.id)
         player.update_neighbours()
         for follower in player.followers:
-            follower.identify_location()
             follower.update_neighbours()
         if sound is not None and con is not None:
             random_sound(con, sound, *player.coordinates, 1.0)
