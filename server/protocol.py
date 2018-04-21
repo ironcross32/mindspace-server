@@ -37,8 +37,7 @@ def location(con, obj=None):
         music = get_sound(os.path.join('music', obj.music))
         music = music.dump()
     con.send('location', obj.name, sound, obj.ambience_volume, music)
-    if obj.description is not None:
-        message(con, obj.description)
+    message(con, obj.get_description())
     convolver(con, obj.convolver, obj.convolver_volume)
 
 
