@@ -80,6 +80,9 @@ class Phone(Base, PhoneAddressMixin):
             target.state = PhoneStates.ringing
             self.state = PhoneStates.calling
             self.call_to = target
+            player.do_social(self.dial_msg, _others=[obj])
+            if self.dial_sound is not None:
+                obj.sound(get_sound(self.dial_sound))
 
     def call_disconnected(self):
         """Called when the call is disconnected by the other side."""
