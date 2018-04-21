@@ -2,7 +2,6 @@
 
 import os.path
 import logging
-import sys
 from random import randint
 from traceback import format_exception
 from mindspace_protocol import MindspaceParser
@@ -51,10 +50,7 @@ class MainParser(MindspaceParser):
                 pass  # Return from command.
             except Exception as e:
                 logger.warning('%s threw an error:', friendly)
-                tb = format_exception(
-                    sys.last_type, sys.last_value, sys.last_traceback
-                )
-                tb = ''.join(tb)
+                tb = ''.join(format_exception(e.__class__, e, e.__traceback__))
                 for player in Object.join(Object.player).filter(
                     Object.connected.is_(True), Player.admin.is_(True)
                 ):
