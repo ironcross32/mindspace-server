@@ -1,5 +1,6 @@
 /* global Cookies, reverbjs */
 
+let cookies_options = {expires: 365}
 let recorder = null
 let cancel_recording = false
 let recording = "recording"
@@ -272,7 +273,7 @@ let connected = false
 let voice_voice = document.getElementById("voice-voice")
 
 voice_voice.onchange = () => {
-    Cookies.set("voice_voice", voice_voice.value, {expires: 30})
+    Cookies.set("voice_voice", voice_voice.value, cookies_options)
 }
 
 let tts = window.speechSynthesis
@@ -280,14 +281,14 @@ let voice_enable = document.getElementById("voice-enable")
 voice_enable.checked = Cookies.get("voice_enable") == "true" ? true : false
 
 voice_enable.onchange = () => {
-    Cookies.set("voice_enable", voice_enable.checked, {expires: 30})
+    Cookies.set("voice_enable", voice_enable.checked, cookies_options)
 }
 
 let voice_rate = document.getElementById("voice-rate")
 voice_rate.value = Cookies.get("voice_rate") || 1
 
 voice_rate.onchange = () => {
-    Cookies.set("voice_rate", voice_rate.value, {expires: 30})
+    Cookies.set("voice_rate", voice_rate.value, cookies_options)
 }
 
 let map = document.getElementById("map")
@@ -1022,7 +1023,7 @@ connect_form.onsubmit = (e) => {
             ok = false
             break
         } else {
-            Cookies.set(name, field.value, {expires: 30})
+            Cookies.set(name, field.value, cookies_options)
             obj[name] = field.value
         }
     }
