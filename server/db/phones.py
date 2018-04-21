@@ -51,6 +51,8 @@ class Phone(Base, PhoneAddressMixin):
     answer_sound = Column(Sound, nullable=True)
     answer_other_msg = message('%1N show%1s "Call connected".')
     answer_other_sound = Column(Sound, nullable=True)
+    reject_msg = message('%1n reject%1s the incoming call on %2n.')
+    reject_sound = Column(Sound, nullable=True)
     ring_msg = message('The call light on %1N flash%1e.')
     ring_sound = Column(Sound, nullable=True)
     ring_every = Column(Float, nullable=False, default=2.0)
