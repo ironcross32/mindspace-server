@@ -95,8 +95,13 @@ class Phone(Base, PhoneAddressMixin):
         self.state = PhoneStates.idle
         player.do_social(self.hangup_msg, _others=[self.object])
         obj.sound(self.hangup_sound)
-        self.call_to.call_disconnected()
-        self.call_to_id = None
+        if self.call_to is None:
+            other = self.call_from
+            self.call_from = None
+        else:
+            other = self.call_to
+            self.call_to = None
+        other.call_disconnected()
 
     def reject_call(self, player):
         """Used to reject an incoming call."""
