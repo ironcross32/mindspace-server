@@ -7,7 +7,7 @@ from random_password import random_password
 from sqlalchemy import Column, Integer, Float, Enum, ForeignKey, Boolean
 from sqlalchemy.orm import relationship, backref
 from .base import (
-    Base, Sound, message, NameMixin, PhoneAddressMixin, PhoneMixin
+    Base, Sound, message, NameMixin, PhoneAddressMixin, PhoneMixin, Text
 )
 from .server_options import ServerOptions
 from ..socials import factory
@@ -36,6 +36,13 @@ class PhoneContact(Base, NameMixin, PhoneAddressMixin, PhoneMixin):
     __tablename__ = 'phone_contacts'
 
 
+class TextMessage(Base, PhoneAddressMixin, PhoneMixin):
+    """A text message sent to a phone."""
+
+    __tablename__ = 'text_messages'
+    text = Column(Text, nullable=False)
+
+
 class Phone(Base, PhoneAddressMixin):
     """Make an object a phone."""
 
@@ -43,6 +50,11 @@ class Phone(Base, PhoneAddressMixin):
     transmit_msg = message('From %1n, {text}')
     transmit_sound = Column(
         Sound, nullable=False, default=os.path.join('players', 'say.wav')
+    )
+    text_message_msg = message('%1N signal%1s an incoming text message.')
+    text_message_sound = Column(
+        Sound, nullable=False,
+        default=os.path.join(phone_sounds, 'text_message.wav')
     )
     invalid_address_msg = message('Invalid address.')
     invalid_address_sound = Column(Sound, nullable=True)
@@ -174,6 +186,13 @@ class Phone(Base, PhoneAddressMixin):
                 self.transmit(
                     factory.get_strings(string, [player], **kwargs)[-1]
                 )
+
+    def send_text(self, from_address, text):
+        """Send a text message to this phone."""
+        obj = self.object
+        self.text_messages.append(TextMessage(address=from_address, text=text))
+        obj.do_social(self.text_message_msg)
+        obj.sound(self.text_message_sound)
 
     def set_address(self):
         """Set this address to a random and unique address."""
