@@ -333,9 +333,7 @@ class Object(
         elif self.is_phone:
             phone = self.phone
             if channel == 'say' and phone.state is PhoneStates.connected:
-                obj = phone.other_side.object
-                obj.sound(os.path.join('players', 'say.wav'))
-                obj.do_social('From %1n, {text}', text=text, _channel='phone')
+                phone.transmit(text)
             return True
         else:
             return False

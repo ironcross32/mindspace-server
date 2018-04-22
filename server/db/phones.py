@@ -1,5 +1,6 @@
 """Provides classes related to phones."""
 
+import os.path
 from enum import Enum as _Enum
 from string import digits
 from random_password import random_password
@@ -36,6 +37,10 @@ class Phone(Base, PhoneAddressMixin):
     """Make an object a phone."""
 
     __tablename__ = 'phones'
+    transmit_msg = message('From %1n, {text}')
+    transmit_sound = Column(
+        Sound, nullable=False, default=os.path.join('players', 'say.wav')
+    )
     invalid_address_msg = message('Invalid address.')
     invalid_address_sound = Column(Sound, nullable=True)
     engaged_msg = message('The phone you are trying to reach is engaged.')
@@ -126,6 +131,12 @@ class Phone(Base, PhoneAddressMixin):
         other_obj = other_phone.object
         other_obj.do_social(other_phone.answer_other_msg)
         other_obj.sound(other_phone.answer_other_sound)
+
+    def transmit(self, text):
+        """Send a transmition to this phone."""
+        obj = self.other_side.object
+        obj.do_social(self.transmit_msg, text=text, _channel='phone')
+        obj.sound(self.transmit_sound)
 
     def set_address(self):
         """Set this address to a random and unique address."""
