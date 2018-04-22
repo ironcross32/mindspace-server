@@ -7,13 +7,17 @@ from contextlib import redirect_stdout, redirect_stderr
 from random import randint
 from mindspace_protocol import MindspaceParser
 from sqlalchemy import or_
-from .program import run_program, OK, handle_traceback, PythonShell
+from .program import (
+    run_program, OK, handle_traceback, PythonShell, valid_object,
+    check_location
+)
 from .protocol import (
     character_id, interface_sound, remember_quit, message, menu
 )
 from .sound import get_sound
 from .db import (
-    Command, session, Player, ServerOptions, Object, MailMessage, Hotkey
+    Command, session, Player, ServerOptions, Object, MailMessage, Hotkey,
+    Action
 )
 from .menus import Menu, LabelItem, Item
 
@@ -256,3 +260,19 @@ def python(con, code):
             player.message(msg)
         for name in ('s', 'player', 'here'):
             del con.shell.locals[name]
+
+
+@main_parser.command
+def action(con, object_id, action_id):
+    """Call an action on an object."""
+    with session() as s:
+        player = con.get_player()
+        obj = Object.get(object_id)
+        action = Action.query(object_id=object_id, action_id=action_id)
+        try:
+            for thing in (obj, action):
+                valid_object(player, thing)
+            check_location(player, obj)
+        except OK:
+            return  # They're playing silly buggers.
+        run_program(con, s, action, self=action, obj=obj)
