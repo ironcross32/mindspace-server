@@ -116,6 +116,7 @@ class Phone(Base, PhoneAddressMixin):
         elif target.is_blocked(address):
             self.call_disconnected()
         else:
+            target.object.do_social(target.phone.ring_msg)
             target.state = PhoneStates.ringing
             self.state = PhoneStates.calling
             self.call_to = target
