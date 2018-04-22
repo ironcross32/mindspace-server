@@ -3,10 +3,9 @@
 import os.path
 import logging
 from random import randint
-from traceback import format_exception
 from mindspace_protocol import MindspaceParser
 from sqlalchemy import or_
-from .program import run_program, OK
+from .program import run_program, OK, handle_traceback
 from .protocol import (
     character_id, interface_sound, remember_quit, message, menu
 )
@@ -54,15 +53,7 @@ class MainParser(MindspaceParser):
             except OK:
                 pass  # Return from command.
             except Exception as e:
-                logger.warning(
-                    '%s (called by %s at %s) threw an error:', friendly,
-                    player_name, location_name
-                )
-                tb = ''.join(format_exception(e.__class__, e, e.__traceback__))
-                for player in Object.join(Object.player).filter(
-                    Object.connected.is_(True), Player.admin.is_(True)
-                ):
-                    player.message(tb)
+                handle_traceback(e, friendly, player_name, location_name)
                 raise e
 
 

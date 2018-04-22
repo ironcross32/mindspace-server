@@ -2,6 +2,7 @@
 
 import os
 import sys
+from traceback import format_exception
 import datetime
 import logging
 import re
@@ -18,9 +19,11 @@ from sqlalchemy import exc
 from twisted.internet import reactor
 from emote_utils import SocialsError
 from . import db, server, protocol, menus, util, forms, sound, distance
-from .db import base
+from .db import base, Object, Player
 from .socials import factory
 from .mail import Message
+
+logger = logging.getLogger(__name__)
 
 
 class PermissionError(Exception):
@@ -180,9 +183,23 @@ def end():
     raise OK()
 
 
+def handle_traceback(e, program_name, player_name, location_name):
+    logger.warning(
+        '%s (called by %s at %s) threw an error:', program_name, player_name,
+        location_name
+    )
+    logger.exception(e)
+    tb = ''.join(format_exception(e.__class__, e, e.__traceback__))
+    for player in Object.join(Object.player).filter(
+        Object.connected.is_(True), Player.admin.is_(True)
+    ):
+        player.message(tb)
+
+
 codes = {}
 ctx = dict(
     util=util,
+    handle_traceback=handle_traceback,
     random_password=random_password,
     OK=OK,
     end=end,

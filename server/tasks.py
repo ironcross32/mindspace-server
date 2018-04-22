@@ -5,7 +5,7 @@ from time import time
 from sqlalchemy import or_
 from twisted.internet import task
 from .db import Session, Task
-from .program import run_program
+from .program import run_program, handle_traceback
 
 logger = logging.getLogger(__name__)
 
@@ -26,10 +26,9 @@ def do_tasks():
         except Exception as e:
             Session.rollback()
             t.paused = True
-            logger.warning('Error in %r. Task paused.', t)
             Session.add(t)
             Session.commit()
-            logger.exception(e)
+            handle_traceback(e, str(t), 'Task Scheduler', __name__)
 
 
 def tasks_errback(err):
