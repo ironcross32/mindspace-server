@@ -4,7 +4,7 @@ import os.path
 from enum import Enum as _Enum
 from string import digits
 from random_password import random_password
-from sqlalchemy import Column, Integer, Float, Enum, ForeignKey
+from sqlalchemy import Column, Integer, Float, Enum, ForeignKey, Boolean
 from sqlalchemy.orm import relationship, backref
 from .base import (
     Base, Sound, message, NameMixin, PhoneAddressMixin, PhoneMixin
@@ -62,6 +62,7 @@ class Phone(Base, PhoneAddressMixin):
     ring_sound = Column(Sound, nullable=True)
     ring_every = Column(Float, nullable=False, default=2.0)
     next_ring = Column(Float, nullable=True)
+    muted = Column(Boolean, nullable=False, default=False)
     state = Column(Enum(PhoneStates), nullable=False, default=PhoneStates.idle)
     call_to_id = Column(Integer, ForeignKey('phones.id'), nullable=True)
     call_to = relationship(

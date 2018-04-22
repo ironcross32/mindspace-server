@@ -332,7 +332,7 @@ class Object(
             return _message(con, text, channel=channel)
         elif self.is_phone:
             phone = self.phone
-            if channel == 'say' and phone.state is PhoneStates.connected:
+            if channel == 'say' and phone.state is PhoneStates.connected and not phone.muted:
                 phone.transmit(text)
             return True
         else:
