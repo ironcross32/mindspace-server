@@ -47,19 +47,34 @@ class Phone(Base, PhoneAddressMixin):
     invalid_address_msg = message('Invalid address.')
     invalid_address_sound = Column(Sound, nullable=True)
     engaged_msg = message('The phone you are trying to reach is engaged.')
-    engaged_sound = Column(Sound, nullable=True)
+    engaged_sound = Column(
+        Sound, nullable=False,
+        default=os.path.join(phone_sounds, 'engaged.wav')
+    )
     dial_msg = message('%1N make%1s a call on %2n.')
-    dial_sound = Column(Sound, nullable=True)
+    dial_sound = Column(
+        Sound, nullable=False, default=os.path.join(phone_sounds, 'ring.wav')
+    )
     hangup_msg = message('%1N disconnect%1s %2n.')
-    hangup_sound = Column(Sound, nullable=True)
+    hangup_sound = Column(
+        Sound, nullable=False, default=os.path.join(phone_sounds, 'hangup.wav')
+    )
     hangup_other_msg = message('%1N show%1s "Call disconnected".')
-    hangup_other_sound = Column(Sound, nullable=True)
+    hangup_other_sound = Column(
+        Sound, nullable=False, default=os.path.join(phone_sounds, 'hangup.wav')
+    )
     answer_msg = message('%1N answer%1s %2n.')
-    answer_sound = Column(Sound, nullable=True)
+    answer_sound = Column(
+        Sound, nullable=False, default=os.path.join(phone_sounds, 'answer.wav')
+    )
     answer_other_msg = message('%1N show%1s "Call connected".')
-    answer_other_sound = Column(Sound, nullable=True)
+    answer_other_sound = Column(
+        Sound, nullable=False, default=os.path.join(phone_sounds, 'answer.wav')
+    )
     reject_msg = message('%1n reject%1s the incoming call on %2n.')
-    reject_sound = Column(Sound, nullable=True)
+    reject_sound = Column(
+        Sound, nullable=False, default=os.path.join(phone_sounds, 'reject.wav')
+    )
     ring_msg = message('The call light on %1N flash%1e.')
     ring_sound = Column(
         Sound, nullable=False,
