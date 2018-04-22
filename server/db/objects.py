@@ -225,7 +225,7 @@ class Object(
 
     def get_all_fields(self):
         fields = super().get_all_fields()
-        for name in ('chair', 'window', 'exit', 'mobile', 'player'):
+        for name in ('chair', 'window', 'exit', 'mobile', 'player', 'phone'):
             obj = getattr(self, name)
             if obj is not None:
                 fields.append(Label(name.title()))
