@@ -42,7 +42,10 @@ def check_in_space(player, starship=None):
 
 def check_location(player, obj):
     """Ensure player is at obj.location."""
-    if player.location_id != obj.location_id and obj.holder_id != player.id:
+    if (
+        player.location_id != obj.location_id or obj.coordinates !=
+        player.coordinates
+    )and obj.holder_id != player.id:
         player.message(
             f'{obj.get_name(player.is_staff).title()} is nowhere to be seen.'
         )
