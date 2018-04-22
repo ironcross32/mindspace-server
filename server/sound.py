@@ -3,7 +3,7 @@
 import logging
 import os
 import os.path
-from hashlib import md5
+from time import time
 from random import choice
 from attr import attrs, attrib, Factory
 
@@ -24,11 +24,7 @@ class Sound:
     """A sound object."""
 
     path = attrib()
-    sum = attrib(default=Factory(lambda: None))
-
-    def __attrs_post_init__(self):
-        with open(self.path, 'rb') as f:
-            self.sum = md5(f.read()).hexdigest()
+    sum = attrib(default=Factory(time))
 
     def dump(self):
         if os.path.sep != '/':
