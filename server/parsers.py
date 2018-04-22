@@ -275,7 +275,7 @@ def action(con, object_id, action_id):
             check_location(player, obj)
         except OK:
             return  # They're playing silly buggers.
-        if action in obj.actions:
+        if action in obj.get_actions():
             run_program(con, s, action, self=action, obj=obj)
         else:
             player.message('Invalid action or object ID.')
