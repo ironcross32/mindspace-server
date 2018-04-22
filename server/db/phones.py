@@ -140,12 +140,13 @@ class Phone(Base, PhoneAddressMixin):
         obj.do_social(self.transmit_msg, text=text, _channel='phone')
         obj.sound(self.transmit_sound)
 
-    def emote(self, player, string):
+    def emote(self, player, string, **kwargs):
         """Emote into this phone."""
         player.do_social(
-            f'Putting %2n to %1his mouth, {string}', _others=[self.object]
+            f'Putting %2n to %1his mouth, {string}', _others=[self.object],
+            **kwargs
         )
-        self.transmit(factory.get_strings(string, [player])[-1])
+        self.transmit(factory.get_strings(string, [player], **kwargs)[-1])
 
     def set_address(self):
         """Set this address to a random and unique address."""
