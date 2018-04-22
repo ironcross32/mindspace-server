@@ -142,11 +142,18 @@ class Phone(Base, PhoneAddressMixin):
 
     def emote(self, player, string, **kwargs):
         """Emote into this phone."""
-        player.do_social(
-            f'Putting %2n to %1his mouth, {string}', _others=[self.object],
-            **kwargs
-        )
-        self.transmit(factory.get_strings(string, [player], **kwargs)[-1])
+        obj = self.object
+        if self.muted:
+            player.message(f'{obj.get_name(player.is_staff)} is muted.')
+        else:
+            player.do_social(
+                f'Putting %2n to %1his mouth, {string}', _others=[obj],
+                **kwargs
+            )
+            if self.state is PhoneStates.connected:
+                self.transmit(
+                    factory.get_strings(string, [player], **kwargs)[-1]
+                )
 
     def set_address(self):
         """Set this address to a random and unique address."""
