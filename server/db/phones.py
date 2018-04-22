@@ -7,7 +7,8 @@ from random_password import random_password
 from sqlalchemy import Column, Integer, Float, Enum, ForeignKey, Boolean
 from sqlalchemy.orm import relationship, backref
 from .base import (
-    Base, Sound, message, NameMixin, PhoneAddressMixin, PhoneMixin, Text
+    Base, Sound, message, NameMixin, PhoneAddressMixin, PhoneMixin, Text,
+    CreatedMixin
 )
 from .server_options import ServerOptions
 from ..socials import factory
@@ -36,7 +37,7 @@ class PhoneContact(Base, NameMixin, PhoneAddressMixin, PhoneMixin):
     __tablename__ = 'phone_contacts'
 
 
-class TextMessage(Base, PhoneAddressMixin, PhoneMixin):
+class TextMessage(Base, PhoneAddressMixin, PhoneMixin, CreatedMixin):
     """A text message sent to a phone."""
 
     __tablename__ = 'text_messages'
