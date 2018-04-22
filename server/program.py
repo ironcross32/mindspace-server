@@ -263,7 +263,9 @@ def build_context():
     for module in (db, protocol, menus, forms, sound, random):
         for name in dir(module):
             member = getattr(module, name)
-            if callable(member) or isinstance(member, sound.Sound):
+            if callable(member) or isinstance(
+                member, (list, dict, sound.Sound)
+            ):
                 ctx[name] = member
     ctx.update(
         server=server.server,
