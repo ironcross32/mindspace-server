@@ -2,10 +2,12 @@
 
 import os.path
 import logging
+import re
+from contextlib import redirect_stdout, redirect_stderr
 from random import randint
 from mindspace_protocol import MindspaceParser
 from sqlalchemy import or_
-from .program import run_program, OK, handle_traceback
+from .program import run_program, OK, handle_traceback, PythonShell
 from .protocol import (
     character_id, interface_sound, remember_quit, message, menu
 )
@@ -228,3 +230,29 @@ def authenticated_key(con, name, modifiers=None):
                     run_program(con, s, key, **kwargs)
                 except OK:
                     pass  # Command exited successfully.
+
+
+@main_parser.command
+def python(con, code):
+    """Execute Python code."""
+    with session() as s:
+        player = con.get_player()
+        if not player.is_admin:
+            return player.message('This command is for admins only.')
+        for full, id in re.findall('(#([0-9]+))', code):
+            code = code.replace(full, f's.query(Object).get({id})')
+        if con.shell is None:
+            con.shell = PythonShell(con)
+        with redirect_stdout(con.shell), redirect_stderr(con.shell):
+            con.shell.locals.update(
+                player=player,
+                here=player.location,
+                s=s
+            )
+            if con.shell.push(code):
+                msg = '...'
+            else:
+                msg = '>>>'
+            player.message(msg)
+        for name in ('s', 'player', 'here'):
+            del con.shell.locals[name]
