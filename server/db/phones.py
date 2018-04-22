@@ -10,6 +10,7 @@ from .base import (
     Base, Sound, message, NameMixin, PhoneAddressMixin, PhoneMixin
 )
 from .server_options import ServerOptions
+from ..socials import factory
 
 
 class PhoneStates(_Enum):
@@ -137,6 +138,12 @@ class Phone(Base, PhoneAddressMixin):
         obj = self.other_side.object
         obj.do_social(self.transmit_msg, text=text, _channel='phone')
         obj.sound(self.transmit_sound)
+
+    def emote(self, player, string):
+        """Emote into this phone."""
+        self.transmit(factory.get_strings(string, [player])[-1])
+        string = 'Putting %2n to %1his mouth, ' + string
+        self.object.do_social(string, _others=[player])
 
     def set_address(self):
         """Set this address to a random and unique address."""
