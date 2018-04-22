@@ -220,6 +220,15 @@ class Phone(Base, PhoneAddressMixin):
         """Get the phone this phone is connected to if it is on a call."""
         return self.call_to or self.call_from
 
+    def as_name(self, address):
+        """Return the name of a contact with the given address or the address
+        itself."""
+        contact = PhoneContact.query(phone_id=self.id, address=address).first()
+        if contact is None:
+            return address
+        else:
+            return contact.name
+
     @classmethod
     def random_address(cls):
         """Generate a random (but possibly not unique) address."""
