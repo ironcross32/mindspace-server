@@ -268,11 +268,14 @@ def action(con, object_id, action_id):
     with session() as s:
         player = con.get_player()
         obj = Object.get(object_id)
-        action = Action.query(object_id=object_id, action_id=action_id)
+        action = Action.get(action_id)
         try:
             for thing in (obj, action):
                 valid_object(player, thing)
             check_location(player, obj)
         except OK:
             return  # They're playing silly buggers.
-        run_program(con, s, action, self=action, obj=obj)
+        if action in obj.actions:
+            run_program(con, s, action, self=action, obj=obj)
+        else:
+            player.message('Invalid action or object ID.')
