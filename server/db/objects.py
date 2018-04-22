@@ -361,7 +361,7 @@ class Object(
             return
         elif not isinstance(sound, _Sound):
             sound = get_sound(sound)
-        args = (self.id, sound)
+        args = [self.id, sound]
         if private:
             con = self.get_connection()
             if con is not None:
