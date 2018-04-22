@@ -41,6 +41,11 @@ class MainParser(MindspaceParser):
                 return super().huh(name, *args, **kwargs)
             # Save these in case of an error to prevent DetachedInstanceError.
             friendly = cmd.get_name(True)
+            player_name = player.get_name(True)
+            if player.location is None:
+                location_name = 'Nowhere'
+            else:
+                location_name = player.location.get_name(True)
             try:
                 run_program(
                     connection, s, cmd, a=args, kw=kwargs, __name__=name,
@@ -49,7 +54,10 @@ class MainParser(MindspaceParser):
             except OK:
                 pass  # Return from command.
             except Exception as e:
-                logger.warning('%s threw an error:', friendly)
+                logger.warning(
+                    '%s (called by %s at %s) threw an error:', friendly,
+                    player_name, location_name
+                )
                 tb = ''.join(format_exception(e.__class__, e, e.__traceback__))
                 for player in Object.join(Object.player).filter(
                     Object.connected.is_(True), Player.admin.is_(True)
