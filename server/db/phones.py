@@ -141,9 +141,10 @@ class Phone(Base, PhoneAddressMixin):
 
     def emote(self, player, string):
         """Emote into this phone."""
+        player.do_social(
+            f'Putting %2n to %1his mouth, {string}', _others=[self.object]
+        )
         self.transmit(factory.get_strings(string, [player])[-1])
-        string = 'Putting %2n to %1his mouth, ' + string
-        player.do_social(string, _others=[self.object])
 
     def set_address(self):
         """Set this address to a random and unique address."""
