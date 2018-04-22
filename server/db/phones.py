@@ -12,6 +12,8 @@ from .base import (
 from .server_options import ServerOptions
 from ..socials import factory
 
+phone_sounds = 'phones'
+
 
 class PhoneStates(_Enum):
     """The possible states for phones."""
@@ -59,7 +61,10 @@ class Phone(Base, PhoneAddressMixin):
     reject_msg = message('%1n reject%1s the incoming call on %2n.')
     reject_sound = Column(Sound, nullable=True)
     ring_msg = message('The call light on %1N flash%1e.')
-    ring_sound = Column(Sound, nullable=True)
+    ring_sound = Column(
+        Sound, nullable=False,
+        default=os.path.join(phone_sounds, 'ringtone.mp3')
+    )
     ring_every = Column(Float, nullable=False, default=2.0)
     next_ring = Column(Float, nullable=True)
     muted = Column(Boolean, nullable=False, default=False)
