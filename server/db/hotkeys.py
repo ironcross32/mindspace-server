@@ -1,9 +1,10 @@
 """Provides the Hotkey class."""
 
-from sqlalchemy import Column, String, Boolean, Integer, ForeignKey
+from sqlalchemy import Column, Boolean, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from .base import (
-    Base, NameMixin, DescriptionMixin, CodeMixin, PermissionsMixin, OwnerMixin
+    Base, NameMixin, DescriptionMixin, CodeMixin, PermissionsMixin, OwnerMixin,
+    message
 )
 
 
@@ -32,11 +33,11 @@ class RemappedHotkey(Base, OwnerMixin):
     """Key convertions for people who need them."""
 
     __tablename__ = 'remapped_hotkeys'
-    from_key = Column(String(20), nullable=False)
+    from_key = message('')
     from_ctrl = Column(Boolean, nullable=False, default=False)
     from_shift = Column(Boolean, nullable=False, default=False)
     from_alt = Column(Boolean, nullable=False, default=False)
-    to_key = Column(String(20), nullable=False)
+    to_key = message('')
     to_ctrl = Column(Boolean, nullable=False, default=False)
     to_shift = Column(Boolean, nullable=False, default=False)
     to_alt = Column(Boolean, nullable=False, default=False)
