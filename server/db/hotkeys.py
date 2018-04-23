@@ -49,3 +49,26 @@ class RemappedHotkey(Base, OwnerMixin):
         for mod in ('ctrl', 'shift', 'alt'):
             kwargs[f'from_{mod}'] = mod in modifiers
         return cls.query(**kwargs).first()
+
+    def get_modifiers(self, ctrl, shift, alt):
+        """Convert boolean values into a list of strings."""
+        modifiers = []
+        if ctrl:
+            modifiers.append('ctrl')
+        if shift:
+            modifiers.append('shift')
+        if alt:
+            modifiers.append('alt')
+        return modifiers
+
+    @property
+    def from_modifiers(self):
+        """Return from modifiers as a list of strings."""
+        return self.get_modifiers(
+            self.from_ctrl, self.from_shift, self.from_alt
+        )
+
+    @property
+    def to_modifiers(self):
+        """Get to modifiers as a list of strings."""
+        return self.get_modifiers(self.to_ctrl, self.to_shift, self.to_alt)
