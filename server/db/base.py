@@ -423,7 +423,6 @@ class RandomSoundContainerMixin:
 
     def add_random_sound(self, sound):
         """Add a sound to this object."""
-        assert sound in os.listdir(random_sounds_dir)
         obj = self.make_random_sound(sound)
         self.random_sounds.append(obj)
         if self.next_random_sound is None:
