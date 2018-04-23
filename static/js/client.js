@@ -260,7 +260,6 @@ function send(obj) {
     }
     let l = [obj.name, obj.args, obj.kwargs]
     let value = JSON.stringify(l)
-    unlock_audio()
     soc.send(value)
 }
 
@@ -352,6 +351,7 @@ function standard_key(e) {
     if (!connected) {
         return
     }
+    unlock_audio()
     let mods = []
     for (let control of document.querySelectorAll(".key-modifier")) {
         if (control.checked) {
