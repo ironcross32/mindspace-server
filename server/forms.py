@@ -92,6 +92,6 @@ class ObjectForm(Form):
             if hasattr(obj, 'name'):
                 name = obj.get_name()
             else:
-                name = obj.__class__.__name__
+                name = str(obj)
             title = f'Configure {name}'
         super().__init__(title, fields, command, **kwargs)
