@@ -490,7 +490,7 @@ function search_menu(e) {
     }
 }
 
-for (let char of "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 -='#/\\`[]") {
+for (let char of "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 -='#/\\`[],.") {
     menu_keys[char] = search_menu
 }
 
