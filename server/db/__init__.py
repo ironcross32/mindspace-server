@@ -21,7 +21,7 @@ from .zones import Zone
 from .directions import Direction
 from .adverts import Advert
 from .commands import Command
-from .hotkeys import Hotkey, HotkeySecondary
+from .hotkeys import Hotkey, HotkeySecondary, RemappedHotkey
 from .revisions import Revision
 from .communication import (
     CommunicationChannel, CommunicationChannelListener,
@@ -220,5 +220,5 @@ __all__ = (
     'TransitRoute', 'get_classes', 'finalise_db', 'RoomAirlock', 'Gender',
     'Chair', 'RestingStates', 'Container', 'Currency', 'Shop', 'ShopItem',
     'PhoneContact', 'Phone', 'PhoneStates', 'BlockedPhoneAddress',
-    'TextMessage'
+    'TextMessage', 'RemappedHotkey'
 )

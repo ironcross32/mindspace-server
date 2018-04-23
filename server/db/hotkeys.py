@@ -1,9 +1,9 @@
 """Provides the Hotkey class."""
 
-from sqlalchemy import Column, Boolean, Integer, ForeignKey
+from sqlalchemy import Column, String, Boolean, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from .base import (
-    Base, NameMixin, DescriptionMixin, CodeMixin, PermissionsMixin
+    Base, NameMixin, DescriptionMixin, CodeMixin, PermissionsMixin, OwnerMixin
 )
 
 
@@ -26,3 +26,26 @@ class Hotkey(Base, NameMixin, DescriptionMixin, CodeMixin, PermissionsMixin):
     objects = relationship(
         'Object', backref='hotkeys', secondary=HotkeySecondary.__table__
     )
+
+
+class RemappedHotkey(Base, OwnerMixin):
+    """Key convertions for people who need them."""
+
+    __tablename__ = 'remapped_hotkeys'
+    from_key = Column(String(1), nullable=False)
+    from_ctrl = Column(Boolean, nullable=False, default=False)
+    from_shift = Column(Boolean, nullable=False, default=False)
+    from_alt = Column(Boolean, nullable=False, default=False)
+    to_key = Column(String(1), nullable=False)
+    to_ctrl = Column(Boolean, nullable=False, default=False)
+    to_shift = Column(Boolean, nullable=False, default=False)
+    to_alt = Column(Boolean, nullable=False, default=False)
+
+    @classmethod
+    def from_raw(cls, player, name, modifiers):
+        """Return a key that matches the given name and modifiers and is owned
+        by player. None is returned if no results are found."""
+        kwargs = dict(owner_id=player.id, from_key=name)
+        for mod in ('ctrl', 'shift', 'alt'):
+            kwargs[f'from_{mod}'] = mod in modifiers
+        return cls.query(**kwargs).first()
