@@ -234,6 +234,11 @@ def authenticated_key(con, name, modifiers=None):
                     run_program(con, s, key, **kwargs)
                 except OK:
                     pass  # Command exited successfully.
+                except Exception as e:
+                    handle_traceback(
+                        e, key.get_name(True), player.get_name(True),
+                        player.location.get_name(True)
+                    )
 
 
 @main_parser.command
