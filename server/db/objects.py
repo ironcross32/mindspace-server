@@ -497,23 +497,19 @@ class Object(
         """Move player and their followers through this object if it is an
         exit."""
         entrance = self.exit
-        assert entrance is not None
-        if entrance.location is None:
-            return player.message(entrance.cantuse_msg)
+        assert entrance is not None, '%s is not an exit.' % self
         con = player.get_connection()
         other_side = entrance.get_other_side()
         if other_side is None:
             recent_exit_id = self.id
             msg = '%1N arrive%1s.'
         else:
-            if other_side.exit.ambience is not None:
-                other_side.sound(other_side.exit.ambience)
+            other_side.sound(other_side.exit.ambience)
             recent_exit_id = other_side.id
             msg = other_side.exit.arrive_msg
-        entrance.location.broadcast_command(
-            message, factory.get_strings(msg, [player, other_side])[-1],
-            _who=other_side
-        )
+        strings = factory.get_strings(msg, [player, other_side])
+        string = strings[-1]
+        entrance.location.broadcast_command(message, string, _who=other_side)
         player.do_social(entrance.leave_msg, _others=[self])
         player.steps += 1
         player.move(entrance.location, entrance.coordinates)
