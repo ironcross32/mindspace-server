@@ -178,6 +178,12 @@ def authenticated_key(con, name, modifiers=None):
             if obj is None:
                 con.object_id = None
         kwargs = dict(modifiers=modifiers)
+        if player.player.help_mode:
+            string = ' + '.join(modifiers)
+            if string:
+                string += ' + '
+            string += name
+            player.message(string)
         if obj is None:
             if name == ESC and not modifiers and player.player.help_mode:
                 player.player.help_mode = False
@@ -202,17 +208,17 @@ def authenticated_key(con, name, modifiers=None):
             player.do_social(obj.stop_use_msg, _others=[obj])
             return
         elif name == 'F1':
-            obj = Object.get(con.object_id)
             items = [LabelItem('Hotkeys')]
             for key in obj.get_hotkeys():
                 modifiers = []
                 args = [key.name, []]
                 for name in ('ctrl', 'shift', 'alt'):
+                    friendly_name = name.upper()
                     value = getattr(key, name)
                     if value is None:
-                        modifiers.append(f'[{name}]')
+                        modifiers.append(f'[{friendly_name}]')
                     elif value is True:
-                        modifiers.append(name.upper())
+                        modifiers.append(friendly_name)
                         args[-1].append(name)
                 modifiers = f'{" ".join(modifiers)}{" " if modifiers else ""}'
                 name = key.get_name(player.is_staff)
