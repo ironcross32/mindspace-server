@@ -17,7 +17,7 @@ from .protocol import (
 from .sound import get_sound
 from .db import (
     Command, session, Player, ServerOptions, Object, MailMessage, Hotkey,
-    Action
+    Action, RemappedHotkey
 )
 from .menus import Menu, LabelItem, Item
 
@@ -165,6 +165,10 @@ def authenticated_key(con, name, modifiers=None):
 
     with session() as s:
         player = con.get_player(s)
+        remap = RemappedHotkey.from_raw(player, name, modifiers)
+        if remap is not None:
+            name = remap.to_key
+            modifiers = remap.to_modifiers
         if player.data.get('debug', False):
             player.message(f'{modifiers}: {name}.')
         if con.object_id is None:
