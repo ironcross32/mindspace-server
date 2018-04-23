@@ -509,7 +509,7 @@ class Object(
             msg = other_side.exit.arrive_msg
         strings = factory.get_strings(msg, [player, other_side])
         string = strings[-1]
-        entrance.location.broadcast_command(message, string, _who=other_side)
+        entrance.location.broadcast_command(_message, string, _who=other_side)
         player.do_social(entrance.leave_msg, _others=[self])
         player.steps += 1
         player.move(entrance.location, entrance.coordinates)
