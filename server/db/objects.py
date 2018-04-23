@@ -439,37 +439,35 @@ class Object(
     def get_visible(self, *args, **kwargs):
         """Get the objects in visual range of this object."""
         if self.location_id is not None:
-            loc = self.location
+            this = self
         elif self.holder_id is not None:
-            loc = self.holder.location
+            this = self.holder
         else:
             raise AssertionError(
                 'This object (%r) has no location and is not being held.' % (
                     self
                 )
             )
+        loc = this.location
         query_args = [Object.location_id == loc.id]
         if not self.is_staff:
             query_args.extend(
                 [
                     or_(
                         Object.hidden.is_(False),
-                        and_(*self.same_coordinates())
+                        and_(*this.same_coordinates())
                     )
                 ]
             )
             for name in ('x', 'y', 'z'):
                 query_args.append(
                     getattr(Object, name).between(
-                        getattr(self, name) - loc.visibility,
-                        getattr(self, name) + loc.visibility
+                        getattr(this, name) - loc.visibility,
+                        getattr(this, name) + loc.visibility
                     )
                 )
         query_args.extend(args)
-        q = Session.query(Object).filter(*query_args)
-        if kwargs:
-            q = q.filter_by(**kwargs)
-        return q
+        return Object.query(*query_args, **kwargs)
 
     def use_exit(self, player):
         """Move player and their followers through this object if it is an
