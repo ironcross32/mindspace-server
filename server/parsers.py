@@ -155,6 +155,7 @@ def authenticated_key(con, name, modifiers=None):
         modifiers = []
     ESC = 'ESCAPE'
     possible_modifiers = ('ctrl', 'shift', 'alt')
+    key_modifiers = ('META', 'CONTROL', 'SHIFT', 'ALT')
 
     def check_hotkey(hotkey):
         for mod in possible_modifiers:
@@ -179,6 +180,8 @@ def authenticated_key(con, name, modifiers=None):
                 con.object_id = None
         kwargs = dict(modifiers=modifiers)
         if player.player.help_mode:
+            if name in key_modifiers:
+                return  # Don't show just a modifier.
             string = ' + '.join(modifiers)
             if string:
                 string += ' + '
