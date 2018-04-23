@@ -15,12 +15,13 @@ from .base import (
 )
 from .session import Session
 from .communication import CommunicationChannel
+from ..util import directions
 from ..protocol import (
     object_sound, location, message as _message, identify, delete, zone,
     random_sound, remember_quit, speak
 )
 from ..forms import Label, Field
-from ..sound import Sound as _Sound, get_sound
+from ..sound import Sound as _Sound, get_sound, nonempty_room
 from ..socials import factory
 from .phones import PhoneStates
 
@@ -160,6 +161,29 @@ class Object(
     get_sound = Column(Sound, nullable=True)
     drop_sound = Column(Sound, nullable=True)
     give_sound = Column(Sound, nullable=True)
+
+    def inspect(self, obj):
+        """Used to quickly inspect any object."""
+        con = self.get_connection()
+        if con is None:
+            return False
+        dirs = directions(self.coordinates, obj.coordinates)
+        max_distance = obj.location.max_distance
+        max_distance_multiplier = obj.max_distance_multiplier
+        random_sound(
+            con, nonempty_room, *obj.coordinates,
+            max_distance=max_distance * max_distance_multiplier
+        )
+        if obj.container:
+            random_sound(
+                con, get_sound('objects/container.wav'), *obj.coordinates,
+                max_distance=max_distance * max_distance_multiplier
+            )
+        self.message(
+            f'{obj.get_full_name(self.is_staff)}: {dirs}. '
+            f'{obj.get_description()}'
+        )
+        return True
 
     def speak(self, data):
         """Allow this object to speak an arbitrary array of floats."""
