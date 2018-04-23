@@ -77,7 +77,7 @@ class _Base:
         res = f'{self.__class__.__name__} ('
         strings = []
         for name in inspect(self.__class__).c.keys():
-            strings.append(f'{name}={getattr(self, name)}')
+            strings.append(f'{name}={repr(getattr(self, name))}')
         return res + ', '.join(strings) + ')'
 
     def duplicate(self):
