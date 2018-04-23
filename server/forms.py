@@ -90,7 +90,7 @@ class ObjectForm(Form):
         fields = obj.get_all_fields()
         if title is None:
             if hasattr(obj, 'name'):
-                name = obj.get_name()
+                name = obj.name
             else:
                 name = str(obj)
             title = f'Configure {name}'
