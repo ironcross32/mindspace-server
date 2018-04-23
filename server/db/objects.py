@@ -414,7 +414,7 @@ class Object(
             random_sound, sound, *old_coordinates, 1.0
         )
         self.location.broadcast_command_selective(
-            lambda obj: obj is not self, message,
+            lambda obj: obj is not self, _message,
             f'{self.get_name(False)} teleports in.'
         )
         self.sound(sound)
