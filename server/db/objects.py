@@ -405,6 +405,8 @@ class Object(
 
     def teleport(self, location, coordinates):
         """Teleport this object to a new location."""
+        self.resting_state = RestingStates.standing
+        self.sitting = None
         old_location = self.location
         old_coordinates = self.coordinates
         self.do_social(self.teleport_msg)
