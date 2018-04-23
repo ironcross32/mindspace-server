@@ -227,6 +227,9 @@ def authenticated_key(con, name, modifiers=None):
                 if hotkey.name == name and check_hotkey(hotkey):
                     keys.append(hotkey)
         for key in keys:
+            key_name = key.get_name(True)
+            player_name = player.get_name(True)
+            location_name = player.location.get_name(True)
             if player.player.help_mode:
                 player.message(key.get_description())
             else:
@@ -235,9 +238,6 @@ def authenticated_key(con, name, modifiers=None):
                 except OK:
                     pass  # Command exited successfully.
                 except Exception as e:
-                    key_name = key.get_name(True)
-                    player_name = player.get_name(True)
-                    location_name = player.location.get_name(True)
                     handle_traceback(e, key_name, player_name, location_name)
 
 
