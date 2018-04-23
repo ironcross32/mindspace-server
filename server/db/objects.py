@@ -474,6 +474,7 @@ class Object(
             )
         loc = this.location
         query_args = [Object.location_id == loc.id]
+        query_args.extend(args)
         if not self.is_staff:
             query_args.extend(
                 [
@@ -490,7 +491,6 @@ class Object(
                         getattr(this, name) + loc.visibility
                     )
                 )
-        query_args.extend(args)
         return Object.query(*query_args, **kwargs)
 
     def use_exit(self, player):
