@@ -1,8 +1,20 @@
 """Provides classes related to finances."""
 
-from sqlalchemy import Column, Integer, Float, ForeignKey
+from enum import Enum as _Enum
+from sqlalchemy import Column, Integer, Float, ForeignKey, Enum
 from sqlalchemy.orm import relationship, backref
-from .base import Base, message, Sound, NameMixin, CurrencyMixin, PasswordMixin
+from .base import (
+    Base, message, Sound, NameMixin, DescriptionMixin, CurrencyMixin,
+    PasswordMixin, CreatedMixin
+)
+from ..util import now
+
+
+class TransferDirections(_Enum):
+    """Possible directions for finantial transfers."""
+
+    debit = 'debit'
+    credit = 'credit'
 
 
 class Currency(Base, NameMixin):
@@ -41,8 +53,59 @@ class ShopItem(Base):
     price = Column(Float, nullable=False, default=1000000.0)
 
 
+class CreditCardError(Exception):
+    """An error occurred with a credit card."""
+
+
 class CreditCard(Base, CurrencyMixin, PasswordMixin):
     """Make any object a repository of money."""
 
     __tablename__ = 'credit_cards'
     value = Column(Float, nullable=False, default=0.0)
+    insufficient_funds_msg = message(
+        'You have insufficient funds for this transfer.'
+    )
+    incorrect_currency_msg = message('Currency mismatch.')
+
+    def transfer(self, amount, currency, description):
+        """Transfer money to or from this card. If amount is negative then it
+        is treated as a debit. If not then the transfer is treated as a
+        credit. If currency does not match self.currency or there are
+        insufficient funds then CreditCardError will be raised with an
+        appropriate message."""
+        if currency is not self.currency:
+            raise CreditCardError(self.incorrect_currency_msg)
+        elif amount < 0 and abs(amount) > self.value:
+            raise CreditCardError(self.insufficient_funds_msg)
+        else:
+            self.value += amount
+            if amount < 0:
+                direction = TransferDirections.debit
+            else:
+                direction = TransferDirections.credit
+        self.transfers.append(
+            CreditCardTransfer(
+                amount=abs(amount), direction=direction,
+                description=description
+            )
+        )
+
+
+class CreditCardTransfer(Base, DescriptionMixin, CreatedMixin):
+    """A transfer to or from a credit card."""
+
+    __tablename__ = 'credit_card_transfers'
+    amount = Column(Float, nullable=False)
+    direction = Column(Enum(TransferDirections), nullable=False)
+    card_id = Column(Integer, ForeignKey('credit_cards.id'), nullable=False)
+    card = relationship('CreditCard', backref='transfers')
+
+    def as_string(self, verbose=False):
+        """Return tis transfer as a string."""
+        id = self.id
+        when = now(self.created).ctime()
+        direction = self.direction.value.upper()
+        value = self.amount
+        currency = self.card.currency.get_name(verbose)
+        description = self.get_description()
+        return f'#{id}: {direction} [{when}] {value} {currency}: {description}'
