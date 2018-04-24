@@ -94,7 +94,10 @@ def check_perms(player, builder=None, admin=None, message=None):
 
 
 def check_builder(player):
-    return check_perms(player, builder=True)
+    ret = check_perms(player, builder=True)
+    if player.location.zone.owner is not player:
+        raise PermissionError('You do not own this zone.')
+    return ret
 
 
 def check_admin(player):
