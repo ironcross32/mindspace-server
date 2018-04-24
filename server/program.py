@@ -95,7 +95,7 @@ def check_perms(player, builder=None, admin=None, message=None):
 
 def check_builder(player):
     ret = check_perms(player, builder=True)
-    if player.location.zone.owner is not player:
+    if player.location.zone.owner is not player and not player.is_admin:
         raise PermissionError('You do not own this zone.')
     return ret
 
