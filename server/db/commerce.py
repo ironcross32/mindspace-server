@@ -66,6 +66,7 @@ class CreditCard(Base, CurrencyMixin, PasswordMixin):
         'You have insufficient funds for this transfer.'
     )
     incorrect_currency_msg = message('Currency mismatch.')
+    incorrect_password_msg = message('Authentication failure.')
 
     def transfer(self, amount, currency, description):
         """Transfer money to or from this card. If amount is negative then it
