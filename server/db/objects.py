@@ -113,6 +113,12 @@ class Object(
     mobile = relationship(
         'Mobile', backref=backref('object', uselist=False), cascade='all'
     )
+    credit_card_id = Column(
+        Integer, ForeignKey('credit_cards.id'), nullable=True
+    )
+    credit_card = relationship(
+        'CreditCard', backref=backref('object', uselist=False), cascade='all'
+    )
     exit_id = Column(Integer, ForeignKey('entrances.id'), nullable=True)
     exit = relationship(
         'Entrance', backref=backref('object', uselist=False), cascade='all'
@@ -276,6 +282,10 @@ class Object(
     @property
     def is_shop(self):
         return self.shop is not None
+
+    @property
+    def is_credit_card(self):
+        return self.credit_card is not None
 
     @property
     def is_phone(self):

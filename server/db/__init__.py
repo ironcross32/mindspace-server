@@ -49,7 +49,7 @@ from .transits import TransitStop, TransitRoute
 from .genders import Gender
 from .chairs import Chair
 from .containers import Container
-from .commerce import Currency, Shop, ShopItem
+from .commerce import Currency, Shop, ShopItem, CreditCard
 from .phones import (
     PhoneContact, Phone, PhoneStates, BlockedPhoneAddress, TextMessage
 )
@@ -220,5 +220,5 @@ __all__ = (
     'TransitRoute', 'get_classes', 'finalise_db', 'RoomAirlock', 'Gender',
     'Chair', 'RestingStates', 'Container', 'Currency', 'Shop', 'ShopItem',
     'PhoneContact', 'Phone', 'PhoneStates', 'BlockedPhoneAddress',
-    'TextMessage', 'RemappedHotkey'
+    'TextMessage', 'RemappedHotkey', 'CreditCard'
 )

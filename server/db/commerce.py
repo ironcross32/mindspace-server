@@ -2,7 +2,7 @@
 
 from sqlalchemy import Column, Integer, Float, ForeignKey
 from sqlalchemy.orm import relationship, backref
-from .base import Base, message, Sound, NameMixin, CurrencyMixin
+from .base import Base, message, Sound, NameMixin, CurrencyMixin, PasswordMixin
 
 
 class Currency(Base, NameMixin):
@@ -39,3 +39,10 @@ class ShopItem(Base):
     object_id = Column(Integer, ForeignKey('objects.id'), nullable=False)
     object = relationship('Object', backref=backref('shops', cascade='all'))
     price = Column(Float, nullable=False, default=1000000.0)
+
+
+class CreditCard(Base, CurrencyMixin, PasswordMixin):
+    """Make any object a repository of money."""
+
+    __tablename__ = 'credit_cards'
+    value = Column(Float, nullable=False, default=0.0)
