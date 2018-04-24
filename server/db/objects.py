@@ -203,6 +203,14 @@ class Object(
             args.append(getattr(Object, name) == getattr(self, name))
         return args
 
+    def get_credit_cards(self, *args, **kwargs):
+        """Get a query containing any credit cards held by this object."""
+        Object = self.__class__
+        return Object.query(
+            Object.holder_id == self.id, Object.credit_card_id.isnot(None),
+            *args, **kwargs
+        ).order_by(Object.name, Object.created)
+
     def get_actions(self):
         """Return all actions attached to this object."""
         a = self.actions.copy()
