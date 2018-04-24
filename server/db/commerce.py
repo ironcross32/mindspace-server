@@ -69,6 +69,17 @@ class CreditCard(Base, CurrencyMixin, PasswordMixin):
     correct_password_msg = message('Successful authentication.')
     incorrect_password_msg = message('Authentication failure.')
 
+    def authenticate(self, player, password):
+        """Authenticate with this card."""
+        if (
+            not password and self.password is None
+        ) or self.check_password(password):
+            player.message(self.correct_password_msg)
+            return True
+        else:
+            player.message(self.incorrect_password_msg)
+            return False
+
     def transfer(self, amount, currency, description):
         """Transfer money to or from this card. If amount is negative then it
         is treated as a debit. If not then the transfer is treated as a
