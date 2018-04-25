@@ -1,13 +1,23 @@
 from pytest import raises
-from server.db import CreditCard, CreditCardError, Object
+from server.db import CreditCard, CreditCardError
 
-p = Object.query(name='Test Player').first()
 c = CreditCard.first()
+
+
+class Message(Exception):
+    """A message was received."""
+
+
+class CustomPlayer:
+    def message(self, *args, **kwargs):
+        raise Message(*args, **kwargs)
+
+
+p = CustomPlayer()
 
 
 def test_stupidity():
     assert isinstance(c, CreditCard)
-    assert isinstance(p, Object)
     assert c.password is None
 
 
@@ -21,11 +31,15 @@ def test_initial():
 def test_locked():
     assert not c.locked
     assert c.incorrect_password_attempts == 0
-    c.authenticate(p, 'test')
+    with raises(Message) as exc:
+        c.authenticate(p, 'test')
+    assert exc.value.args == (c.incorrect_password_msg,)
     assert c.incorrect_password_attempts == 1
     assert not c.locked
-    c.authenticate(p, 'test')
-    c.authenticate(p, 'test')
+    with raises(Message):
+        c.authenticate(p, 'test')
+    with raises(Message):
+        c.authenticate(p, 'test')
     assert c.locked
     with raises(CreditCardError) as exc:
         c.transfer(c.currency, 0, 'testing')

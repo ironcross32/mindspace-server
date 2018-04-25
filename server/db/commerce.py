@@ -74,18 +74,20 @@ class CreditCard(Base, CurrencyMixin, PasswordMixin):
 
     def authenticate(self, player, password):
         """Authenticate with this card."""
-        if (
+        if self.locked:
+            player.message(self.locked_msg)
+        elif (
             not password and self.password is None
         ) or self.check_password(password):
             self.incorrect_password_attempts = 0
             player.message(self.correct_password_msg)
             return True
         else:
-            player.message(self.incorrect_password_msg)
             self.incorrect_password_attempts += 1
+            player.message(self.incorrect_password_msg)
             if self.locked:
                 player.message(self.locked_msg)
-            return False
+        return False
 
     def transfer(self, amount, currency, description):
         """Transfer money to or from this card. If amount is negative then it
