@@ -68,16 +68,23 @@ class CreditCard(Base, CurrencyMixin, PasswordMixin):
     incorrect_currency_msg = message('Currency mismatch.')
     correct_password_msg = message('Successful authentication.')
     incorrect_password_msg = message('Authentication failure.')
+    incorrect_password_attempts = Column(Integer, nullable=False, default=0)
+    max_password_attempts = Column(Integer, nullable=False, default=3)
+    locked_msg = message('This card is locked.')
 
     def authenticate(self, player, password):
         """Authenticate with this card."""
         if (
             not password and self.password is None
         ) or self.check_password(password):
+            self.incorrect_password_attempts = 0
             player.message(self.correct_password_msg)
             return True
         else:
             player.message(self.incorrect_password_msg)
+            self.incorrect_password_attempts += 1
+            if self.locked:
+                player.message(self.locked_msg)
             return False
 
     def transfer(self, amount, currency, description):
@@ -86,7 +93,9 @@ class CreditCard(Base, CurrencyMixin, PasswordMixin):
         credit. If currency does not match self.currency or there are
         insufficient funds then CreditCardError will be raised with an
         appropriate message."""
-        if currency is not self.currency:
+        if self.locked:
+            raise CreditCardError(self.locked_msg)
+        elif currency is not self.currency:
             raise CreditCardError(self.incorrect_currency_msg)
         elif amount < 0 and abs(amount) > self.value:
             raise CreditCardError(self.insufficient_funds_msg)
@@ -102,6 +111,10 @@ class CreditCard(Base, CurrencyMixin, PasswordMixin):
                 description=description
             )
         )
+
+    @property
+    def locked(self):
+        return self.incorrect_password_attempts >= self.max_password_attempts
 
 
 class CreditCardTransfer(Base, DescriptionMixin, CreatedMixin):
