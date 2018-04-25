@@ -131,9 +131,9 @@ class CreditCardTransfer(Base, DescriptionMixin, CreatedMixin):
     def as_string(self, verbose=False):
         """Return tis transfer as a string."""
         id = self.id
-        when = now(self.created).ctime()
         direction = self.direction.value.upper()
         value = self.amount
         currency = self.card.currency.get_name(verbose)
         description = self.get_description()
-        return f'#{id}: {direction} [{when}] {value} {currency}: {description}'
+        when = now(self.created).ctime()
+        return f'#{id}: {direction} {value} {currency}: {description} [{when}]'
