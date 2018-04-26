@@ -64,7 +64,7 @@ def test_withdraw():
     with raises(ATMError) as exc:
         atm.withdraw(p, a, currency, amount)
     assert exc.value.args == (a.insufficient_funds_msg,)
-    a.amount += amount
+    a.balance += amount
     res = atm.withdraw(p, a, currency, amount)
     assert isinstance(res, Object)
     assert isinstance(res.card, CreditCard)

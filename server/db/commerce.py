@@ -177,7 +177,7 @@ class BankAccount(Base, NameMixin, LockedMixin):
     """A bank account owned by a user."""
 
     __tablename__ = 'bank_accounts'
-    amount = Column(Float, nullable=False, default=0.0)
+    balance = Column(Float, nullable=False, default=0.0)
     bank_id = Column(Integer, ForeignKey('banks.id'), nullable=False)
     bank = relationship('Bank', backref='accounts')
     overdraft_limit = Column(Float, nullable=False, default=0.0)
@@ -195,7 +195,7 @@ class BankAccount(Base, NameMixin, LockedMixin):
 
     @property
     def available_funds(self):
-        return self.amount + self.overdraft_limit
+        return self.balance + self.overdraft_limit
 
     def get_accessor(self, obj):
         """Returns a BankAccountAccessor object representing object obj."""
@@ -254,7 +254,7 @@ class ATM(Base):
                 name=name, description=description, owner_id=player.id,
                 holder_id=player.id, location_id=None
             )
-            account.amount -= local_amount
+            account.balance -= local_amount
             card = CreditCard(currency=currency)
             s.add_all([obj, card])
             s.commit()
