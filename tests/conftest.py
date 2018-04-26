@@ -1,4 +1,6 @@
-from server.db import Base, Currency, Object, CreditCard, session, Room
+from server.db import (
+    Base, Currency, Object, CreditCard, session, Room, finalise_db
+)
 
 
 class Message(Exception):
@@ -11,6 +13,7 @@ class CustomPlayer:
 
 
 Base.metadata.create_all()
+finalise_db()
 with session() as s:
     s.add(Currency(value=1.0))
     s.commit()

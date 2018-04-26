@@ -3,7 +3,6 @@
 import os
 import os.path
 import logging
-from glob import glob
 from inspect import isclass
 from sqlalchemy import inspect
 from yaml import dump, load
@@ -94,35 +93,17 @@ def dump_object(obj):
 def finalise_db():
     """Create skeleton objects."""
     with session() as s:
-        if not s.query(Zone).count():
+        if Object.get(0) is None:
+            s.add(Object(id=0, name='System', description='The System Object'))
+        if not Zone.count():
             s.add(Zone(name='The First Zone'))
             s.commit()
-        if not s.query(Room).count():
+        if not Room.count():
             s.add(
-                Room(name='The First Room', zone_id=1)
+                Room(name='The First Room', zone_id=Zone.first().id)
             )
         s.commit()
-        if not s.query(Command).count():
-            for path in glob(os.path.join('commands', '*.command')):
-                fname = os.path.basename(path)
-                name = os.path.splitext(fname)[0]
-                with open(path, 'r') as f:
-                    cmd = Command(name=name)
-                    cmd.set_code(f.read())
-                    logger.info('Loaded %s from %s.', cmd.name, path)
-                    s.add(cmd)
-        if not s.query(Hotkey).count():
-            for path in glob(os.path.join('hotkeys', '*.command')):
-                fname = os.path.basename(path)
-                name = os.path.splitext(fname)[0].upper()
-                with open(path, 'r') as f:
-                    description, code = f.read().split('\n', 1)
-                key = Hotkey(name=name, description=description)
-                key.set_code(code)
-                logger.info('Loaded %s from %s.', key.name, path)
-                s.add(key)
-        s.commit()
-        if not s.query(Direction).count():
+        if not Direction.count():
             # Create default directions:
             Direction.create('north', y=1)
             Direction.create('northeast', x=1, y=1)
@@ -139,40 +120,28 @@ def finalise_db():
             Direction.create('up', z=1)
             Direction.create('down', z=-1)
             s.commit()
-            for d in s.query(Direction):
-                d.opposite = s.query(Direction).filter_by(
-                    x=d.x * -1,
-                    y=d.y * -1,
-                    z=d.z * -1
+            for d in Direction.query():
+                d.opposite = Direction.query(
+                    x=d.x * -1, y=d.y * -1, z=d.z * -1
                 ).first()
                 s.add(d)
                 s.commit()
-        if not s.query(ServerOptions).count():
-            s.add(
-                ServerOptions(
-                    name='Default', first_room=s.query(Room).first()
-                )
-            )
-        s.query(Object).update({Object.connected: False})
+        if not ServerOptions.count():
+            s.add(ServerOptions(name='Default', first_room=Room.first()))
+        Object.query(connected=True).update({Object.connected: False})
         if not Gender.count():
             s.add(Gender(name='Neutral'))
             s.add(
                 Gender(
-                    name='Male',
-                    subjective='he',
-                    objective='him',
-                    possessive_adjective='his',
-                    possessive_noun='his',
+                    name='Male', subjective='he', objective='him',
+                    possessive_adjective='his', possessive_noun='his',
                     reflexive='himself'
                 )
             )
             s.add(
                 Gender(
-                    name='Female',
-                    subjective='she',
-                    objective='her',
-                    possessive_adjective='her',
-                    possessive_noun='hers',
+                    name='Female', subjective='she', objective='her',
+                    possessive_adjective='her', possessive_noun='hers',
                     reflexive='herself'
                 )
             )

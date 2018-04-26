@@ -321,11 +321,7 @@ class OwnerMixin:
     """Adds ownership information to objects."""
     @declared_attr
     def owner_id(cls):
-        return Column(
-            Integer,
-            ForeignKey('objects.id'),
-            nullable=True
-        )
+        return Column(Integer, ForeignKey('objects.id'), nullable=True)
 
     @declared_attr
     def owner(cls):
