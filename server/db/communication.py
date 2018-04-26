@@ -71,7 +71,7 @@ class CommunicationChannel(
                     'Only administrators can transmit on this channel.'
                 )
         if format is None:
-            format = self.transmition_format
+            format = self.transmit_format
         m = CommunicationChannelMessage(
             channel=self, owner=who, text=message
         )
