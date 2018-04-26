@@ -248,6 +248,7 @@ def authenticated_key(con, name, modifiers=None):
                     pass  # Command exited successfully.
                 except Exception as e:
                     handle_traceback(e, key_name, player_name, location_name)
+                    raise e
 
 
 @main_parser.command
