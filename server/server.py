@@ -106,7 +106,7 @@ class ProtocolBase:
         peer = self.transport.getPeer()
         self.host = peer.host
         self.port = peer.port
-        self.logger = logging.getLogger('{self.host}:{self.port}')
+        self.logger = logging.getLogger(f'{self.host}:{self.port}')
         self.logger.info('Connected.')
         server.connections.append(self)
         self.parser = login_parser
