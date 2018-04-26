@@ -19,6 +19,7 @@ from twisted.web.server import Site
 from .protocol import interface_sound, message
 from .sound import get_sound
 from .parsers import login_parser
+from .program import handle_traceback
 from .db import (
     Session, session, Object, Player, ServerOptions, LoggedCommand
 )
@@ -105,7 +106,7 @@ class ProtocolBase:
         peer = self.transport.getPeer()
         self.host = peer.host
         self.port = peer.port
-        self.logger = logging.getLogger('%s:%d' % (self.host, self.port))
+        self.logger = logging.getLogger('{self.host}:{self.port}')
         self.logger.info('Connected.')
         server.connections.append(self)
         self.parser = login_parser
@@ -192,10 +193,23 @@ class MindspaceWebSocketProtocol(WebSocketServerProtocol, ProtocolBase):
     def _handle_string(self, string):
         """Handle JSON string."""
         name, args, kwargs = loads(string)
+        player = self.get_player()
+        if player is None:
+            player = self.logger.name
+        else:
+            player_name = player.get_name(True)
+        if player is None:
+            location_name = 'Not Connected'
+        elif player.location is None:
+            location_name = 'Nowhere'
+        else:
+            location_name = player.location.get_name(True)
+        del player
         try:
             self.parser.handle_command(name, self, *args, **kwargs)
         except Exception as e:
             message(self, 'There was an error with your command.')
+            handle_traceback(e, 'handle_string', player_name, location_name)
 
     def send(self, name, *args, **kwargs):
         """Prepare data and send it via self.sendString."""
