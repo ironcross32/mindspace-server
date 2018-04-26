@@ -152,6 +152,7 @@ class Bank(Base, NameMixin, DescriptionMixin, CurrencyMixin, OwnerMixin):
     withdraw_charge = Column(Float, nullable=False, default=0.0)
     deposit_charge = Column(Float, nullable=False, default=0.0)
     open_charge = Column(Float, nullable=False, default=0.0)
+    open_msg = message('You open an account.')
 
 
 class BankAccountAccessor(Base):
