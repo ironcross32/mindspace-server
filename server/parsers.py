@@ -291,6 +291,18 @@ def action(con, object_id, action_id):
         except OK:
             return  # They're playing silly buggers.
         if action in obj.get_actions():
-            run_program(con, s, action, self=action, obj=obj)
+            friendly = action.get_name(True)
+            player_name = player.get_name(True)
+            if player.location is None:
+                location_name = 'Nowhere'
+            else:
+                location_name = player.location.get_name(True)
+            try:
+                run_program(con, s, action, self=action, obj=obj)
+            except OK:
+                pass  # Return from command.
+            except Exception as e:
+                handle_traceback(e, friendly, player_name, location_name)
+                raise e
         else:
             player.message('Invalid action or object ID.')
