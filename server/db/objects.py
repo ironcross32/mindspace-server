@@ -229,7 +229,7 @@ class Object(
         """Get name including pose."""
         name = self.get_name(*args, **kwargs)
         if self.sitting is None:
-            if self.post is None:
+            if self.pose is None:
                 msg = ''
             else:
                 msg = self.pose
