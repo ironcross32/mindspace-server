@@ -3,7 +3,6 @@ from server.db import (
     Bank, BankAccount, BankAccountAccessor, Object, Session as s, ATM,
     Currency, CreditCard, ATMError
 )
-from server.socials import factory
 
 
 currency = Currency(name='Tests', value=1.0)

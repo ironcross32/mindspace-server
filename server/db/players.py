@@ -1,6 +1,9 @@
 """Provides the Player class."""
 
-from sqlalchemy import (Column, String, Float, Boolean, Interval, DateTime)
+from sqlalchemy import (
+    Column, String, Float, Boolean, Interval, DateTime, Integer, ForeignKey
+)
+from sqlalchemy.orm import relationship
 from .base import Base, PermissionsMixin, PasswordMixin, LockedMixin
 from ..protocol import options
 
@@ -25,6 +28,8 @@ class Player(Base, PermissionsMixin, PasswordMixin, LockedMixin):
     mail_notifications = Column(Boolean, nullable=False, default=True)
     idea_notifications = Column(Boolean, nullable=False, default=True)
     changelog_notifications = Column(Boolean, nullable=False, default=True)
+    home_id = Column(Integer, ForeignKey('rooms.id'), nullable=True)
+    home = relationship('Room', backref='squatters')
 
     def send_options(self, connection):
         """Send player options over connection."""
