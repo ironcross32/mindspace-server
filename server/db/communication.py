@@ -77,14 +77,15 @@ class CommunicationChannel(
         )
         s.add(m)
         strings = factory.get_strings(
-            format, [who], channel_name=self.name, message=message
+            format, [who], channel_name=self.name, message=m.text
         )
+        first, second = strings
         sound = get_sound(self.transmit_sound)
         for l in self.listeners:
             if l is who:
-                string = strings[0]
+                string = first
             else:
-                string = strings[-1]
+                string = second
             l.message(string, channel=self.name)
             l.sound(sound, private=True)
         return m
