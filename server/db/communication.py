@@ -39,7 +39,7 @@ class CommunicationChannel(
     """A communications channel."""
 
     __tablename__ = 'communication_channels'
-    transmit_format = message('[%1N] {channel_name} transmit%1s: "{message}"')
+    transmit_format = message('[{channel_name}] %1N transmit%1s: "{message}"')
     transmit_sound = Column(
         Sound, nullable=False, default=os.path.join(
             sounds_dir, 'communication', 'transmit.wav'
