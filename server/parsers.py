@@ -32,15 +32,11 @@ class MainParser(MindspaceParser):
         args = args[2:]
         with session() as s:
             query_args = [Command.name == name]
-            if connection is not None:
-                player = connection.get_player(s)
-            else:
-                player = None
-            if player is not None:
-                for perm in ('builder', 'admin'):
-                    if not getattr(player.player, perm):
-                        column = getattr(Command, perm)
-                        query_args.append(column.is_(False))
+            player = connection.get_player(s)
+            for perm in ('builder', 'admin'):
+                if not getattr(player.player, perm, False):
+                    column = getattr(Command, perm)
+                    query_args.append(column.is_(False))
             cmd = Command.query(*query_args).first()
             if cmd is None:
                 return super().huh(name, *args, **kwargs)
