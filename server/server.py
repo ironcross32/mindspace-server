@@ -195,7 +195,7 @@ class MindspaceWebSocketProtocol(WebSocketServerProtocol, ProtocolBase):
         name, args, kwargs = loads(string)
         player = self.get_player()
         if player is None:
-            player = self.logger.name
+            player_name = self.logger.name
         else:
             player_name = player.get_name(True)
         if player is None:
