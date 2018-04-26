@@ -94,12 +94,6 @@ class Server:
 class ProtocolBase:
     """Base class for mindspace protocol classes."""
 
-    def handle_command(self, *args, **kwargs):
-        """Handle a command as this connection."""
-        name = args[0]
-        args = args[1:]
-        return self.parser.handle_command(name, self, *args, **kwargs)
-
     def on_connect(self):
         self.last_active = 0
         self.locked = False
@@ -173,11 +167,7 @@ class ProtocolBase:
         if self.locked:
             message(self, 'Your connection has been locked.')
         else:
-            try:
-                self._handle_string(string)
-            except Exception as e:
-                logger.exception(e)
-                message(self, 'There was an error with your command.')
+            self._handle_string(string)
 
     @property
     def logged(self):
@@ -198,7 +188,10 @@ class MindspaceWebSocketProtocol(WebSocketServerProtocol, ProtocolBase):
     def _handle_string(self, string):
         """Handle JSON string."""
         name, args, kwargs = loads(string)
-        return self.parser.handle_command(name, self, *args, **kwargs)
+        try:
+            self.parser.handle_command(name, self, *args, **kwargs)
+        except Exception as e:
+            message(self, 'There was an error with your command.')
 
     def send(self, name, *args, **kwargs):
         """Prepare data and send it via self.sendString."""
