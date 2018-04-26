@@ -176,6 +176,7 @@ class BankAccount(Base, NameMixin, LockedMixin):
     bank_id = Column(Integer, ForeignKey('banks.id'), nullable=False)
     bank = relationship('Bank', backref='accounts')
     overdraft_limit = Column(Float, nullable=False, default=0.0)
+    overdraft_limit_msg = message('Overdraft limit exceeded.')
     locked_msg = message('This account is locked.')
     lock_msg = message('You lock the {} account.')
     unlock_msg = message('You unlock the {} account.')
@@ -185,6 +186,8 @@ class BankAccount(Base, NameMixin, LockedMixin):
         'You remove {} from the list of people allowed to access the {} '
         'account.'
     )
+    withdraw_msg = message('You withdraw {} {} from the {} account.')
+    deposit_msg = message('You deposit {} {} into the {} account.')
 
     def get_accessor(self, obj):
         """Returns a BankAccountAccessor object representing object obj."""
