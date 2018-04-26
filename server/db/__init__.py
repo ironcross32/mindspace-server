@@ -51,7 +51,8 @@ from .chairs import Chair
 from .containers import Container
 from .commerce import (
     Currency, Shop, ShopItem, CreditCard, CreditCardTransfer,
-    TransferDirections, CreditCardError
+    TransferDirections, CreditCardError, Bank, BankAccountAccessor,
+    BankAccount
 )
 from .phones import (
     PhoneContact, Phone, PhoneStates, BlockedPhoneAddress, TextMessage
@@ -224,5 +225,6 @@ __all__ = (
     'Chair', 'RestingStates', 'Container', 'Currency', 'Shop', 'ShopItem',
     'PhoneContact', 'Phone', 'PhoneStates', 'BlockedPhoneAddress',
     'TextMessage', 'RemappedHotkey', 'CreditCard', 'CreditCardTransfer',
-    'TransferDirections', 'CreditCardError'
+    'TransferDirections', 'CreditCardError', 'Bank', 'BankAccountAccessor',
+    'BankAccount'
 )

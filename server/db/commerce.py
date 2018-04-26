@@ -1,11 +1,11 @@
 """Provides classes related to finances."""
 
 from enum import Enum as _Enum
-from sqlalchemy import Column, Integer, Float, ForeignKey, Enum
+from sqlalchemy import Column, Integer, Float, ForeignKey, Enum, Boolean
 from sqlalchemy.orm import relationship, backref
 from .base import (
     Base, message, Sound, NameMixin, DescriptionMixin, CurrencyMixin,
-    PasswordMixin, CreatedMixin
+    PasswordMixin, CreatedMixin, OwnerMixin, LockedMixin
 )
 from ..util import now
 
@@ -137,3 +137,60 @@ class CreditCardTransfer(Base, DescriptionMixin, CreatedMixin):
         description = self.get_description()
         when = now(self.created).ctime()
         return f'#{id}: {direction} {value} {currency}: {description} [{when}]'
+
+
+class Bank(Base, NameMixin, DescriptionMixin, CurrencyMixin, OwnerMixin):
+    """A bank."""
+
+    __tablename__ = 'banks'
+    card_name = message('a plastic card emblazoned with the {} logo')
+    overdraft_interest = Column(Float, nullable=False, default=2.0)
+    savings_interest = Column(Float, nullable=False, default=0.5)
+
+
+class BankAccountAccessor(Base):
+    """A person who can access a bank account."""
+
+    __tablename__ = 'bank_account_accessors'
+    account_id = Column(
+        Integer, ForeignKey('bank_accounts.id'), nullable=False
+    )
+    account = relationship('BankAccount', backref='accessors')
+    object_id = Column(Integer, ForeignKey('objects.id'), nullable=False)
+    object = relationship('Object', backref='bank_accounts')
+    can_view = Column(Boolean, nullable=False, default=True)
+    can_deposit = Column(Boolean, nullable=False, default=True)
+    can_withdraw = Column(Boolean, nullable=False, default=True)
+    can_lock = Column(Boolean, nullable=False, default=False)
+    can_unlock = Column(Boolean, nullable=False, default=False)
+    can_delete = Column(Boolean, nullable=False, default=True)
+    can_add_accessor = Column(Boolean, nullable=False, default=True)
+    can_remove_accessor = Column(Boolean, nullable=False, default=True)
+
+
+class BankAccount(Base, NameMixin, LockedMixin):
+    """A bank account owned by a user."""
+
+    __tablename__ = 'bank_accounts'
+    amount = Column(Float, nullable=False, default=0.0)
+    bank_id = Column(Integer, ForeignKey('banks.id'), nullable=False)
+    bank = relationship('Bank', backref='accounts')
+    overdraft_limit = Column(Float, nullable=False, default=0.0)
+    locked_msg = message('This account is locked.')
+    lock_msg = message('You lock the {} account.')
+    unlock_msg = message('You unlock the {} account.')
+    delete_msg = message('You delete the {} account.')
+    add_accessor_message = message('You allow {} to access the {} account.')
+    remove_accessor_msg = message(
+        'You remove {} from the list of people allowed to access the {} '
+        'account.'
+    )
+
+    def get_accessor(self, obj):
+        """Returns a BankAccountAccessor object representing object obj."""
+        return BankAccountAccessor.query(
+            object_id=obj.id, account_id=self.id
+        ).first()
+
+    def add_accessor(self, obj):
+        return BankAccountAccessor(object_id=obj.id, account_id=self.id)

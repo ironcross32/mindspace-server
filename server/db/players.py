@@ -1,11 +1,11 @@
 """Provides the Player class."""
 
 from sqlalchemy import (Column, String, Float, Boolean, Interval, DateTime)
-from .base import Base, PermissionsMixin, PasswordMixin
+from .base import Base, PermissionsMixin, PasswordMixin, LockedMixin
 from ..protocol import options
 
 
-class Player(Base, PermissionsMixin, PasswordMixin):
+class Player(Base, PermissionsMixin, PasswordMixin, LockedMixin):
     """Player options."""
 
     __tablename__ = 'players'
@@ -20,7 +20,6 @@ class Player(Base, PermissionsMixin, PasswordMixin):
     sound_volume = Column(Float, nullable=False, default=1.0)
     ambience_volume = Column(Float, nullable=False, default=0.2)
     music_volume = Column(Float, nullable=False, default=1.0)
-    locked = Column(Boolean, nullable=False, default=False)
     connect_notifications = Column(Boolean, nullable=False, default=True)
     disconnect_notifications = Column(Boolean, nullable=False, default=True)
     mail_notifications = Column(Boolean, nullable=False, default=True)

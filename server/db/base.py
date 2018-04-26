@@ -645,3 +645,8 @@ class PhoneMixin:
     @declared_attr
     def phone(cls):
         return relationship('Phone', backref=cls.__tablename__)
+
+
+class LockedMixin:
+    """Add a locked column."""
+    locked = Column(Boolean, nullable=False, default=False)
