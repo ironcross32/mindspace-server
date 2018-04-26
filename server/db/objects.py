@@ -105,6 +105,8 @@ class Object(
     player = relationship(
         'Player', backref=backref('object', uselist=False), cascade='all'
     )
+    atm_id = Column(Integer, ForeignKey('atms.id'), nullable=True)
+    atm = relationship('ATM', backref=backref('object', uselist=False))
     phone_id = Column(Integer, ForeignKey('phones.id'), nullable=True)
     phone = relationship(
         'Phone', backref=backref('object', uselist=False), cascade='all'
@@ -289,6 +291,10 @@ class Object(
         con = self.get_connection()
         if con is not None:
             con.logged = value
+
+    @property
+    def is_atm(self):
+        return self.atm is not None
 
     @property
     def is_shop(self):

@@ -1,5 +1,5 @@
 from server.db import (
-    Bank, BankAccount, BankAccountAccessor, Object, Session as s
+    Bank, BankAccount, BankAccountAccessor, Object, Session as s, ATM
 )
 
 b = Bank(name='Test Bank', description='This is a test bank')
@@ -21,3 +21,14 @@ def test_account():
     s.commit()
     accessor = a.get_accessor(p)
     assert isinstance(accessor, BankAccountAccessor)
+
+
+def test_atm():
+    atm = Object(name='Test ATM')
+    s.add(atm)
+    s.commit()
+    atm.atm = ATM(bank=b)
+    assert atm.is_atm
+    assert atm.atm.bank is b
+    assert atm.atm in b.atms
+    assert atm.atm.object is atm

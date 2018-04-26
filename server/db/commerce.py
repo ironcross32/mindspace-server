@@ -197,3 +197,11 @@ class BankAccount(Base, NameMixin, LockedMixin):
 
     def add_accessor(self, obj):
         return BankAccountAccessor(object_id=obj.id, account_id=self.id)
+
+
+class ATM(Base):
+    """Make any object an ATM."""
+
+    __tablename__ = 'atms'
+    bank_id = Column(Integer, ForeignKey('banks.id'), nullable=False)
+    bank = relationship('Bank', backref='atms')
