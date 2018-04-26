@@ -33,10 +33,10 @@ class ServerOptions(Base, NameMixin):
     )
     max_speak_length = Column(Integer, nullable=False, default=1000000)
     max_phone_address_length = Column(Integer, nullable=False, default=8)
-    transmit_as_id = Column(
+    system_object_id = Column(
         Integer, ForeignKey('objects.id'), nullable=False, default=0
     )
-    transmit_as = relationship('Object', backref='transmit_as_for_options')
+    system_object = relationship('Object', backref='transmit_as_for_options')
 
     @classmethod
     def get(cls):

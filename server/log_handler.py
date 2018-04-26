@@ -18,7 +18,7 @@ class LogHandler(Handler):
             )
             s.add(channel)
             s.commit()
-        sender = ServerOptions.get().transmit_as
+        sender = ServerOptions.get().system_object
         assert sender is not None
         channel.transmit(
             sender, f'{record.name}: {record.getMessage()}', strict=False
