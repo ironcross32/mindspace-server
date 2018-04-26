@@ -23,6 +23,16 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    '-L', '--log-level', default='INFO', help='The default logging level'
+)
+
+parser.add_argument(
+    '-F', '--log-format',
+    default='[%(asctime)s] %(name)s.%(levelname)s: %(message)s',
+    help='The format of log messages'
+)
+
+parser.add_argument(
     '-t',
     '--test-db',
     action='store_true',
@@ -42,7 +52,7 @@ if __name__ == '__main__':
     started = time()
     args = parser.parse_args()
     logging.basicConfig(
-        level='INFO', format='%(name)s.%(levelname)s: %(message)s',
+        level=args.log_level, format=args.log_format,
         stream=args.log_file
     )
     started = time()
