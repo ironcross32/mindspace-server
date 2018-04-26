@@ -3,21 +3,13 @@
 import os.path
 from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
-from attr import attrs, attrib, Factory
 from .base import (
     Base, NameMixin, DescriptionMixin, OwnerMixin, CommunicationChannelMixin,
-    PermissionsMixin, CreatedMixin, TextMixin
+    PermissionsMixin, CreatedMixin, TextMixin, Sound, message
 )
-from ..sound import sounds_dir
-
-
-@attrs
-class UnstoredCommunicationChannelMessage:
-    """A pretend channel message."""
-
-    channel = attrib(default=Factory(lambda: None))
-    text = attrib(default=Factory(lambda: None))
-    owner = attrib(default=Factory(lambda: None))
+from .session import Session as s
+from ..sound import sounds_dir, get_sound
+from ..socials import factory
 
 
 class TransmitionError(Exception):
@@ -47,6 +39,12 @@ class CommunicationChannel(
     """A communications channel."""
 
     __tablename__ = 'communication_channels'
+    transmit_format = message('[%1N] {channel_name} transmit%1s: "{message}"')
+    transmit_sound = Column(
+        Sound, nullable=False, default=os.path.join(
+            sounds_dir, 'communication', 'transmit.wav'
+        )
+    )
     listeners = relationship(
         'Object', secondary=CommunicationChannelListener.__table__,
         backref='communication_channels', cascade='all'
@@ -56,10 +54,7 @@ class CommunicationChannel(
         backref='banned_channels', cascade='all'
     )
 
-    def transmit(
-        self, who, message, format='[{}] {} transmits: "{}"', strict=True,
-        store=True
-    ):
+    def transmit(self, who, message, format=None, strict=True):
         """Send a message on this channel. If strict then perform permission
         checks."""
         if strict:
@@ -69,38 +64,29 @@ class CommunicationChannel(
                 )
             if self.builder and not who.is_builder:
                 raise TransmitionError(
-                    'Only builders can transmit on tis channel.'
+                    'Only builders can transmit on this channel.'
                 )
             if self.admin and not who.is_admin:
                 raise TransmitionError(
-                    'Only administrators can transmit on tis channel.'
+                    'Only administrators can transmit on this channel.'
                 )
-        if store:
-            cls = CommunicationChannelMessage
-        else:
-            cls = UnstoredCommunicationChannelMessage
-        m = cls(
+        if format is None:
+            format = self.transmition_format
+        m = CommunicationChannelMessage(
             channel=self, owner=who, text=message
         )
-        path = os.path.join(
-            sounds_dir, 'communication', f'{self.name.lower()}.wav'
+        s.add(m)
+        strings = factory.get_strings(
+            format, [who], channel_name=self.name, message=message
         )
-        if os.path.isfile(path):
-            sound = path
-        else:
-            sound = None
+        sound = get_sound(self.transmit_sound)
         for l in self.listeners:
-            l.message(
-                format.format(
-                    self.get_name(l.is_staff),
-                    m.owner.get_name(l.is_staff),
-                    m.text
-                ),
-                channel=self.name
-            )
+            if l is who:
+                string = strings[0]
+            else:
+                string = strings[-1]
+            l.message(string, channel=self.name)
             l.sound(sound, private=True)
-        if m in self.messages and not store:
-            self.messages.remove(m)
         return m
 
 
