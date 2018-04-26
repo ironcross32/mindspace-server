@@ -1,4 +1,5 @@
 [
+  "tests/bank_test.py::test_account",
   "tests/credit_card_test.py::test_stupidity",
   "tests/credit_card_test.py::test_initial",
   "tests/credit_card_test.py::test_locked"

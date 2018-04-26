@@ -169,6 +169,10 @@ class ProtocolBase:
         else:
             self._handle_string(string)
 
+    def handle_command(self, name, *args, **kwargs):
+        """Handle a command. Used by commands in the database."""
+        self.parser.handle_command(name, self, *args, **kwargs)
+
     @property
     def logged(self):
         return self.player_id in server.logged_players
