@@ -228,14 +228,17 @@ class Object(
     def get_full_name(self, *args, **kwargs):
         """Get name including pose."""
         name = self.get_name(*args, **kwargs)
-        if self.sitting:
-            msg = str(self.resting_state)[len(RestingStates.__name__) + 1:]
+        if self.sitting is None:
+            if self.post is None:
+                msg = ''
+            else:
+                msg = self.pose
+        else:
+            msg = self.resting_state.name
             msg = getattr(self.sitting, f'{msg}_msg').format(
                 self.sitting.object.get_name(self.is_staff)
             )
-            name = f'{name} {msg}'
-        if self.pose:
-            name = f'{name} {self.pose}'
+        name = f'{name} {msg}'.strip()
         return name
 
     def get_type(self):
