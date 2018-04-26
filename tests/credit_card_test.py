@@ -1,16 +1,8 @@
 from pytest import raises
 from server.db import CreditCard, CreditCardError
+from .conftest import Message, CustomPlayer
 
 c = CreditCard.first()
-
-
-class Message(Exception):
-    """A message was received."""
-
-
-class CustomPlayer:
-    def message(self, *args, **kwargs):
-        raise Message(*args, **kwargs)
 
 
 p = CustomPlayer()
