@@ -174,11 +174,11 @@ class _Base:
                         type = []
                     other_column = list(column.foreign_keys)[0].column
                     other_class = Base.get_class(other_column.table)
-                    relationship_name = column.name[:-len(suffix)]
-                    relationship = i.relationships[relationship_name]
-                    if not isinstance(relationship.backref, str):
-                        logger.info('Ignoring primary key %r.', column)
-                        continue
+                    # relationship_name = column.name[:-len(suffix)]
+                    # relationship = i.relationships[relationship_name]
+                    # if not isinstance(relationship.backref, str):
+                    #     logger.info('Ignoring primary key %r.', column)
+                    #     continue
                     for obj in other_class.query():
                         type.append([obj.id, str(obj)])
                 else:
