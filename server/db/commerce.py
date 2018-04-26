@@ -151,6 +151,7 @@ class Bank(Base, NameMixin, DescriptionMixin, CurrencyMixin, OwnerMixin):
     savings_interest = Column(Float, nullable=False, default=0.5)
     withdraw_charge = Column(Float, nullable=False, default=0.0)
     deposit_charge = Column(Float, nullable=False, default=0.0)
+    open_charge = Column(Float, nullable=False, default=0.0)
 
 
 class BankAccountAccessor(Base):
