@@ -188,7 +188,7 @@ class _Base:
             elif cls is Text:
                 type = text
             else:
-                logger.info('Ignoring type %r.', cls)
+                logger.info('Ignoring column %r.', column)
                 continue
             fields.append(self.make_field(name, type=type))
         return fields
