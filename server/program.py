@@ -19,7 +19,7 @@ from sqlalchemy import exc
 from twisted.internet import reactor
 from emote_utils import SocialsError
 from . import db, server, protocol, menus, util, forms, sound, distance
-from .db import base, Object, Player
+from .db import base, Object, Player, ATM
 from .socials import factory
 from .mail import Message
 
@@ -108,6 +108,15 @@ def check_staff(player):
     if not player.is_staff:
         name = player.get_name(True)
         raise PermissionError(f'{name} is not staff.')
+
+
+def check_bank(player, bank):
+    """Ensure player can actually access the bank they're trying to access."""
+    if not Object.join(Object.atm).filter(
+        *player.same_coordinates(), ATM.bank_id == bank.id
+    ).count():
+        player.message('You can access that bank from here.')
+        end()
 
 
 def server_info():
@@ -219,6 +228,7 @@ ctx = dict(
     check_admin=check_admin,
     check_builder=check_builder,
     check_staff=check_staff,
+    check_bank=check_bank,
     exc=exc,
     PythonShell=PythonShell,
     redirect_stdout=redirect_stdout,
