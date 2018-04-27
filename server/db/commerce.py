@@ -153,6 +153,9 @@ class Bank(Base, NameMixin, DescriptionMixin, CurrencyMixin, OwnerMixin):
     withdraw_charge = Column(Float, nullable=False, default=0.0)
     deposit_charge = Column(Float, nullable=False, default=0.0)
     open_charge = Column(Float, nullable=False, default=0.0)
+    rename_charge = Column(Float, nullable=False, default=0.0)
+    add_accessor_charge = Column(Float, nullable=False, default=0.0)
+    remove_accessor_charge = Column(Float, nullable=False, default=0.0)
     open_msg = message('You open an account.')
 
 
@@ -194,6 +197,7 @@ class BankAccount(Base, NameMixin, LockedMixin, CreatedMixin):
         'You remove {} from the list of people allowed to access the {} '
         'account.'
     )
+    rename_msg = message('You set a new name for the account.')
     insufficient_perms_msg = message('Access blocked.')
     insufficient_funds_msg = message('Insufficient funds.')
 
