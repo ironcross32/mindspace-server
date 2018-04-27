@@ -140,7 +140,8 @@ def login(con, username, password):
 @main_parser.command
 def speak(con, data):
     """Send out microphone data."""
-    data = data[:ServerOptions.get().max_speak_length]
+    if len(data) > ServerOptions.get().max_speak_length:
+        message(con, 'Transmition too long.')
     con.get_player().speak(data)
 
 
