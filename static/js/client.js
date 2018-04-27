@@ -682,7 +682,12 @@ let mindspace_functions = {
         let [sound, volume] = obj.args
         if (sound === null) {
             if (convolver !== null) {
-                convolver.disconnect(convolver_mixer)
+                try {
+                    convolver.disconnect(convolver_mixer)
+                }
+                catch (err) {
+                    // In case someone messed up the convolver with a text file for example.
+                }
             }
         } else {
             let [path, sum] = sound
