@@ -167,6 +167,7 @@ class BankAccountAccessor(Base, CreatedMixin):
     object_id = Column(Integer, ForeignKey('objects.id'), nullable=False)
     object = relationship('Object', backref='bank_accounts')
     can_view = Column(Boolean, nullable=False, default=True)
+    can_rename = Column(Boolean, nullable=False, default=True)
     can_deposit = Column(Boolean, nullable=False, default=True)
     can_withdraw = Column(Boolean, nullable=False, default=True)
     can_lock = Column(Boolean, nullable=False, default=False)
