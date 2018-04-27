@@ -468,6 +468,11 @@ class Object(
             args.append(CommunicationChannel.admin.is_(False))
         return Session.query(CommunicationChannel).filter(*args)
 
+    def say(self, text, channel='say'):
+        """Have this object say something."""
+        self.sound(self.say_sound)
+        self.do_social(self.say_msg, text=text, _channel=channel)
+
     def do_social(self, string, _others=None, _channel=None, *args, **kwargs):
         """Get social strings and send them out to players within visual range.
         This object will be the first object in the perspectives list, that
