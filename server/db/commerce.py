@@ -49,7 +49,7 @@ class ShopItem(Base):
 
     __tablename__ = 'shop_items'
     shop_id = Column(Integer, ForeignKey('shops.id'), nullable=False)
-    shop = relationship('Shop', backref='items')
+    shop = relationship('Shop', backref=backref('items', cascade='all'))
     object_id = Column(Integer, ForeignKey('objects.id'), nullable=False)
     object = relationship('Object', backref=backref('shops', cascade='all'))
     price = Column(Float, nullable=False, default=1000000.0)
@@ -128,7 +128,9 @@ class CreditCardTransfer(Base, DescriptionMixin, CreatedMixin):
     amount = Column(Float, nullable=False)
     direction = Column(Enum(TransferDirections), nullable=False)
     card_id = Column(Integer, ForeignKey('credit_cards.id'), nullable=False)
-    card = relationship('CreditCard', backref='transfers')
+    card = relationship(
+        'CreditCard', backref=backref('transfers', cascade='all')
+    )
 
     def as_string(self, verbose=False):
         """Return tis transfer as a string."""
@@ -166,9 +168,13 @@ class BankAccountAccessor(Base, CreatedMixin):
     account_id = Column(
         Integer, ForeignKey('bank_accounts.id'), nullable=False
     )
-    account = relationship('BankAccount', backref='accessors')
+    account = relationship(
+        'BankAccount', backref=backref('accessors', cascade='all')
+    )
     object_id = Column(Integer, ForeignKey('objects.id'), nullable=False)
-    object = relationship('Object', backref='bank_accounts')
+    object = relationship(
+        'Object', backref=backref('bank_accounts', cascade='all')
+    )
     can_view = Column(Boolean, nullable=False, default=True)
     can_rename = Column(Boolean, nullable=False, default=True)
     can_deposit = Column(Boolean, nullable=False, default=True)
@@ -186,7 +192,7 @@ class BankAccount(Base, NameMixin, LockedMixin, CreatedMixin):
     __tablename__ = 'bank_accounts'
     balance = Column(Float, nullable=False, default=0.0)
     bank_id = Column(Integer, ForeignKey('banks.id'), nullable=False)
-    bank = relationship('Bank', backref='accounts')
+    bank = relationship('Bank', backref=backref('accounts', cascade='all'))
     overdraft_limit = Column(Float, nullable=False, default=0.0)
     locked_msg = message('This account is locked.')
     lock_msg = message('You lock the {} account.')
@@ -228,7 +234,7 @@ class ATM(Base):
 
     __tablename__ = 'atms'
     bank_id = Column(Integer, ForeignKey('banks.id'), nullable=False)
-    bank = relationship('Bank', backref='atms')
+    bank = relationship('Bank', backref=backref('atms', cascade='all'))
     withdraw_msg = message('%1N withdraw%1s %2n from %3n.')
     withdraw_description = message('ATM Withdrawal')
     overflow_msg = message('Try depositing money.')
