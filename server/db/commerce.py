@@ -156,7 +156,7 @@ class Bank(Base, NameMixin, DescriptionMixin, CurrencyMixin, OwnerMixin):
     open_msg = message('You open an account.')
 
 
-class BankAccountAccessor(Base):
+class BankAccountAccessor(Base, CreatedMixin):
     """A person who can access a bank account."""
 
     __tablename__ = 'bank_account_accessors'
@@ -176,7 +176,7 @@ class BankAccountAccessor(Base):
     can_remove_accessor = Column(Boolean, nullable=False, default=True)
 
 
-class BankAccount(Base, NameMixin, LockedMixin):
+class BankAccount(Base, NameMixin, LockedMixin, CreatedMixin):
     """A bank account owned by a user."""
 
     __tablename__ = 'bank_accounts'
