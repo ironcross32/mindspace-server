@@ -112,8 +112,10 @@ def check_staff(player):
 
 def check_bank(player, bank):
     """Ensure player can actually access the bank they're trying to access."""
+    valid_object(player, bank)
     if not Object.join(Object.atm).filter(
-        *player.same_coordinates(), ATM.bank_id == bank.id
+        Object.location_id == player.location_id, *player.same_coordinates(),
+        ATM.bank_id == bank.id
     ).count():
         player.message('You can access that bank from here.')
         end()
