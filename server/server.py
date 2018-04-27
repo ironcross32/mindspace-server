@@ -208,7 +208,7 @@ class MindspaceWebSocketProtocol(WebSocketServerProtocol, ProtocolBase):
         try:
             self.parser.handle_command(name, self, *args, **kwargs)
         except Exception as e:
-            message(self, 'There was an error with your command.')
+            message(self, ServerOptions.get().command_error_msg)
             handle_traceback(e, 'handle_string', player_name, location_name)
 
     def send(self, name, *args, **kwargs):

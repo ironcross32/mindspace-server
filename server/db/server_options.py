@@ -37,6 +37,9 @@ class ServerOptions(Base, NameMixin):
         Integer, ForeignKey('objects.id'), nullable=False, default=0
     )
     system_object = relationship('Object', backref='transmit_as_for_options')
+    command_error_msg = message(
+        'There was an error with your command. The staff have been notified.'
+    )
 
     @classmethod
     def get(cls):
