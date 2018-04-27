@@ -145,6 +145,7 @@ class Bank(Base, NameMixin, DescriptionMixin, CurrencyMixin, OwnerMixin):
     """A bank."""
 
     __tablename__ = 'banks'
+    welcome_msg = message('Thank you for banking with us.')
     card_name = message('a plastic card emblazoned with the {} logo')
     card_description = 'This card was issued by {}.'
     overdraft_interest = Column(Float, nullable=False, default=2.0)
