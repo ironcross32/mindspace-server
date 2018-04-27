@@ -60,6 +60,10 @@ class Object(
     gender_id = Column(Integer, ForeignKey('genders.id'), nullable=True)
     gender = relationship('Gender', backref='objects')
     max_distance_multiplier = Column(Float, nullable=False, default=1.0)
+    say_msg = message('%1N say%1s: "{text}"')
+    say_sound = Column(
+        Sound, nullable=False, default=os.path.join('players', 'say.wav')
+    )
     teleport_msg = message('%1N vanish%1e in a column of light.')
     teleport_sound = Column(
         Sound, nullable=False,
