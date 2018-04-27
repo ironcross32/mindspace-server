@@ -142,7 +142,8 @@ def speak(con, data):
     """Send out microphone data."""
     if len(data) > ServerOptions.get().max_speak_length:
         message(con, 'Transmition too long.')
-    con.get_player().speak(data)
+    else:
+        con.get_player().speak(data)
 
 
 @main_parser.command(name='key')
