@@ -117,7 +117,7 @@ def check_bank(player, bank):
         Object.location_id == player.location_id, *player.same_coordinates(),
         ATM.bank_id == bank.id
     ).count():
-        player.message('You can access that bank from here.')
+        player.message('You cannot access that bank from here.')
         end()
 
 
