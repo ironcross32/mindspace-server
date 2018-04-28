@@ -1,7 +1,7 @@
 from pytest import raises
 from server.db import (
     Bank, BankAccount, BankAccountAccessor, Object, Session as s, ATM,
-    Currency, CreditCard, ATMError
+    Currency, CreditCard, ATMError, BankAccessError
 )
 
 
@@ -67,3 +67,27 @@ def test_withdraw():
     res = atm.withdraw(p, a, currency, amount)
     assert isinstance(res, Object)
     assert isinstance(res.card, CreditCard)
+
+
+def test_access_authenticate():
+    o = Object(name='Test Object')
+    i = Object(name='Imposter')
+    b = Bank(name='Test Bank')
+    s.add_all([b, o, i])
+    s.commit()
+    account = BankAccount(bank=b)
+    s.add(account)
+    s.commit()
+    a = account.add_accessor(o)
+    s.add(a)
+    s.commit()
+    assert a.object is o
+    assert a.can_view is True
+    assert a.authenticate(o, can_view=True) is None
+    msg = account.insufficient_perms_msg
+    with raises(BankAccessError) as exc:
+        a.authenticate(i)
+    assert exc.value.args == (msg,)
+    with raises(BankAccessError) as exc:
+        a.authenticate(o, can_delete=True)
+    assert exc.value.args == (msg,)

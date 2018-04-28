@@ -161,6 +161,10 @@ class Bank(Base, NameMixin, DescriptionMixin, CurrencyMixin, OwnerMixin):
     open_msg = message('You open an account.')
 
 
+class BankAccessError(Exception):
+    """An error accessing a bank account."""
+
+
 class BankAccountAccessor(Base, CreatedMixin):
     """A person who can access a bank account."""
 
@@ -181,9 +185,19 @@ class BankAccountAccessor(Base, CreatedMixin):
     can_withdraw = Column(Boolean, nullable=False, default=True)
     can_lock = Column(Boolean, nullable=False, default=False)
     can_unlock = Column(Boolean, nullable=False, default=False)
-    can_delete = Column(Boolean, nullable=False, default=True)
-    can_add_accessor = Column(Boolean, nullable=False, default=True)
-    can_remove_accessor = Column(Boolean, nullable=False, default=True)
+    can_delete = Column(Boolean, nullable=False, default=False)
+    can_add_accessor = Column(Boolean, nullable=False, default=False)
+    can_remove_accessor = Column(Boolean, nullable=False, default=False)
+
+    def authenticate(self, player, **kwargs):
+        """Raise BankAccessError if player cannot access this bank account
+        through this accessor."""
+        account = self.account
+        if self.object is not player:
+            raise BankAccessError(account.insufficient_perms_msg)
+        for name, value in kwargs.items():
+            if getattr(self, name) != value:
+                raise BankAccessError(account.insufficient_perms_msg)
 
 
 class BankAccount(Base, NameMixin, LockedMixin, CreatedMixin):

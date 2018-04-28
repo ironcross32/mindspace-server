@@ -51,7 +51,7 @@ from .containers import Container
 from .commerce import (
     Currency, Shop, ShopItem, CreditCard, CreditCardTransfer,
     TransferDirections, CreditCardError, Bank, BankAccountAccessor,
-    BankAccount, ATM, ATMError
+    BankAccount, ATM, ATMError, BankAccessError
 )
 from .phones import (
     PhoneContact, Phone, PhoneStates, BlockedPhoneAddress, TextMessage
@@ -218,5 +218,5 @@ __all__ = (
     'PhoneContact', 'Phone', 'PhoneStates', 'BlockedPhoneAddress',
     'TextMessage', 'RemappedHotkey', 'CreditCard', 'CreditCardTransfer',
     'TransferDirections', 'CreditCardError', 'Bank', 'BankAccountAccessor',
-    'BankAccount', 'ATM', 'ATMError'
+    'BankAccount', 'ATM', 'ATMError', 'BankAccessError'
 )
