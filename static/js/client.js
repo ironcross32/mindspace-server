@@ -252,6 +252,7 @@ function play_sound(path, sum) {
 }
 
 function send(obj) {
+    unlock_audio()
     if (obj.args === undefined) {
         obj.args = []
     }
@@ -351,7 +352,6 @@ function standard_key(e) {
     if (!connected) {
         return
     }
-    unlock_audio()
     let mods = []
     for (let control of document.querySelectorAll(".key-modifier")) {
         if (control.checked) {
