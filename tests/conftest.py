@@ -1,6 +1,8 @@
 from server.db import (
     Base, Currency, Object, CreditCard, session, Room, finalise_db
 )
+from server.server import server
+assert server is not None  # Stop pytest from moaning.
 
 
 class Message(Exception):

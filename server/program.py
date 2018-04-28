@@ -215,7 +215,8 @@ def handle_traceback(e, program_name, player_name, location_name):
     if channel is None:
         channel = CommunicationChannel(
             description='Tracebacks from game systems', name=name, admin=True,
-            transmit_format='[{channel_name}] %1N transmit%1s:\n{message}'
+            transmit_format='[{channel_name}] %1N transmit%1s:\n{message}',
+            transmit_sound=os.path.join('communication', 'traceback.wav')
         )
         s.add(channel)
         s.commit()
