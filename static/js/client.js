@@ -252,7 +252,6 @@ function play_sound(path, sum) {
 }
 
 function send(obj) {
-    unlock_audio()
     if (obj.args === undefined) {
         obj.args = []
     }
@@ -370,6 +369,7 @@ for (let button of document.querySelectorAll(".key-standard")) {
     button.onclick = standard_key
 }
 
+document.ontouchstart = unlock_audio
 document.onkeydown = (e) => {
     let current = document.activeElement
     if (
