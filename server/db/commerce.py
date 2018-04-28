@@ -241,10 +241,10 @@ class ATM(Base):
     deposit_description = message('ATM Deposit')
     overflow_msg = message('Try depositing money.')
 
-    def withdraw(self, player, account, currency, amount):
+    def withdraw(self, player, account, currency, amount, card_id=None):
         """Withdraw the specified amount from the specified account and have it
         put onto a new card which will be added to the specified player's
-        inventory."""
+        inventory. If card_id is not None then use that card instead."""
         # Perform checks that the user shouldn't inadvertantly fail:
         # ---
         # Make sure the account is registered with the same bank as this
@@ -266,18 +266,22 @@ class ATM(Base):
         else:
             name = self.bank.card_name.format(self.bank.name)
             description = self.bank.description.format(self.bank.name)
-            obj = Object(
-                name=name, description=description, owner_id=player.id,
-                holder_id=player.id, location_id=None
-            )
-            account.balance -= local_amount
-            card = CreditCard(currency=currency)
-            s.add_all([obj, card])
-            s.commit()
+            if card_id is None:
+                obj = Object(
+                    name=name, description=description, owner_id=player.id,
+                    holder_id=player.id, location_id=None
+                )
+                card = CreditCard(currency=currency)
+                s.add_all([obj, card])
+                s.commit()
+            else:
+                obj = Object.get(card_id)
+                card = obj.card
             card.transfer(
                 amount, currency,
                 self.withdraw_description.format(self.object.name)
             )
+            account.balance -= local_amount
             obj.card = card
             player.do_social(self.withdraw_msg, _others=[obj, self.object])
             return obj
