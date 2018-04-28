@@ -176,7 +176,7 @@ function create_environment() {
                     if (cancel_recording) {
                         return
                     }
-                    let webm = new Blob(new Array(e.data), { type: "audio/webm"})
+                    let webm = new Blob(new Array(e.data), { type: "audio/m4a"})
                     let reader = new FileReader()
                     reader.onloadend = () => {
                         microphone_data = reader.result
