@@ -237,6 +237,8 @@ class ATM(Base):
     bank = relationship('Bank', backref=backref('atms', cascade='all'))
     withdraw_msg = message('%1N withdraw%1s %2n from %3n.')
     withdraw_description = message('ATM Withdrawal')
+    deposit_msg = message('%1N deposit%1s money with %2n.')
+    deposit_description = message('ATM Deposit')
     overflow_msg = message('Try depositing money.')
 
     def withdraw(self, player, account, currency, amount):
