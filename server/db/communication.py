@@ -2,7 +2,7 @@
 
 import os.path
 from sqlalchemy import Column, Integer, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from .base import (
     Base, NameMixin, DescriptionMixin, OwnerMixin, CommunicationChannelMixin,
     PermissionsMixin, CreatedMixin, TextMixin, Sound, message
@@ -98,6 +98,6 @@ class CommunicationChannelMessage(
 
     __tablename__ = 'communication_channel_messages'
     channel = relationship(
-        'CommunicationChannel', backref='messages',
-        cascade='all, delete-orphan', single_parent=True
+        'CommunicationChannel',
+        backref=backref('messages', cascade='all, delete-orphan')
     )

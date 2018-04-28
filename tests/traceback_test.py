@@ -4,6 +4,7 @@ from server.program import handle_traceback
 
 def test_handle_traceback():
     e = ValueError('Testing.')
+    CommunicationChannel.query().delete()
     assert not CommunicationChannel.count()
     handle_traceback(e, 'Test Program', 'py.test', 'Nowhere')
     channel = CommunicationChannel.first()
