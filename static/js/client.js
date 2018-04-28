@@ -737,7 +737,7 @@ let mindspace_functions = {
         } else {
             speech_data = data
             let array = str2ab(speech_data)
-            audio.decodeAudioData(array).then((buffer) => {
+            let result = audio.decodeAudioData(array).then((buffer) => {
                 let source = audio.createBufferSource()
                 source.connect(thing.panner)
                 source.buffer = buffer
@@ -745,6 +745,9 @@ let mindspace_functions = {
             }, (e) => {
                 write_message(`Someone spoke but your device was unable to decode the audio data: ${e.err}`)
             })
+            if (result === null) {
+                write_message("Someone spoke but your device was unable to decode the audio data.")
+            }
         }
     },
     object_sound: obj => {
