@@ -276,7 +276,7 @@ class ATM(Base):
                 s.commit()
             else:
                 obj = Object.get(card_id)
-                card = obj.card
+                card = obj.credit_card
             card.transfer(
                 amount, currency,
                 self.withdraw_description.format(self.object.name)
