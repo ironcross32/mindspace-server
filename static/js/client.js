@@ -176,13 +176,13 @@ function create_environment() {
                     if (cancel_recording) {
                         return
                     }
-                    let ogg = new Blob(new Array(e.data), {type: "audio/ogg; codecs=opus"})
+                    let webm = new Blob(new Array(e.data), { type: "audio/webm"})
                     let reader = new FileReader()
                     reader.onloadend = () => {
                         microphone_data = reader.result
                         send({name: "speak", args: [ab2str(microphone_data)]})
                     }
-                    reader.readAsArrayBuffer(ogg)
+                    reader.readAsArrayBuffer(webm)
                 }
             }, () => {
                 alert("Failed to use microphone.")
