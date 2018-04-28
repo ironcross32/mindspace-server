@@ -98,4 +98,6 @@ class CommunicationChannelMessage(
 
     __tablename__ = 'communication_channel_messages'
     __owner_cascade__ = 'all'
-    channel = relationship('CommunicationChannel', backref='messages')
+    channel = relationship(
+        'CommunicationChannel', backref='messages', cascade='all'
+    )
