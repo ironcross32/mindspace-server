@@ -171,18 +171,22 @@ function create_environment() {
         environment = create_mixer(player.sound_volume, audio.destination)
         navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(
             stream => {
-                recorder = new MediaRecorder(stream)
-                recorder.ondataavailable = (e) => {
-                    if (cancel_recording) {
-                        return
+                if (MediaRecorder === undefined) {
+                    write_message("*** No MediaRecorder available. Recording your voice will be impossible on this device. ***")
+                } else {
+                    recorder = new MediaRecorder(stream)
+                    recorder.ondataavailable = (e) => {
+                        if (cancel_recording) {
+                            return
+                        }
+                        let webm = new Blob(new Array(e.data), { type: "audio/m4a"})
+                        let reader = new FileReader()
+                        reader.onloadend = () => {
+                            microphone_data = reader.result
+                            send({name: "speak", args: [ab2str(microphone_data)]})
+                        }
+                        reader.readAsArrayBuffer(webm)
                     }
-                    let webm = new Blob(new Array(e.data), { type: "audio/m4a"})
-                    let reader = new FileReader()
-                    reader.onloadend = () => {
-                        microphone_data = reader.result
-                        send({name: "speak", args: [ab2str(microphone_data)]})
-                    }
-                    reader.readAsArrayBuffer(webm)
                 }
             }, () => {
                 alert("Failed to use microphone.")
@@ -661,7 +665,7 @@ function set_convolver(url, node, volume) {
 
 let mindspace_functions = {
     toggle_recording: () => {
-        if (recorder.state == recording) {
+        if (recorder === null || recorder.state == recording) {
             mindspace_functions.stop_recording()
         } else {
             mindspace_functions.start_recording()
@@ -672,7 +676,11 @@ let mindspace_functions = {
         recorder.start()
     },
     stop_recording: () => {
-        recorder.stop()
+        if (recorder === null) {
+            write_message("You cannot record audio on this device.")
+        } else {
+            recorder.stop()
+        }
     },
     cancel_recording: () => {
         cancel_recording = true
