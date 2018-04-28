@@ -44,7 +44,8 @@ class ObjectRandomSound(RandomSoundMixin, Base):
     __tablename__ = 'object_random_sounds'
     object_id = Column(Integer, ForeignKey('objects.id'), nullable=False)
     object = relationship(
-        'Object', backref=backref('random_sounds', cascade='all')
+        'Object',
+        backref=backref('random_sounds', cascade='all, delete-orphan')
     )
 
 
@@ -73,7 +74,8 @@ class Object(
         Integer, ForeignKey('transit_routes.id'), nullable=True
     )
     transit_route = relationship(
-        'TransitRoute', backref=backref('object', uselist=False), cascade='all'
+        'TransitRoute', backref=backref('object', uselist=False),
+        cascade='all, delete-orphan', single_parent=True
     )
     scanned_id = Column(Integer, ForeignKey('objects.id'), nullable=True)
     scanned = relationship(
@@ -107,27 +109,34 @@ class Object(
     )
     player_id = Column(Integer, ForeignKey('players.id'), nullable=True)
     player = relationship(
-        'Player', backref=backref('object', uselist=False), cascade='all'
+        'Player',
+        backref=backref('object', uselist=False, cascade='all, delete-orphan')
     )
     atm_id = Column(Integer, ForeignKey('atms.id'), nullable=True)
-    atm = relationship('ATM', backref=backref('object', uselist=False))
+    atm = relationship(
+        'ATM',
+        backref=backref('object', uselist=False, cascade='all, delete-orphan'))
     phone_id = Column(Integer, ForeignKey('phones.id'), nullable=True)
     phone = relationship(
-        'Phone', backref=backref('object', uselist=False), cascade='all'
+        'Phone',
+        backref=backref('object', uselist=False, cascade='all, delete-orphan')
     )
     mobile_id = Column(Integer, ForeignKey('mobiles.id'), nullable=True)
     mobile = relationship(
-        'Mobile', backref=backref('object', uselist=False), cascade='all'
+        'Mobile',
+        backref=backref('object', uselist=False, cascade='all, delete-orphan')
     )
     credit_card_id = Column(
         Integer, ForeignKey('credit_cards.id'), nullable=True
     )
     credit_card = relationship(
-        'CreditCard', backref=backref('object', uselist=False), cascade='all'
+        'CreditCard',
+        backref=backref('object', uselist=False, cascade='all, delete-orphan')
     )
     exit_id = Column(Integer, ForeignKey('entrances.id'), nullable=True)
     exit = relationship(
-        'Entrance', backref=backref('object', uselist=False), cascade='all'
+        'Entrance',
+        backref=backref('object', uselist=False, cascade='all, delete-orphan')
     )
     recent_exit_id = Column(Integer, ForeignKey('objects.id'), nullable=True)
     recent_exit = relationship(
@@ -136,21 +145,25 @@ class Object(
     )
     window_id = Column(Integer, ForeignKey('windows.id'), nullable=True)
     window = relationship(
-        'Window', backref=backref('object', uselist=False), cascade='all'
+        'Window',
+        backref=backref('object', uselist=False, cascade='all, delete-orphan')
     )
     chair_id = Column(Integer, ForeignKey('chairs.id'), nullable=True)
     chair = relationship(
-        'Chair', backref=backref('object', uselist=False), cascade='all',
+        'Chair',
+        backref=backref('object', uselist=False, cascade='all, delete-orphan'),
         foreign_keys=[chair_id]
     )
     container_id = Column(Integer, ForeignKey('containers.id'), nullable=True)
     container = relationship(
-        'Container', backref=backref('object', uselist=False), cascade='all',
+        'Container',
+        backref=backref('object', uselist=False, cascade='all, delete-orphan'),
         foreign_keys=[container_id]
     )
     shop_id = Column(Integer, ForeignKey('shops.id'), nullable=True)
     shop = relationship(
-        'Shop', backref=backref('object', uselist=False), cascade='all'
+        'Shop',
+        backref=backref('object', uselist=False, cascade='all, delete-orphan')
     )
     speed = Column(Float, nullable=False, default=0.5)
     last_walked = Column(Float, nullable=False, default=0.0)
