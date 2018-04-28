@@ -742,6 +742,8 @@ let mindspace_functions = {
                 source.connect(thing.panner)
                 source.buffer = buffer
                 source.start()
+            }, (e) => {
+                write_message(`Someone spoke but your device was unable to decode the audio data: ${e.err}`)
             })
         }
     },
