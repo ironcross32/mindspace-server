@@ -49,7 +49,7 @@ class ShopItem(Base):
 
     __tablename__ = 'shop_items'
     shop_id = Column(Integer, ForeignKey('shops.id'), nullable=False)
-    shop = relationship('Shop', backref=backref('items', cascade='all'))
+    shop = relationship('Shop', backref=backref('items'))
     object_id = Column(Integer, ForeignKey('objects.id'), nullable=False)
     object = relationship('Object', backref=backref('shops', cascade='all'))
     price = Column(Float, nullable=False, default=1000000.0)

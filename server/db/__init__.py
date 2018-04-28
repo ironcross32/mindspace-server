@@ -4,7 +4,7 @@ import os
 import os.path
 import logging
 from inspect import isclass
-from sqlalchemy import inspect
+from sqlalchemy import inspect, event
 from yaml import dump, load
 from db_dumper import load as dumper_load, dump as dumper_dump
 from .engine import engine
@@ -60,6 +60,29 @@ from .phones import (
 logger = logging.getLogger(__name__)
 db_file = 'world.yaml'
 output_directory = 'world'
+
+
+@event.listens_for(Session, 'before_flush')
+def before_flush(s, ctx, instances):
+    """Ensure everything goes with this object."""
+    for obj in s.deleted:
+        if isinstance(obj, Object):
+            obj.delete_data()
+            chair = obj.chair
+            if chair is not None:
+                for sitter in chair.occupants:
+                    chair.use(sitter, RestingStates.standing)
+                    s.add(sitter)
+            for name in (
+                'player', 'atm', 'phone', 'mobile', 'credit_card', 'exit',
+                'window', 'chair', 'container', 'shop'
+            ):
+                related = getattr(obj, name)
+                if related is not None:
+                    s.delete(related)
+        elif isinstance(obj, Shop):
+            for item in obj.items:
+                s.delete(item)
 
 
 def get_classes():

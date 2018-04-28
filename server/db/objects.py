@@ -5,7 +5,7 @@ import logging
 import os.path
 from datetime import datetime
 from sqlalchemy import (
-    Column, Integer, ForeignKey, Boolean, Float, func, or_, and_, Enum, event
+    Column, Integer, ForeignKey, Boolean, Float, func, or_, and_, Enum
 )
 from sqlalchemy.orm import relationship, backref
 from .base import (
@@ -74,8 +74,7 @@ class Object(
         Integer, ForeignKey('transit_routes.id'), nullable=True
     )
     transit_route = relationship(
-        'TransitRoute', backref=backref('object', uselist=False),
-        cascade='all, delete-orphan', single_parent=True
+        'TransitRoute', backref=backref('object', uselist=False)
     )
     scanned_id = Column(Integer, ForeignKey('objects.id'), nullable=True)
     scanned = relationship(
@@ -109,34 +108,27 @@ class Object(
     )
     player_id = Column(Integer, ForeignKey('players.id'), nullable=True)
     player = relationship(
-        'Player',
-        backref=backref('object', uselist=False, cascade='all, delete-orphan')
+        'Player', backref=backref('object', uselist=False)
     )
     atm_id = Column(Integer, ForeignKey('atms.id'), nullable=True)
-    atm = relationship(
-        'ATM',
-        backref=backref('object', uselist=False, cascade='all, delete-orphan'))
+    atm = relationship('ATM', backref=backref('object', uselist=False))
     phone_id = Column(Integer, ForeignKey('phones.id'), nullable=True)
     phone = relationship(
-        'Phone',
-        backref=backref('object', uselist=False, cascade='all, delete-orphan')
+        'Phone', backref=backref('object', uselist=False)
     )
     mobile_id = Column(Integer, ForeignKey('mobiles.id'), nullable=True)
     mobile = relationship(
-        'Mobile',
-        backref=backref('object', uselist=False, cascade='all, delete-orphan')
+        'Mobile', backref=backref('object', uselist=False)
     )
     credit_card_id = Column(
         Integer, ForeignKey('credit_cards.id'), nullable=True
     )
     credit_card = relationship(
-        'CreditCard',
-        backref=backref('object', uselist=False, cascade='all, delete-orphan')
+        'CreditCard', backref=backref('object', uselist=False)
     )
     exit_id = Column(Integer, ForeignKey('entrances.id'), nullable=True)
     exit = relationship(
-        'Entrance',
-        backref=backref('object', uselist=False, cascade='all, delete-orphan')
+        'Entrance', backref=backref('object', uselist=False)
     )
     recent_exit_id = Column(Integer, ForeignKey('objects.id'), nullable=True)
     recent_exit = relationship(
@@ -145,25 +137,21 @@ class Object(
     )
     window_id = Column(Integer, ForeignKey('windows.id'), nullable=True)
     window = relationship(
-        'Window',
-        backref=backref('object', uselist=False, cascade='all, delete-orphan')
+        'Window', backref=backref('object', uselist=False)
     )
     chair_id = Column(Integer, ForeignKey('chairs.id'), nullable=True)
     chair = relationship(
-        'Chair',
-        backref=backref('object', uselist=False, cascade='all, delete-orphan'),
+        'Chair', backref=backref('object', uselist=False),
         foreign_keys=[chair_id]
     )
     container_id = Column(Integer, ForeignKey('containers.id'), nullable=True)
     container = relationship(
-        'Container',
-        backref=backref('object', uselist=False, cascade='all, delete-orphan'),
+        'Container', backref=backref('object', uselist=False),
         foreign_keys=[container_id]
     )
     shop_id = Column(Integer, ForeignKey('shops.id'), nullable=True)
     shop = relationship(
-        'Shop',
-        backref=backref('object', uselist=False, cascade='all, delete-orphan')
+        'Shop', backref=backref('object', uselist=False)
     )
     speed = Column(Float, nullable=False, default=0.5)
     last_walked = Column(Float, nullable=False, default=0.0)
@@ -676,11 +664,3 @@ class Object(
         else:
             gid = self.gender_id
         return Base._decl_class_registry['Gender'].get(gid)
-
-
-@event.listens_for(Session, 'before_flush')
-def receive_before_flush(session, flush_context, instances):
-    for obj in session.deleted:
-        if isinstance(obj, Object):
-            logger.info('Delete: %r.', obj)
-            obj.delete_data()
