@@ -1,0 +1,2124 @@
+Command:
+- {code: "def parse_args(type, id=None, data=None):\n    return (type, id, data)\n\
+    \ntype, id, data = parse_args(*a)\nif type == 'Credit_Card':\n    type = 'CreditCard'\n\
+    elif type == 'Atm':\n    type = 'ATM'\ncls = Base._decl_class_registry[type]\n\
+    if cls not in (Social,):\n    check_builder(player)\nif id is None:\n    items\
+    \ = [LabelItem(f'Edit {cls.__name__}')]\n    for thing in cls.query().order_by(cls.name\
+    \ if hasattr(cls, 'name') else cls.id):\n        if hasattr(thing, 'get_description'):\n\
+    \            description = f': {thing.get_description()}'\n        else:\n   \
+    \         description = ''\n        items.append(Item(f'{thing}{description}',\
+    \ __name__, args=[type, thing.id]))\n    m = Menu(f'Choose {cls.__name__.lower()}',\
+    \ items, escapable=True)\n    menu(con, m)\n    end()\nobj = cls.get(id)\nvalid_object(player,\
+    \ obj)\nif not hasattr(obj, 'owner') or obj.owner is not player:\n    check_admin(player)\n\
+    try:\n    if data:\n        for name, value in data.items():\n            if '.'\
+    \ in name:\n                where, name = name.split('.')\n                where\
+    \ = getattr(obj, where)\n            else:\n                where = obj\n    \
+    \        setattr(where, name, value)\n        s.add(obj)\n        s.commit()\n\
+    \        if isinstance(obj, Object) and obj.location is not None:\n          \
+    \  obj.update_neighbours()\n        elif isinstance(obj, Zone):\n            obj.update_occupants()\n\
+    \        player.message('Edits saved.')\n        end()\nexcept Exception as e:\n\
+    \    if isinstance(e, OK):\n        raise e\n    player.message(repr(e))\n   \
+    \ logger.warning(\n        '%s caused an error while editing %s:',\n        player.get_name(True),\
+    \ obj.get_name(True) if hasattr(obj, 'get_name') else repr(obj))\n    logger.exception(e)\n\
+    form(con, ObjectForm(obj, __name__, args=[type, obj.id], cancel='Cancel'))", id: 3,
+  name: edit_}
+- {admin: true, code: "def parse_args(t, id=None, res=None):\n    return (t, id, res)\n\
+    \ntype, id, response = parse_args(*a)\nif type == 'Credit_Card':  # From interact_object.\n\
+    \    type = 'CreditCard'\ncls = Base._decl_class_registry[type]\nif id is None:\n\
+    \    items = [LabelItem(f'Select {cls.__name__.lower()}')]\n    for obj in cls.query().order_by(cls.name\
+    \ if hasattr(cls, 'name') else cls.id):\n        items.append(Item(getattr(obj,\
+    \ 'text', str(obj)), __name__, args=[type, obj.id]))\n    m = Menu(f'Delete {cls.__name__}',\
+    \ items, escapable=True)\n    menu(con, m)\n    end()\nobj = cls.get(id)\nvalid_object(player,\
+    \ obj)\nif response is None:\n    items = [\n        LabelItem(f'Are you sure\
+    \ you want to delete {obj}?'),\n        Item('Yes', __name__, args=[type, obj.id,\
+    \ True]),\n        Item('No', __name__, args=[type, obj.id, False])\n    ]\n \
+    \   m = Menu(f'Delete {type}', items, escapable=True)\n    menu(con, m)\nelif\
+    \ response:\n    if isinstance(obj, Object):\n        if obj.is_player:\n    \
+    \        player.message('You cannot delete players.')\n            end()\n   \
+    \     elif obj.is_exit:\n            s.delete(obj.exit)\n    s.delete(obj)\n \
+    \   player.message('Deleted.')\nelse:\n    player.message('Not deleting.')\n",
+  id: 4, name: delete_}
+- {admin: true, code: "if not a:\n    get_text(con, 'Enter the reason for the shutdown',\
+    \ __name__, value='Server restarting.')\nelse:\n    reason = a[0]\n    sound =\
+    \ get_sound(os.path.join('notifications', 'shutdown.wav'))\n    for connection\
+    \ in server.connections:\n        message(connection, f'The server will shutdown\
+    \ in 5 seconds. {reason}')\n        interface_sound(con, sound)\n    reactor.callLater(5.0,\
+    \ reactor.stop)\n", id: 5, name: shutdown}
+- {admin: true, code: "def parse_args(t, data={}):\n    return (t, data)\n\ntype,\
+    \ data = parse_args(*a)\ncls = Base._decl_class_registry[type]\nthing = cls()\n\
+    if data:\n    s.add(thing)\n    for name in ('name', 'builder', 'admin', 'reusable'):\n\
+    \        if name in data:\n            setattr(thing, name, data[name])\n    try:\n\
+    \        for name, value in data.items():\n            setattr(thing, name, value)\n\
+    \        s.commit()\n        player.message(f'Created {type} {thing.name}.')\n\
+    \        end()\n    except Exception as e:\n        if isinstance(e, OK):\n  \
+    \          raise e\n        logger.warning('Failed to add %r with data: %s.',\
+    \ cls, data)\n        logger.exception(e)\n        player.message(str(e))\nform(con,\
+    \ ObjectForm(thing, __name__, title=f'New {cls.__name__}', args=[type], cancel='Cancel'))",
+  id: 6, name: add_}
+- {code: "if a:\n    data = a[0]\n    account = player.player\n    account.email =\
+    \ data.get('email', account.email) or None\n    name = data.get('name', '').title().strip()\n\
+    \    ok = True\n    if name and name != player.name:\n        if player.last_name_change\
+    \ is not None:\n            elapsed = datetime.datetime.utcnow() - player.last_name_change\n\
+    \            i = server_options().name_change_interval\n            if elapsed\
+    \ < i:\n                ok = False\n                player.message(f'You cannot\
+    \ change your name for another {util.format_timedelta(i - elapsed)}.')\n     \
+    \   elif Object.query(Object.player_id.isnot(None), sqlalchemy.func.lower(Object.name)\
+    \ == name.lower()).count():\n            ok = False\n            player.message('That\
+    \ name is already taken.')\n        if ok:\n            old = player.name\n  \
+    \          player.set_name(name)\n            s.add(player)\n            if old\
+    \ is not None:\n                for connection in server.connections:\n      \
+    \              message(connection, f'{old} is now known as {name}.')\n       \
+    \     else:\n                player.message(f'You are now known as {name}.')\n\
+    \    password = data.get('password', '')\n    confirm = data.get('password_confirm',\
+    \ '')\n    if password:\n        if password == confirm:\n            account.set_password(password)\n\
+    \            s.add(account)\n            player.message('Password updated.')\n\
+    \        else:\n            player.message('Passwords do not match.')\n    s.commit()\n\
+    \    end()\nname = player.get_name() or ''\nitems = [\n    Field('name', name,\
+    \ title='The name of your player'),\n    Field('email', player.player.email, title='Email\
+    \ Address'),\n    Field('password', '', title='Account Password'),\n    Field('password_confirm',\
+    \ '', title='Password (Confirm)')\n]\nf = Form(\n    'Account information. Leave\
+    \ fields blank or unchanged to avoid '\n    'changing them.', items, __name__,\
+    \ cancel='Cancel'\n)\nform(con, f)\n", id: 7, name: configure_account}
+- {code: "text = a[0]\nif not text:\n    player.message('Cancel.')\nelif not player.name:\n\
+    \    player.message('You cannot speak until you have set your name.')\nelse:\n\
+    \    player.say(text)\n", id: 8, name: say}
+- {code: "name, diff = a\nobj = player.player\nvalue = getattr(obj, name)\nvalue +=\
+    \ diff\nif name.endswith('_volume'):\n    if value > 1.0:\n        value = 1.0\n\
+    \    elif value < 0.0:\n        value = 0.0\nsetattr(obj, name, value)\nplayer.message(\n\
+    \    '%s set to %g.' % (name.replace('_', ' ').title(), value)\n)\nobj.send_options(con)\n",
+  id: 9, name: set_player_option}
+- {code: 'url(con, *a)', id: 10, name: show_url}
+- {code: 'copy(con, *a)', id: 11, name: copy}
+- {code: "names = ('chair', 'container', 'mobile', 'shop', 'window', 'phone', 'credit_card',\
+    \ 'atm')\nid = a[0]\nobj = Object.get(id)\nvalid_object(player, obj)\nif obj.location_id\
+    \ != player.location_id and obj.holder_id != player.id:\n    player.message(f'{obj.get_name(player.is_staff).title()}\
+    \ is nowhere to be seen.')\n    end()\nif obj.is_exit:\n    # Let's leave through\
+    \ the exit:\n    if player.last_name_change is None and player.location.zone_id\
+    \ != 1:\n        player.message(\n            'You must set your name before you\
+    \ can leave this room. You do this from the game menu (press the scape key).'\n\
+    \        )\n    elif obj.exit.locked:\n        exit = obj.exit\n        player.do_social(exit.locked_msg,\
+    \ _others=[obj])\n        obj.sound(exit.locked_sound)\n        other_side = exit.get_other_side()\n\
+    \        if other_side is not None:\n            other_side.do_social(exit.other_locked_msg)\n\
+    \            other_side.sound(exit.other_locked_sound)\n    else:\n        player.clear_following()\n\
+    \        obj.use_exit(player)\n    end()\nname = f'{obj.get_name(player.is_admin)}\
+    \ ({obj.get_type()})'\ndescription = obj.get_description()\nitems = [\n    LabelItem('Object\
+    \ Menu'),\n    CopyItem(name),\n    CopyItem(description)\n]\nif player.is_staff:\n\
+    \    items.append(CopyItem(f'#{obj.id}'))\nif obj is player.following:\n    items.append(Item('Stop\
+    \ Following', 'stop_following'))\nelif any((obj.is_mobile, obj.is_player)):\n\
+    \    items.append(Item('Follow', 'follow', args=[obj.id]))\nif obj.hotkeys:\n\
+    \    items.append(Item('Start using', 'use', args=[obj.id]))\nitems.append(Item('Knock',\
+    \ 'knock', args=[obj.id]))\nfor action in obj.get_actions():\n    if action.name\
+    \ is None or (action.admin and not player.is_admin) or (action.builder and not\
+    \ player.is_builder):\n        continue\n    items.append(\n        Item(\n  \
+    \          f'{action.get_name(player.is_staff)}: {action.get_description()}',\
+    \ 'action',\n            args=[obj.id, action.id]\n        )\n    )\nif obj.starship_id\
+    \ is not None:\n    for room in obj.starship.zone.rooms:\n        if room.airlock:\n\
+    \            items.append(Item(f'Board via {room.get_name(player.is_staff)}',\
+    \ 'board_starship', args=[obj.starship_id, room.id]))\nif obj.is_atm:\n    items.append(Item('Banking',\
+    \ 'banking', args=[obj.atm_id]))\nif obj.transit_route is None:\n    if player.is_staff:\n\
+    \        items.append(Item('Add Transit Route', 'add_transit_route', args=[obj.id]))\n\
+    else:\n    route = obj.transit_route\n    if route.next_move is not None:\n  \
+    \      seconds = int(route.next_move - time())\n        eta = datetime.timedelta(seconds=seconds)\n\
+    \        items.append(CopyItem(f'Departing in {util.format_timedelta(eta)}.'))\n\
+    \    if route.room is not None:\n        items.append(Item('Board', 'board_transit',\
+    \ args=[route.id]))\n    if player.is_staff:\n        if route.room is None:\n\
+    \            items.append(Item('Set Room', 'set_transit_room', args=[route.id]))\n\
+    \        else:\n            items.append(Item('Clear Room', 'clear_transit_room',\
+    \ args=[route.id]))\n        for name in ('edit', 'delete'):\n            items.append(Item(f'{name.title()}\
+    \ Transit Route', f'{name}_', args=['TransitRoute', route.id]))\n        for stop\
+    \ in route.stops:\n            for name in ('edit', 'delete'):\n             \
+    \   items.append(Item(f'{name.title()} {stop.location.get_name(True)} stop', f'{name}_',\
+    \ args=['TransitStop', stop.id]))\nif obj.is_credit_card:\n    args = [obj.credit_card_id]\n\
+    \    items.extend(\n        [\n            LabelItem('Credit Card'),\n       \
+    \     Item('View Balance', 'credit_card_balance', args=args),\n            Item('Reset\
+    \ Password', 'credit_card_password', args=args),\n            Item('List Transfers',\
+    \ 'credit_card_transfers', args=args)\n        ]\n    )\nif obj.is_phone:\n  \
+    \  phone = obj.phone\n    items.append(LabelItem('Phone'))\n    items.append(Item(f'Address:\
+    \ {phone.address}', 'copy', args=[phone.address]))\n    if player.is_admin:\n\
+    \        items.append(Item('Set Custom Address', 'set_phone_address', args=[phone.id]))\n\
+    \    if player.is_builder:\n        items.append(Item('Set Random Address', 'randomise_phone_address',\
+    \ args=[phone.id]))\n    state = phone.state\n    args = [phone.id]\n    if state\
+    \ is PhoneStates.idle:\n        items.extend(\n            [\n               \
+    \ Item('Call', 'call_phone', args=args),\n                Item('Contacts', 'contacts_phone',\
+    \ args=args),\n                Item('Text Messages', 'text_messages_phone', args=args),\n\
+    \                Item('Block Address', 'block_address_phone', args=args),\n  \
+    \              Item('Unblock Address', 'unblock_address_phone', args=args)\n \
+    \           ]\n        )\n    elif phone.state is PhoneStates.ringing:\n     \
+    \   call_from = phone.other_side.address\n        items.extend(\n            [\n\
+    \                Item(f'Call from {phone.as_name(call_from)}', 'copy', args=[call_from]),\n\
+    \                Item('Answer', 'answer_phone', args=args),\n                Item('Reject\
+    \ Incoming Call', 'reject_phone', args=args)\n            ]\n        )\n    else:\n\
+    \        call_from = phone.other_side.address\n        if phone.state is PhoneStates.calling:\n\
+    \            items.append(Item(f'Ringing {phone.as_name(call_from)}', 'copy',\
+    \ args=[call_from]))\n        else:\n            items.append(Item(f'Connected\
+    \ to {phone.as_name(call_from)}', 'copy', args=[call_from]))\n        items.append(Item('Hang\
+    \ Up', 'hangup_phone', args=[phone.id]))\n        if state is PhoneStates.connected:\n\
+    \            items.extend(\n                [\n                    Item('Speak',\
+    \ 'speak_phone', args=args),\n                    Item('Emote', 'emote_phone',\
+    \ args=args)\n                ]\n            )\n    items.append(Item('Unmute'\
+    \ if phone.muted else 'Mute', 'mute_phone', args=[phone.id, not phone.muted]))\n\
+    if obj.is_container:\n    items.append(LabelItem('Container'))\n    c = obj.container_id\n\
+    \    if player.holding:\n        items.append(Item('Store', 'store', kwargs={'container_id':\
+    \ c}))\n    if obj.container.contents:\n        items.append(Item('Retrieve',\
+    \ 'retrieve', kwargs={'container_id': c}))\nif obj.is_chair:\n    items.append(LabelItem('Chair'))\n\
+    \    for name in ('sit', 'lie'):\n        items.append(Item(name.title(), name,\
+    \ args=[obj.chair_id]))\n    if player.sitting_id == obj.chair_id:\n        items.append(Item('Stand',\
+    \ 'stand'))\nif obj.is_window:\n    items.append(LabelItem('Window'))\n    w =\
+    \ obj.window\n    items.append(Item('Look Through', 'show_message', args=['You\
+    \ see:', w.overlooking.get_name(player.is_staff), w.overlooking.get_description()]))\n\
+    \    items.append(Item(f'{\"Close\" if w.open else \"Open\"} Window', 'set_window_state',\
+    \ args=[w.id, not w.open]))\nif not obj.anchored and obj.location is player.location:\n\
+    \    items.append(Item('Get', 'get', args=[obj.id]))\nelif obj.holder_id == player.id:\n\
+    \    items.extend(\n        [\n            Item('Give', 'give', args=[obj.id]),\n\
+    \            Item('Drop', 'drop', args=[obj.id]),\n            Item('Store', 'store',\
+    \ kwargs={'object_id': obj.id})\n        ]\n    )\nif player.is_staff:\n    if\
+    \ obj.is_shop:\n        items.extend(\n            [\n                LabelItem('Shop'),\n\
+    \                Item('Add Item', 'add_shop_item', args=[obj.shop_id])\n     \
+    \       ]\n        )\n        for item in obj.shop.items:\n            for name\
+    \ in ('edit', 'delete'):\n                items.append(Item(f'{name.title()} {item.object.get_name(True)}',\
+    \ f'{name}_', args=[item.__class__.__name__, item.id]))\n    if not obj.is_player:\n\
+    \        if player.is_admin:\n            items.extend(\n                [\n \
+    \                   LabelItem('Object Types'),\n                    Item('Add\
+    \ Type', 'add_type', args=[obj.id]),\n                ]\n            )\n     \
+    \       for type in obj.types:\n                items.append(Item(f'Remove Type\
+    \ {type.get_name(True)}', 'remove_type', args=[obj.id, type.id]))\n          \
+    \  items.append(Item('Add Action', 'add_action', args=[obj.id]))\n           \
+    \ if obj.actions:\n                items.append(Item('Delete Action', 'delete_action',\
+    \ args=[obj.id]))\n            items.append(Item('Add Hotkey', 'add_hotkey', args=[obj.id]))\n\
+    \            if obj.hotkeys:\n                items.append(Item('Delete Hotkey',\
+    \ 'remove_hotkey', args=[obj.id]))\n        if player.is_staff:\n            items.append(Item('Add\
+    \ Random Sound', 'add_random_sound', args=['Object', obj.id]))\n            if\
+    \ obj.random_sounds:\n                for name in ('edit', 'delete'):\n      \
+    \              items.append(Item(f'{name.title()} Random Sound', f'{name}_random_sound',\
+    \ args=['Object', obj.id]))\n            if obj.is_mobile:\n                if\
+    \ obj.mobile.next_move:\n                    items.append(CopyItem('Next move:\
+    \ %.2f seconds.' % (obj.mobile.next_move - time())))\n            for name in\
+    \ names:\n                friendly_name = name.title().replace('_', ' ')\n   \
+    \             if getattr(obj, f'is_{name}'):\n                    for action in\
+    \ ('edit', 'delete'):\n                        items.append(Item(f'{action.title()}\
+    \ {friendly_name}', f'{action}_', args=[name.title(), getattr(obj, f'{name}_id')]))\n\
+    \                else:\n                    items.append(Item(f'Make {friendly_name}',\
+    \ 'add_related_object', args=[obj.id, name, name.title()]))\nif obj.is_player:\n\
+    \    if player.is_admin:\n        items.append(LabelItem('Admin'))\n        if\
+    \ obj.player.last_connected is None:\n            items.append(CopyItem('Never\
+    \ connected.'))\n        else:\n            when = util.format_timedelta(datetime.datetime.utcnow()\
+    \ - obj.player.last_connected)\n            items.extend(\n                [\n\
+    \                    CopyItem(f'Username: {obj.player.username}'),\n         \
+    \           CopyItem(f'Last connected {when} ago from {obj.player.last_host}.')\n\
+    \                ]\n            )\n        connection = obj.get_connection()\n\
+    \        if connection is not None:\n            if connection.last_active:\n\
+    \                items.append(CopyItem(f'Last active: {util.format_timedelta(datetime.timedelta(seconds=time()\
+    \ - connection.last_active))} ago.'))\n            else:\n                items.append(CopyItem('Never\
+    \ active.'))\n        else:\n            items.append(CopyItem('Not connected.'))\n\
+    \        for name in ('builder', 'admin'):\n            value = getattr(obj.player,\
+    \ name)\n            items.append(\n                Item(\n                  \
+    \  f'{\"unset\" if value else \"set\"} {name}',\n                    'set_attribute',\
+    \ args=[\n                        'player', obj.player.id, name, not value\n \
+    \                   ]\n                )\n            )\n        if obj.connected:\n\
+    \            connection = obj.get_connection()\n            items.append(Item('Manage\
+    \ Connection', 'connection_menu', args=[connection.host, connection.port]))\n\
+    \        else:\n            a = obj.player\n            items.append(\n      \
+    \          Item(\n                    f'{\"Unlock\" if a.locked else \"Lock\"\
+    } Account',\n                    'lock_account', args=[a.id, not a.locked]\n \
+    \               )\n            )\nif not items:\n    items.append(Item('No commands\
+    \ available.', None))\nm = Menu(obj.get_name(player.is_staff), items, escapable=True)\n\
+    menu(con, m)\n", id: 12, name: interact_object}
+- {admin: true, code: "if not a:\n    items = [Item('Select Player', None)]\n    for\
+    \ obj in s.query(Object).filter(\n        Object.player_id.isnot(None),\n    \
+    \    Object.id.isnot(player.id),\n        Object.location_id.isnot(player.location_id)\n\
+    \    ).order_by(Object.name):\n        items.append(Item(obj.get_name(True), __name__,\
+    \ args=[obj.id]))\n    m = Menu('Bring Player', items, escapable=True)\n    menu(con,\
+    \ m)\n    end()\nobj = s.query(Object).get(a[0])\nif obj is None:\n    player.message('Invalid\
+    \ object.')\n    end()\nold = obj.location\nif old is player.location:\n    player.message(f'{obj.get_name(True)}\
+    \ is already here.')\n    end()\nobj.teleport(player.location, player.coordinates)\n\
+    s.add(obj)", id: 13, name: bring_object}
+- {admin: true, code: "type, id, name, value = a\nif type == 'object':\n    cls =\
+    \ Object\nelif type == 'player':\n    cls = Player\nelse:\n    raise RuntimeError('Invalid\
+    \ type %r.' % type)\nn = cls.query(id=id).update(\n    {getattr(cls, name): value}\n\
+    )\nplayer.message(f'{n} {util.pluralise(n, \"row\")} affected.')", id: 14, name: set_attribute}
+- {admin: true, code: "items = [LabelItem(f'Connections ({len(server.connections)})')]\n\
+    for connection in server.connections:\n    obj = connection.get_player(s)\n  \
+    \  if obj is None:\n        name = 'Anonymous connection'\n    else:\n       \
+    \ name = obj.get_name(True)\n    items.append(\n        Item(\n            f'{name}\
+    \ ({connection.host}:{connection.port})',\n            'connection_menu', args=[connection.host,\
+    \ connection.port]\n        )\n    )\nmenu(con, Menu('Manage Connections', items,\
+    \ escapable=True))", id: 15, name: manage_connections}
+- {admin: true, code: "host, port = a\nfor connection in server.connections:\n   \
+    \ if connection.host == host and connection.port == port:\n        if connection.last_active:\n\
+    \            duration = time() - connection.last_active\n            last_active\
+    \ = f'Last active: {util.format_timedelta(datetime.timedelta(seconds=duration))}\
+    \ ago at {ctime(connection.last_active)}'\n        else:\n            last_active\
+    \ = 'Never active'\n        items = [\n            LabelItem('Manage Connection'),\n\
+    \            Item(f'IP Address: {host}', 'copy', args=[host]),\n            Item(f'Port:\
+    \ {port}', 'copy', args=[str(port)]),\n            CopyItem(last_active),\n  \
+    \          Item('Disconnect', 'disconnect', args=[f'{host}:{port}']),\n      \
+    \  ]\n        items.append(\n            Item(\n                f'{\"Unlock\"\
+    \ if connection.locked else \"Lock\"} Connection',\n                'lock_connection',\
+    \ args=[f'{host}:{port}', not connection.locked]\n            )\n        )\n \
+    \       if connection.player_id is not None:\n            account = connection.get_player().player\n\
+    \            items.append(\n                Item(\n                    f'{\"Unlock\"\
+    \ if account.locked else \"Lock\"} Account',\n                    'lock_account',\
+    \ args=[account.id, not account.locked]\n                )\n            )\n  \
+    \      menu(con, Menu('Connection', items, escapable=True))\n        break\nelse:\n\
+    \    player.message('No such connection.')", id: 16, name: connection_menu}
+- {admin: true, code: "id = a[0]\nif isinstance(id, int):\n    obj = s.query(Object).get(id)\n\
+    \    if obj is None:\n        player.message('Invalid id %r.' % id)\n        end()\n\
+    \    obj_con = obj.get_connection()\n    if obj_con is None:\n        player.message(f'{obj.get_name(True)}\
+    \ is not connected.')\n        end()\nelif isinstance(id, str):\n    for obj_con\
+    \ in server.connections:\n        if f'{obj_con.host}:{obj_con.port}' == id:\n\
+    \            break\n    else:\n        player.message('No such connection.')\n\
+    \        end()\nplayer.message('Disconnecting.')\nobj_con.disconnect(f'You have\
+    \ been booted off the server by {player.get_name()}.')", id: 17, name: disconnect}
+- {admin: true, code: "if a:\n    text = a[0]\n    if not text.strip():\n        message(con,\
+    \ 'You must enter some text.')\n    else:\n        for connection in server.connections:\n\
+    \            message(\n                connection,\n                f'Announcement\
+    \ from {player.get_name()}: {text}',\n                channel='Announcements'\n\
+    \            )\n            interface_sound(\n                con, get_sound(\n\
+    \                    os.path.join('notifications', 'announcement.wav')\n     \
+    \           )\n            )\nelse:\n    get_text(con, 'Enter the text of your\
+    \ announcement:', 'announce')", id: 18, name: announce}
+- {admin: true, code: "spec, value = a\nfor obj_con in server.connections:\n    if\
+    \ f'{obj_con.host}:{obj_con.port}' == spec:\n        obj_con.set_locked(value)\n\
+    \        message(\n            con,\n            f'Connection {\"locked\" if value\
+    \ else \"unlocked\"}.'\n        )\n        break\nelse:\n    message(con, 'Invalid\
+    \ connection.')", id: 19, name: lock_connection}
+- {admin: true, code: "id, value = a\naccount = Player.get(id)\nvalid_object(player,\
+    \ account)\naccount.locked = value\ns.add(account)\nif account.locked:\n    obj_con\
+    \ = account.object.get_connection()\n    if obj_con is not None:\n        obj_con.set_locked(value)\n\
+    message(con, f'Account {\"locked\" if account.locked else \"unlocked\"}.')\n",
+  id: 20, name: lock_account}
+- {code: 'obj = Object.get(a[0])
+
+    valid_object(player, obj)
+
+    check_location(player, obj)
+
+    obj.identify(con)', id: 21, name: identify}
+- {builder: true, code: "id, data = a\ncheck_builder(player)\nloc = Room.get(id)\n\
+    valid_object(player, loc)\nfor name, value in data.items():\n    setattr(loc,\
+    \ name, value)\ns.add(loc)\ns.commit()\nfor obj in loc.objects:\n    obj.identify_location()",
+  id: 22, name: configure_room}
+- {builder: true, code: "if a:\n    name = a[0]\nelse:\n    name = ''\nif not name:\n\
+    \    get_text(\n        con, 'Enter a name for your new room', 'create_room'\n\
+    \    )\nelif player is not player.location.zone.owner and not player.is_admin:\n\
+    \    player.message('You cannot build here.')\nelse:\n    r = Room(name=name,\
+    \ zone=player.location.zone)\n    s.add(r)\n    s.commit()\n    player.message(f'Created\
+    \ room {r.get_name(True)}.')", id: 23, name: create_room}
+- {builder: true, code: "def parse_args(name=None, id=None):\n    return (name, id)\n\
+    \n\nexit_name, id = parse_args(*a)\nloc = player.location\nz = loc.zone\nif not\
+    \ exit_name:\n    get_text(\n        con, 'Enter the name for the new exit', 'build_exit'\n\
+    \    )\n    end()\nelif id is None:\n    rooms = [Item(f'Zone: {z.get_name(True)}',\
+    \ None)]\n    for room in reversed(z.rooms):\n        if room is loc:\n      \
+    \      continue\n        rooms.append(\n            Item(\n                room.get_name(True),\
+    \ 'build_exit',\n                args=[exit_name, room.id]\n            )\n  \
+    \      )\n    m = Menu('Choose Destination Room', rooms, escapable=True)\n   \
+    \ menu(con, m)\n    end()\ndest = s.query(Room).filter_by(id=id).first()\nif dest\
+    \ is None:\n    player.message('Invalid room.')\n    end()\nplayer.message(f'Building\
+    \ an exit to {dest.get_name(True)}.')\nexit = Object(\n    location=loc, name=exit_name,\n\
+    \    exit=Entrance(location=dest)\n)\nexit.coordinates = player.coordinates\n\
+    entrance = Object(\n    name=exit_name, location=dest,\n    exit=Entrance(location=loc)\n\
+    )\nentrance.exit.coordinates = player.coordinates\ns.add_all([exit, entrance])\n\
+    player.message(f'Created exit {exit.get_name(True)}.')\nplayer.message(f'Created\
+    \ entrance {entrance.get_name(True)}.')", id: 24, name: build_exit}
+- {builder: true, code: "if a:\n    data = a[0]\nelse:\n    data = None\nid = kw.get('id',\
+    \ None)\nif id is None:\n    items = [Item('Select an object', None)]\n    for\
+    \ obj in player.location.objects:\n        name = obj.get_name(True)\n       \
+    \ where = util.directions(player.coordinates, obj.coordinates)\n        items.append(\n\
+    \            Item(\n                f'{name} ({where})', 'configure_object',\n\
+    \                kwargs=dict(id=obj.id)\n            )\n        )\n    m = Menu('Select\
+    \ an object', items, escapable=True)\n    menu(con, m)\n    end()\nobj = Object.query(\n\
+    \    location_id=player.location_id, id=id\n).first()\nvalid_object(player, obj)\n\
+    con.handle_command('edit_', 'Object', obj.id)", id: 25, name: configure_object}
+- {admin: true, code: "if not a:\n    items = [Item('Select Player', None)]\n    for\
+    \ obj in Object.query(\n        Object.player_id.isnot(None),\n        Object.id.isnot(player.id),\n\
+    \        Object.location_id.isnot(player.location_id)\n    ).order_by(Object.name):\n\
+    \        items.append(Item(obj.get_name(True), __name__, args=[obj.id]))\n   \
+    \ m = Menu('Join Player', items, escapable=True)\n    menu(con, m)\n    end()\n\
+    obj = Object.query(id=a[0]).first()\nif obj is None:\n    player.message('Invalid\
+    \ object.')\n    end()\nold = obj.location\nif old is player.location:\n    player.message(f'You\
+    \ are already with {obj.get_name()}.')\n    end()\nplayer.teleport(obj.location,\
+    \ obj.coordinates)\nassert player.coordinates == obj.coordinates\ns.add(player)",
+  id: 28, name: join_object}
+- {admin: true, code: "def parse_args(t, id=None):\n    return (t, id)\n\ntype, id\
+    \ = parse_args(*a)\ncls = Base._decl_class_registry[type]\nif id is None:\n  \
+    \  items = []\n    for thing in s.query(cls).order_by(cls.name):\n        items.append(Item(thing.get_name(True),\
+    \ __name__, args=[type, thing.id]))\n    m = Menu(f'Select {cls.__name__}', items,\
+    \ escapable=True)\n    menu(con, m)\n    end()\nobj = s.query(cls).get(id)\nif\
+    \ obj is None:\n    player.message('Invalid object.')\n    end()\nfields = [Label(f'Revisions\
+    \ for {obj.get_name(True)}: {len(obj.revisions)}')]\nfor revision in reversed(obj.revisions):\n\
+    \    fields.append(Field(str(revision.created), revision.code, type='text'))\n\
+    form(con, Form('Revisions', fields, 'done', cancel='Cancel'))", id: 29, name: show_revisions}
+- {code: "if not a or not isinstance(a[-1], str):\n    text = 'Done.'\nelse:\n   \
+    \ text = a[-1]\nmessage(con, text)", id: 30, name: done}
+- {admin: true, code: "def parse_args(id, action_id=None):\n    return (id, action_id)\n\
+    \nid, action_id = parse_args(*a)\nobj = Object.get(id)\nif obj is None:\n    player.message('Invalid\
+    \ object.')\n    end()\nif action_id is None:\n    items = [Item('Select Hotkey',\
+    \ None)]\n    for a in Action.query().order_by(Action.name):\n        items.append(Item(f'{a.get_name(True)}:\
+    \ {a.description}', __name__, args=[id, a.id]))\n    menu(con, Menu('Add Action',\
+    \ items, escapable=True))\nelse:\n    a = Action.get(action_id)\n    if a is None:\n\
+    \        player.message('Invalid action.')\n        end()\n    oa = ObjectAction(object_id=obj.id,\
+    \ action_id=a.id)\n    s.add(oa)\n    s.commit()\n    player.message(f'Added {a.get_name(True)}\
+    \ to {obj.get_name(True)}.')", id: 31, name: add_action}
+- {admin: true, code: "def parse_args(object_id, id=None, response=None):\n    return\
+    \ (object_id, id, response)\n\nobject_id, id, response = parse_args(*a)\nobj =\
+    \ Object.get(object_id)\nvalid_object(player, obj)\nif id is None:\n    items\
+    \ = [Item('Select Action', None)]\n    for thing in ObjectAction.query(object_id=object_id):\n\
+    \        items.append(Item(Action.query(id=thing.action_id).first().get_name(True),\
+    \ __name__, args=[object_id, thing.id]))\n    menu(con, Menu('Delete Action',\
+    \ items, escapable=True))\n    end()\noa = ObjectAction.get(id)\nvalid_object(player,\
+    \ oa)\naction = Action.get(oa.action_id)\nif response is None:\n    menu(\n  \
+    \      con, Menu(\n            f'Are you sure you want to delete {action.get_name(True)}\
+    \ from {obj.get_name(True)}?',\n            [\n                Item('Yes', __name__,\
+    \ args=[object_id, id, True]),\n                Item('No', __name__, args=[id,\
+    \ False])\n            ], escapable=True\n        )\n    )\nelif not response:\n\
+    \    player.message('Not deleting.')\nelse:\n    s.delete(oa)\n    player.message('Done.')",
+  id: 33, name: delete_action}
+- {admin: true, code: "def parse_args(id, data=None):\n    return (id, data)\n\nid,\
+    \ data = parse_args(*a)\naction = s.query(Action).get(id)\nvalid_object(player,\
+    \ action)\nif data is None:\n    form(con, ObjectForm(action, __name__, args=[action.id],\
+    \ title=f'Edit {action.get_name(True)}', cancel='Cancel'))\nelse:\n    for name,\
+    \ value in data.items():\n        if name == 'error':\n            continue\n\
+    \        else:\n            setattr(action, name, value)\n    try:\n        action.set_code(action.code)\n\
+    \        s.add(action)\n        s.commit()\n        message(con, 'Done.')\n  \
+    \  except Exception as e:\n        f = ObjectForm(action, __name__, args=[action.id],\
+    \ title=f'Edit {action.get_name(True)}', cancel='Cancel')\n        f.fields.insert(0,\
+    \ Label('Error:'))\n        f.fields.insert(1, Field('error', str(e)))\n     \
+    \   form(con, f)", id: 34, name: edit_action}
+- {code: 'remember_quit(con)
+
+    con.disconnect(server_options().disconnect_msg)', id: 37, name: quit}
+- {builder: true, code: "zone = player.location.zone\n\nif a:\n    for name, value\
+    \ in a[0].items():\n        setattr(zone, name, value)\n    s.add(zone)\n    try:\n\
+    \        s.commit()\n        zone.update_occupants()\n        player.message('Done.')\n\
+    \    except Exception as e:\n        f = ObjectForm(zone, __name__, cancel='Cancel')\n\
+    \        form(con, f)\n        player.message(str(e))\nelse:\n    f = ObjectForm(zone,\
+    \ __name__, cancel='Cancel')\n    form(con, f)", id: 38, name: configure_zone}
+- {code: "string = a[0]\r\nif string:\r\n    string = '%1N ' + string\r\n    try:\r\
+    \n        util.emote(player, string)\r\n    except SocialsError as e:\r\n    \
+    \    player.message(str(e))\r\nelse:\r\n    player.message('You must emote something.')",
+  id: 39, name: emote}
+- {builder: true, code: "def parse_args(zone_id=None, room_id=None):\n    return (zone_id,\
+    \ room_id)\n\nzone_id, room_id = parse_args(*a)\n\nitems = [LabelItem('Teleport')]\n\
+    if zone_id is None:\n    for z in Zone.query().order_by(Zone.name):\n        items.append(Item(z.get_name(True),\
+    \ __name__, args=[z.id]))\nelif room_id is None:\n    zone = Zone.get(zone_id)\n\
+    \    valid_object(player, zone)\n    for r in Room.query(zone_id=zone_id).order_by(Room.name):\n\
+    \        items.append(Item(r.get_name(True), __name__, [zone.id, r.id]))\nelse:\n\
+    \    room = Room.get(room_id)\n    valid_object(player, room)\n    if room is\
+    \ player.location:\n        player.message('You are already there.')\n    else:\n\
+    \        player.teleport(room, (0.0, 0.0, 0.0))\n    end()\nitems.extend(\n  \
+    \  [\n        LabelItem('Actions'),\n        Item('Set Home', 'set_home')\n  \
+    \  ]\n)\nif player.player.home is not None:\n    items.append(Item('Home', __name__,\
+    \ args=[player.player.home.zone_id, player.player.home.id]))\nmenu(con, Menu('Teleport',\
+    \ items, escapable=True))\n", id: 40, name: teleport}
+- {admin: true, code: "def parse_args(id, hotkey_id=None):\n    return (id, hotkey_id)\n\
+    \nid, hotkey_id = parse_args(*a)\nobj = Object.get(id)\nvalid_object(player, obj)\n\
+    if hotkey_id is None:\n    items = [Item('Select Hotkey', None)]\n    for h in\
+    \ Hotkey.query(reusable=True).order_by(Hotkey.name):\n        items.append(Item(f'{h.get_name(True)}:\
+    \ {h.description}', __name__, args=[id, h.id]))\n    menu(con, Menu('Add Hotkey',\
+    \ items, escapable=True))\nelse:\n    h = Hotkey.query(id=hotkey_id, reusable=True).first()\n\
+    \    valid_object(player, h)\n    obj.hotkeys.append(h)\n    s.add(obj)\n    player.message(f'Added\
+    \ {h.get_name(True)} to {obj.get_name(True)}.')", id: 41, name: add_hotkey}
+- {admin: true, code: "def parse_args(id, hotkey_id=None):\n    return (id, hotkey_id)\n\
+    \nid, hotkey_id = parse_args(*a)\nobj = Object.get(id)\nvalid_object(player, obj)\n\
+    if hotkey_id is None:\n    items = [Item('Select Hotkey', None)]\n    for hotkey\
+    \ in obj.hotkeys:\n        items.append(Item(f'{hotkey.get_name(True)}: {hotkey.get_description()}',\
+    \ __name__, args=[id, hotkey.id]))\n    menu(con, Menu('Remove Hotkey', items,\
+    \ escapable=True))\nelse:\n    hotkey = Hotkey.get(hotkey_id)\n    if hotkey not\
+    \ in obj.hotkeys:\n        hotkey = None\n    valid_object(player, hotkey)\n \
+    \   obj.hotkeys.remove(hotkey)\n    s.add(obj)\n    player.message(f'Deleted hotkey\
+    \ {hotkey.get_name(True)} from {obj.get_name(True)}.')", id: 42, name: remove_hotkey}
+- {code: "id = a[0]\r\nobj = s.query(Object).get(id)\r\nvalid_object(player, obj)\r\
+    \ncon.object_id = obj.id\r\nplayer.do_social(obj.start_use_msg, _others=[obj])",
+  id: 43, name: use}
+- {code: "action, id = a\nc = CommunicationChannel.get(id)\nvalid_object(player, c)\n\
+    name = c.get_name(player.is_staff)\nmsg = None\nif action == 'add':\n    if c\
+    \ in player.communication_channels:\n        player.message(f'You are already\
+    \ listening to {name}.')\n    elif (c.builder and not player.is_builder) or (c.admin\
+    \ and not player.is_admin):\n        player.message(f'You do not have sufficient\
+    \ permissions to listen to {name}.')\n    else:\n        player.communication_channels.append(c)\n\
+    \        msg = 'joins the channel'\n        format = 'join%1s'\nelif action ==\
+    \ 'remove':\n    if c in player.communication_channels:\n        player.communication_channels.remove(c)\n\
+    \        player.message(f'You mute {name}.')\n        msg = 'leaves the channel'\n\
+    \        format = 'leave%1s'\n    else:\n        player.message(f'{name} is already\
+    \ muted.')\nif msg is not None:\n c.transmit(player, msg, format='[{channel_name}]\
+    \ %1N ' + format + ' the channel.', strict=False)\n", id: 44, name: communication_channel}
+- {code: "\ndef parse_args(id, message=None):\n    return (id, message)\n\nid, message\
+    \ = parse_args(*a)\n\nc = s.query(CommunicationChannel).get(id)\nif c is None:\n\
+    \    player.message('Invalid channel.')\nelif message is None:\n    get_text(con,\
+    \ c.get_name(player.is_builder or player.is_admin), __name__, args=[c.id])\nelif\
+    \ not message:\n    player.message('You transmit nothing.')\nelse:\n    s.add(c.transmit(player,\
+    \ message))", id: 45, name: transmit}
+- {code: "items = [Item('Rules', None)]\nfor rule in Rule.query().order_by(Rule.name):\n\
+    \    text = f'{rule.get_name(player.is_staff)}: {rule.get_description()}'\n  \
+    \  items.append(CopyItem(text))\nif player.is_admin:\n    items.append(LabelItem('Actions'))\n\
+    \    for name in ('add', 'edit', 'delete'):\n        items.append(Item(f'{name.title()}\
+    \ Rule', f'{name}_', args=['Rule']))\nmenu(con, Menu('Game Rules', items, escapable=True))",
+  id: 46, name: rules}
+- {builder: true, code: "items = [Item('Select Object', None)]\nfor obj in player.location.objects:\n\
+    \    if obj.is_player:\n        continue\n    items.append(Item(f'{obj.get_name(True)}\
+    \ ({util.directions(player.coordinates, obj.coordinates)})', 'delete_', args=['Object',\
+    \ obj.id]))\nmenu(con, Menu('Delete Object', items, escapable=True))", id: 47,
+  name: delete_object}
+- {builder: true, code: "def parse_args(zone_id=None, room_id=None, name=None):\n\
+    \    return (zone_id, room_id, name)\n\nzone_id, room_id, name = parse_args(*a)\n\
+    if zone_id is None:\n    items = [Item('Select Zone', None)]\n    for z in s.query(Zone).order_by(Zone.name):\n\
+    \        items.append(Item(z.get_name(True), __name__, args=[z.id]))\n    menu(con,\
+    \ Menu('Build Portal', items, escapable=True))\n    end()\nz = s.query(Zone).get(zone_id)\n\
+    if z is None:\n    player.message('Invalid zone.')\n    end()\nif room_id is None:\n\
+    \    items = [Item('Select Rom', None)]\n    for r in s.query(Room).filter_by(zone_id=z.id).order_by(Room.name):\n\
+    \        items.append(Item(r.get_name(True), __name__, args=[z.id, r.id]))\n \
+    \   menu(con, Menu('Build Portal', items, escapable=True))\n    end()\nr = s.query(Room).filter_by(id=room_id,\
+    \ zone_id=z.id).first()\nif r is None:\n    player.message('Invalid room.')\n\
+    \    end()\nif name is None:\n    get_text(con, 'Enter the name for your new portal',\
+    \ __name__, args=[z.id, r.id])\n    end()\ncon.handle_command('build_exit', name,\
+    \ r.id)", id: 48, name: build_portal}
+- {builder: true, code: "random_dir = os.path.join('sounds', 'random')\n\ndef parse_args(type,\
+    \ id, sound=None):\n    return (type, id, sound)\n\ntype, id, sound = parse_args(*a)\n\
+    obj = s.query(Base._decl_class_registry[type]).get(id)\nif obj is None or not\
+    \ hasattr(obj, 'add_random_sound'):\n    player.message('Invalid object.')\n \
+    \   end()\nif sound is None:\n    items = [Item('Select Sound', None)]\n    for\
+    \ name in sorted(os.listdir(random_dir)):\n        items.append(Item(name, __name__,\
+    \ args=[type, id, name]))\n    menu(con, Menu('Add Random Sound', items, escapable=True))\n\
+    \    end()\nsound = os.path.join(random_dir, sound)\ninterface_sound(con, get_sound(sound))\n\
+    s.add(obj.add_random_sound(sound))\nplayer.message('Done.')\n", id: 49, name: add_random_sound}
+- {builder: true, code: "type, id = a\nobj = Base._decl_class_registry[type].get(id)\n\
+    if obj is None or not hasattr(obj, 'random_sounds'):\n    player.message('Invalid\
+    \ object.')\n    end()\nitems = [Item('Select Sound', None)]\nfor sound in obj.random_sounds:\n\
+    \    items.append(Item(str(sound), 'delete_', args=[sound.__class__.__name__,\
+    \ sound.id]))\nmenu(con, Menu('Delete Random Sound', items, escapable=True))",
+  id: 50, name: delete_random_sound}
+- {builder: true, code: "type, id = a\nobj = Base._decl_class_registry[type].get(id)\n\
+    if obj is None or not hasattr(obj, 'random_sounds'):\n    player.message('Invalid\
+    \ object.')\n    end()\nitems = [Item('Select Sound', None)]\nfor sound in obj.random_sounds:\n\
+    \    items.append(Item(str(sound), 'edit_', args=[sound.__class__.__name__, sound.id]))\n\
+    menu(con, Menu('Edit Random Sound', items, escapable=True))", id: 51, name: edit_random_sound}
+- {admin: true, code: "if a:\n    name = a[0]\n    if name:\n        z = Zone(name=name,\
+    \ owner_id=player.id)\n        r = Room(name='The First Room', zone=z)\n     \
+    \   s.add_all([z, r])\n        player.message(f'Created zone {name}.')\n    else:\n\
+    \        player.message('Your zone must have a name.')\nelse:\n    get_text(con,\
+    \ 'Enter the name of your new zone', __name__)", id: 52, name: add_zone}
+- {code: "if a:\n    term = a[0]\n    results = HelpTopic.search(term)\n    items\
+    \ = [Item('Search Results', None)]\n    if not results:\n        player.message(f'No\
+    \ results found for \"{term}\".')\n    else:\n        for result in results:\n\
+    \            items.append(Item(result.get_name(player.is_builder), 'view_help',\
+    \ args=[result.id]))\n        menu(con, Menu('Help', items, escapable=True))\n\
+    else:\n    get_text(con, 'Enter search terms', __name__)", id: 53, name: search_help}
+- {code: "if a:\n    id = a[0]\n    topic = s.query(HelpTopic).get(id)\n    if topic\
+    \ is None:\n        player.message('Invalid help topic.')\n    else:\n       \
+    \ items=[\n            Item(topic.get_name(player.is_builder), 'copy', args=[topic.get_name(player.is_builder)]),\n\
+    \            Item(f'URL', 'show_url', args=[topic.get_name(player.is_builder),\
+    \ f'http://code-metropolis.com:{server_options().http_port}{topic.url}'])\n  \
+    \      ]\n        for line in topic.text.splitlines():\n            items.append(Item(line,\
+    \ 'copy', args=[line]))\n        items.append(Item(f'Keywords: {util.english_list(topic.keywords,\
+    \ key=lambda thing, staff=player.is_staff: thing.get_name(staff))}.', None))\n\
+    \        if topic.related_topics:\n            for t in topic.related_topics:\n\
+    \                items.append(Item(t.get_name(player.is_builder), __name__, args=[t.id]))\n\
+    \        else:\n            items.append(Item('No related topics.', None))\n \
+    \       menu(con, Menu('View Help Topic', items, escapable=True))\nelse:\n   \
+    \ items = [Item('Help Topics', None)]\n    kwargs = {}\n    if not player.is_builder:\n\
+    \        kwargs['builder'] = False\n    if not player.is_admin:\n        kwargs['admin']\
+    \ = False\n    for topic in HelpTopic.query(**kwargs):\n        items.append(Item(topic.get_name(player.is_staff),\
+    \ __name__, args=[topic.id]))\n    menu(con, Menu('Select Help Topic', items,\
+    \ escapable=True))", id: 54, name: view_help}
+- {code: "if con.walk_task is not None:\n    if con.walk_task.running:\n        con.walk_task.stop()\n\
+    \    con.walk_task = None\n    player.message('You stop walking.')\nelif not a:\n\
+    \    obj = player.scanned\n    if obj is None:\n        obj = player\n    items\
+    \ = [Label('Enter coordinates to walk to')]\n    for name in ('x', 'y'):\n   \
+    \     items.append(Field(name, int(getattr(obj, name)), type=int))\n    f = Form('Autostroll',\
+    \ items, __name__, cancel='Cancel')\n    form(con, f)\nelse:\n    data = a[0]\n\
+    \    x = data['x']\n    y = data['y']\n    z = player.z\n    if (x, y, z) == player.coordinates:\n\
+    \        player.message('You are already there.')\n        end()\n    con.walk_task\
+    \ = util.WalkTask(player.id, x, y, z)\n    kwargs = dict(x=x, y=y, z=z)\n    if\
+    \ not player.is_staff:\n        kwargs['hidden'] = False\n    obj = player.get_visible(**kwargs).first()\n\
+    \    if obj:\n        player.message(f'You begin walking towards {obj.get_name(player.is_staff)}.')\n\
+    \    else:\n        player.message('You begin walking.')\n    con.walk_task.start()\n",
+  id: 55, name: autostroll}
+- {admin: true, code: "def parse_args(type, command, text=None):\n    return (type,\
+    \ command, text)\n\ntype, command, text = parse_args(*a)\ncls = Base._decl_class_registry[type]\n\
+    if text is not None:\n    if text.startswith('#') and len(text) >= 2:\n      \
+    \  kwargs = dict(id=text[1:])\n    else:\n        kwargs = dict(name=text)\n \
+    \   q = cls.query(**kwargs)\n    c = q.count()\n    if not c:\n        player.message(f'{type}\
+    \ not found.')\n    else:\n        if 'search' not in player.data:\n         \
+    \   player.data['search'] = {}\n        player.data['search'][type] = text\n \
+    \       if c is 1:\n            obj = q.first()\n            con.handle_command(command,\
+    \ type, obj.id)\n        else:\n            items = [LabelItem(f'Select {type}')]\n\
+    \            for obj in q:\n                items.append(Item(obj.get_name(True),\
+    \ command, args=[type, obj.id]))\n            menu(con, Menu('Results', items,\
+    \ escapable=True))\nelse:\n    get_text(con, 'Enter search', __name__, value=player.data.get('search',\
+    \ {}).get(type, ''), args=[type, command])", id: 56, name: search_}
+- {admin: true, code: "type, id = a\ncls = Base._decl_class_registry[type]\nobj =\
+    \ cls.get(id)\nvalid_object(player, obj)\nm = Menu(\n    obj.get_name(True), [\n\
+    \        Item('Select Option', None),\n        Item('Edit', 'edit_', args=[type,\
+    \ obj.id]),\n        Item('Delete', 'delete_', args=[type, obj.id])\n    ], escapable=True\n\
+    )\nmenu(con, m)", id: 57, name: menu_}
+- {code: "id = a[0]\r\nobj = Object.get(id)\r\nvalid_object(player, obj)\r\nif obj\
+    \ not in player.followers:\r\n    player.message(f'{obj.get_name(player.is_staff)}\
+    \ is not following you.')\r\nelse:\r\n    player.followers.remove(obj)\r\n   \
+    \ player.do_social(player.ditch_msg, _others=[obj])", id: 58, name: ditch}
+- {code: "if player.followers:\n    player.message('You must ditch your followers\
+    \ first.')\n    end()\nid = a[0]\nobj = Object.get(id)\nvalid_object(player, obj)\n\
+    check_location(player, obj)\nif obj is player.following:\n    player.message(f'You\
+    \ are already following {obj.get_name(player.is_staff)}.')\nelse:\n    player.following\
+    \ = obj\n    player.do_social(player.follow_msg, _others=[obj])\n", id: 59, name: follow}
+- {code: "if player.following is None:\n    player.message('You are not currently\
+    \ following anyone.')\nelse:\n    player.do_social(player.unfollow_msg, _others=[player.following])\n\
+    \    player.following = None\n", id: 60, name: stop_following}
+- {builder: true, code: "def parse_args(type=None, name=None):\n    return (type,\
+    \ name)\n\ntype, name = parse_args(*a)\nif type is None:\n    items = [\n    \
+    \    Item('Select Type', None),\n        Item('Standard Object', __name__, args=[0])\n\
+    \    ]\n    for type in ObjectType.query():\n        items.append(Item(type.get_name(True),\
+    \ __name__, args=[type.id]))\n    menu(con, Menu('Create Object', items, escapable=True))\n\
+    elif not name:\n    get_text(con, 'Enter a name for your new object', __name__,\
+    \ args=[type])\nelse:\n    if type:\n        type = ObjectType.get(type)\n   \
+    \     valid_object(player, type)\n    else:\n        type = None\n    obj = Object(name=name,\
+    \ owner_id=player.id, holder_id=player.id)\n    if type is not None:\n       \
+    \ obj.types.append(type)\n    s.add(obj)\n    s.commit()\n    player.message(f'Created\
+    \ {\"object\" if type is None else type.get_name(True).lower()} {obj.get_name(True)}.')",
+  id: 61, name: create_object}
+- {admin: true, code: "def parse_args(text=None, id=None):\n    return (text, id)\n\
+    \ntext, id = parse_args(*a)\nif text is None:\n    get_text(con, 'Enter part of\
+    \ the object\\'s name', __name__)\nelif id is None:\n    q = Object.query(Object.name.like(f'%{text}%'))\n\
+    \    items = [Item(f'Results: {q.count()}', None)]\n    for obj in q:\n      \
+    \  items.append(Item(f'{obj.get_name(True)} ({obj.coordinates}) at {obj.location.get_name(True)}',\
+    \ __name__, args=[text, obj.id]))\n    menu(con, Menu('Objects', items, escapable=True))\n\
+    else:\n    obj = Object.query(id=id).first()\n    if obj is None:\n        player.message('Invalid\
+    \ Object.')\n    else:\n        items = [\n            Item('Object Actions',\
+    \ None),\n            Item('Bring Object', 'bring_object', args=[obj.id]),\n \
+    \           Item('Join Object', 'join_object', args=[obj.id]),\n            Item('Edit\
+    \ Object', 'edit_', args=['Object', obj.id])\n        ]\n        menu(con, Menu('Object',\
+    \ items, escapable=True))", id: 63, name: find_object}
+- {code: "def on_error(player, e):\n    \"\"\"There was an error with the social.\"\
+    \"\"\n    player.message(f'There was a problem with your social: {e}')\n\ndef\
+    \ parse_args(number, modifiers, id=None):\n    return (number, modifiers, id)\n\
+    \nnumber, modifiers, id = parse_args(*a)\nfor name in ('scrolllock', 'numlock'):\n\
+    \    if name in modifiers:\n        modifiers.remove(name)\nmodifiers = sorted(modifiers)\n\
+    if number:\n    number -= 1\n    if modifiers:\n        if modifiers == ['ctrl',\
+    \ 'shift']:\n            if number == -1:\n                number = 9\n      \
+    \      objects = player.get_visible(Object.id != player.id).order_by(Object.name).all()\n\
+    \            try:\n                player.scanned = objects[number]\n        \
+    \        player.inspect(player.scanned)\n            except IndexError:\n    \
+    \            pass\n            finally:\n                end()\n        try:\n\
+    \            social = player.socials[number]\n        except IndexError:\n   \
+    \         if 'ctrl' in modifiers:\n                social = Social(object_id=player.id,\
+    \ name='Untitled Social', first='', second='', third='')\n                s.add(social)\n\
+    \                s.commit()\n            else:\n                player.message(f'No\
+    \ social at position {number + 1}.')\n                end()\n        if modifiers\
+    \ == ['alt']:\n            try:\n                player.do_social(social.first)\n\
+    \            except SocialsError as e:\n                on_error(player, e)\n\
+    \        elif modifiers == ['ctrl']:\n            f = ObjectForm(social, 'edit_',\
+    \ title='Edit Social', args=['Social', social.id], cancel='Cancel')\n        \
+    \    form(con, f)\n        elif modifiers == ['shift']:\n            if id is\
+    \ None:\n                items = [Item(f'Select Object for {social.get_name(player.is_staff)}',\
+    \ None)]\n                for obj in player.get_visible():\n                 \
+    \   items.append(Item(obj.get_name(player.is_staff), __name__, args=[number +\
+    \ 1, modifiers, obj.id]))\n                menu(con, Menu('Social', items, escapable=True))\n\
+    \            else:\n                obj = player.get_visible(Object.id == id).first()\n\
+    \                if obj is None:\n                    player.message('Invalid\
+    \ object.')\n                else:\n                    if obj is player:\n  \
+    \                      text = social.second\n                    else:\n     \
+    \                   text = social.third\n                    try:\n          \
+    \              player.do_social(text, _others=[obj], _channel='social')\n    \
+    \                except SocialsError as e:\n                        on_error(player,\
+    \ e)\n    else:\n        try:\n            channel = player.communication_channels[number]\n\
+    \            con.handle_command('transmit', channel.id)\n        except IndexError:\n\
+    \            player.message(f'No channel at position {number + 1}.')\nelse:\n\
+    \    if not modifiers:\n        items = [Item('Communication Channels', None)]\n\
+    \        for c in player.possible_communication_channels():\n            if player\
+    \ in c.listeners:\n                items.append(Item(c.get_name(player.is_staff),\
+    \ 'transmit', args=[c.id]))\n        menu(con, Menu('Transmit Message', items,\
+    \ escapable=True))\n    elif modifiers == ['shift']:\n        items = [Item('Social\
+    \ Suffixes.', None)]\n        for string in (\n            'Format: %[index[formatter]][|[filter]]',\n\
+    \            'As you can see, only the percent sign is necessary. The other values\
+    \ have defaults:',\n            'index: 1',\n            'format: n',\n      \
+    \      'If not provided, no filter is used. This is even true if you used the\
+    \ filter symbol with no suffix name.',\n            'With emotes with the e key\
+    \ and custom socials with the number keys, your player is always first in the\
+    \ list, so %1.',\n            'In the second form of custom socials your player\
+    \ is also in the second position, so %2.',\n            'In the third form of\
+    \ custom socials your player is still in the first position, with the object you\
+    \ choose in the second position.',\n            'You can put the formatter in\
+    \ upper case to capitalise the first letter of the resulting string. This uses\
+    \ the filter named \"normal\".',\n            'For example:',\n            '%1N\
+    \ should be used at the start of each social string.',\n            'There are\
+    \ other \"filters\" which can be used to modify the result of a formatter. These\
+    \ are given below the list of suffixes.'\n        ):\n            items.append(CopyItem(string))\n\
+    \        items.append(LabelItem('Suffixes'))\n        for suffix in socials.get_suffixes():\n\
+    \            names = util.english_list(suffix.names)\n            docstring =\
+    \ suffix.func.__doc__\n            text = f'{names}: {docstring}'\n          \
+    \  items.append(CopyItem(text))\n        items.append(LabelItem('Filters'))\n\
+    \        for name, func in socials.filters.items():\n            items.extend(\n\
+    \                [\n                    CopyItem(name),\n                    CopyItem(func.__doc__)\n\
+    \                ]\n            )\n        items.append(Item('emote-utils on Github',\
+    \ 'show_url', args=['emote-utils', 'https://github.com/chrisnorman7/emote-utils']))\n\
+    \        menu(con, Menu('Socials Help', items, escapable=True))\n    elif modifiers\
+    \ == ['ctrl']:\n        if id:\n            try:\n                other = Object.first()\n\
+    \                strings = socials.get_strings(id, [player, other])\n        \
+    \    except SocialsError as e:\n                player.message(str(e))\n     \
+    \           con.handle_command(__name__, number, modifiers)\n                end()\n\
+    \            l = [\n                f'Social string: {id}',\n                f'You\
+    \ would see: {strings[0]}',\n                f'The second object would see ({other.get_name(player.is_staff)}\
+    \ in this case): {strings[1]}',\n                f'Everyone else will see: {strings[2]}'\n\
+    \            ]\n            items = []\n            for string in l:\n       \
+    \         items.append(Item(string, 'copy', args=[string]))\n            items.append(Item('Try\
+    \ again', __name__, args=[number, modifiers]))\n            menu(con, Menu('Social\
+    \ String Example', items, escapable=True))\n        else:\n            get_text(con,\
+    \ 'Enter a social string to test or press escape to exit', __name__, args=[number,\
+    \ modifiers])", id: 64, name: number_action}
+- {code: "check_staff(player)\r\n\r\nif a:\r\n    path = a[0]\r\nelse:\r\n    path\
+    \ = 'sounds'\r\n\r\nif os.path.isfile(path):\r\n    copy(con, path)\r\n    sound\
+    \ = get_sound(path)\r\n    path = os.path.split(path)[0]\r\n    interface_sound(con,\
+    \ sound)\r\nitems = [Item(path, None)]\r\nupdir = os.path.split(path)[0]\r\nif\
+    \ updir:\r\n    items.append(Item('..', __name__, args=[updir]))\r\nfor name in\
+    \ sorted(os.listdir(path)):\r\n    full = os.path.join(path, name)\r\n    items.append(Item(name,\
+    \ __name__, args=[full]))\r\nmenu(con, Menu('Preview Sounds', items, escapable=True))",
+  id: 67, name: preview_sounds}
+- {code: "if a:\r\n    player.pose = a[0]\r\n    player.message(f'Other people will\
+    \ now see {player.get_name()} {player.pose}.')\r\nelse:\r\n    if player.pose\
+    \ is None:\r\n        get_text(con, 'Enter your new pose', __name__)\r\n    else:\r\
+    \n        player.pose = None\r\n        player.message('Pose cleared.')", id: 68,
+  name: set_pose}
+- {code: "id, state = a\r\nwindow = Window.get(id)\r\nvalid_object(player, window)\r\
+    \nobj = window.object\r\nif state == window.open:\r\n    player.message(f'{obj.get_name(player.is_staff).title()}\
+    \ is already {\"open\" if state else \"closed\"}.')\r\nelse:\r\n    if state:\r\
+    \n        msg = window.open_msg\r\n        sound = window.open_sound\r\n    else:\r\
+    \n        msg = window.close_msg\r\n        sound = window.close_sound\r\n   \
+    \ if sound is not None:\r\n        obj.sound(get_sound(sound))\r\n    player.do_social(msg,\
+    \ _others=[obj])\r\n    window.opened = state", id: 70, name: set_window_state}
+- {code: "for string in a:\r\n    player.message(string)", id: 71, name: show_message}
+- {code: "id = a[0]\r\nobj = Object.query(anchored=False, id=id, location_id=player.location_id).first()\r\
+    \nif obj.coordinates != player.coordinates:\r\n    player.message(f'You must walk\
+    \ to {obj.get_name(player.is_staff)} first.')\r\n    end()\r\nvalid_object(player,\
+    \ obj)\r\nif obj.followers:\r\n    for follower in obj.followers:\r\n        follower.message(f'You\
+    \ stop following {obj.get_name(follower.is_staff)}.')\r\n    obj.followers.clear()\r\
+    \nif obj.get_sound is not None:\r\n    obj.sound(get_sound(obj.get_sound))\r\n\
+    player.do_social(obj.get_msg, _others=[obj])\r\nobj.holder_id = player.id\r\n\
+    obj.location.broadcast_command(delete, obj.id)\r\nobj.location_id = None\r\ns.add(obj)",
+  id: 72, name: get}
+- {code: "id = a[0]\r\nobj = Object.query(id=id, holder_id=player.id).first()\r\n\
+    valid_object(player, obj)\r\nobj.location_id = player.location_id\r\nobj.holder_id\
+    \ = None\r\nobj.coordinates = player.coordinates\r\ns.add(obj)\r\ns.commit()\r\
+    \nobj.update_neighbours()\r\nplayer.do_social(obj.drop_msg, _others=[obj])\r\n\
+    if obj.drop_sound is not None:\r\n    obj.sound(get_sound(obj.drop_sound))", id: 73,
+  name: drop}
+- {code: "def parse_args(id, target_id=None):\r\n    return (id, target_id)\r\n\r\n\
+    id, target_id = parse_args(*a)\r\nobj = Object.query(holder_id=player.id, id=id).first()\r\
+    \nvalid_object(player, obj)\r\nif target_id is None:\r\n    targets = Object.query(Object.id\
+    \ != player.id, Object.player_id.isnot(None), *player.same_coordinates(), location_id=player.location_id)\r\
+    \n    if not targets.count():\r\n        player.message(f'There is nobody here\
+    \ to give {obj.get_name(player.is_staff)} to.')\r\n        end()\r\n    items\
+    \ = [Item('Players', None)]\r\n    for target in targets:\r\n        items.append(Item(target.get_name(player.is_staff),\
+    \ __name__, args=[obj.id, target.id]))\r\n    menu(con, Menu('Give', items, escapable=True))\r\
+    \n    end()\r\ntarget = Object.query(*player.same_coordinates(), id=target_id,\
+    \ location_id=player.location_id).first()\r\nvalid_object(player, target)\r\n\
+    player.do_social(obj.give_msg, _others=[obj, target])\r\nif obj.give_sound is\
+    \ not None:\r\n    player.sound(get_sound(obj.give_sound))\r\nobj.holder_id =\
+    \ target.id\r\ns.add(obj)", id: 74, name: give}
+- {code: "items = [\n    LabelItem('Mail'),\n    Item('Compose', 'compose_mail'),\n\
+    \    Item('Inbox', 'mail_folder', args=['inbox']),\n    Item('Sent', 'mail_folder',\
+    \ args=['sent'])\n]\nmenu(con, Menu('Mail', items, escapable=True))\n", id: 75,
+  name: mail}
+- {code: "def parse_args(id=None, subject=None, body=None):\n    return (id, subject,\
+    \ body)\n\nid, subject, body = parse_args(*a)\nq = Object.query(Object.player_id.isnot(None)).order_by(Object.name)\n\
+    if id is None:\n    items = [LabelItem('Select Player')]\n    for obj in q:\n\
+    \        items.append(Item(obj.get_name(player.is_staff), __name__, args=[obj.id]))\n\
+    \    menu(con, Menu('Compose Mail', items, escapable=True))\n    end()\nobj =\
+    \ q.filter_by(id=id).first()\nvalid_object(player, obj)\nif subject is None:\n\
+    \    get_text(con, 'Enter a subject for your mail', __name__, args=[id])\n   \
+    \ end()\nif body is None:\n    get_text(con, 'Enter the body of your message',\
+    \ __name__, multiline=True, args=[id, subject])\n    end()\ns.add(MailMessage.send(player,\
+    \ obj, subject, body))\nplayer.message('Message sent.')\n", id: 76, name: compose_mail}
+- {code: "def parse_args(name, start=0):\n    return (name, start)\n\nname, start\
+    \ = parse_args(*a)\n\ndef message_string(message, staff=player.is_staff, Item=Item,\
+    \ name=name):\n    return Item(f'{message.get_name(staff)}: {message.created.ctime()}',\
+    \ 'read_mail', args=[message.id, name])\n\nif name == 'inbox':\n    messages =\
+    \ MailMessage.query(to_id=player.id)\nelif name == 'sent':\n    messages = MailMessage.query(owner_id=player.id)\n\
+    messages = messages.order_by(MailMessage.read, MailMessage.created.desc())\nitems\
+    \ = [Item(f'{name.title()} Mail', None)]\npage = Page(messages, start=start)\n\
+    items.extend(\n    page.get_items(message_string, __name__, name)\n)\nitems.append(Item('Back\
+    \ To Mail Menu', 'mail'))\nmenu(con, Menu('Mail Folder', items, escapable=True))",
+  id: 77, name: mail_folder}
+- {code: "id, folder = a\nstaff = player.is_staff\nobj = MailMessage.query(sqlalchemy.or_(MailMessage.to_id\
+    \ == player.id, MailMessage.owner_id == player.id), id=id).first()\nvalid_object(player,\
+    \ obj)\nobj.read = True\ns.add(obj)\nitems = [\n    Item(obj.get_name(staff),\
+    \ None),\n    Item(f'From: {\"System\" if obj.owner_id is None else obj.owner.get_name(staff)}',\
+    \ 'compose_mail', args=[obj.owner_id]),\n    Item(f'To: {obj.to.get_name(staff)}',\
+    \ 'compose_mail', args=[obj.to_id]),\n    Item(f'Subject: {obj.get_name(staff)}',\
+    \ 'copy', args=[obj.get_name(staff)]),\n    Item(f'Sent: {obj.created}', 'copy',\
+    \ args=[str(obj.created)])\n]\nif obj.parent is not None:\n    items.append(Item(f'In\
+    \ reply to: {obj.parent.get_name(staff)}', __name__, args=[obj.parent_id, folder]))\n\
+    items.extend(\n    [\n        Item('Mark Unread', 'mark_mail_unread', args=[obj.id,\
+    \ folder]),\n        Item('Reply', 'reply_mail', args=[obj.id, folder])\n    ]\n\
+    )\nfor line in obj.text.splitlines():\n    items.append(Item(line, 'copy', args=[line]))\n\
+    items.append(Item(f'Back To {folder.title()} Folder', 'mail_folder', args=[folder]))\n\
+    menu(con, Menu('Message', items, escapable=True))", id: 78, name: read_mail}
+- {code: "def parse_args(id, folder, body=None):\r\n    return (id, folder, body)\r\
+    \n\r\nid, folder, body = parse_args(*a)\r\nstaff = player.is_staff\r\nobj = MailMessage.query(sqlalchemy.or_(MailMessage.to_id\
+    \ == player.id, MailMessage.owner_id == player.id), id=id).first()\r\nvalid_object(player,\
+    \ obj)\r\nif body is None:\r\n    get_text(con, 'Enter the body of your reply',\
+    \ __name__, multiline=True, args=[id, folder])\r\n    end()\r\nnew = MailMessage.send(player,\
+    \ obj.owner, None, body)\r\nnew.parent = obj\r\ns.add(new)\r\nplayer.message('Reply\
+    \ sent.')\r\ncon.handle_command('mail_folder', folder)", id: 79, name: reply_mail}
+- {code: "id, folder = a\r\nstaff = player.is_staff\r\nobj = MailMessage.query(sqlalchemy.or_(MailMessage.to_id\
+    \ == player.id, MailMessage.owner_id == player.id), id=id).first()\r\nvalid_object(player,\
+    \ obj)\r\nobj.read = False\r\ns.add(obj)\r\nplayer.message(f'Marked {obj.get_name(staff)}\
+    \ unread.')\r\ncon.handle_command('mail_folder', folder)", id: 80, name: mark_mail_unread}
+- {code: "check_in_space(player)\nz = player.location.zone\nkey, modifiers = a\nif\
+    \ key == 'K':\n    if 'shift' in modifiers:\n        name = 'up'\n    elif 'ctrl'\
+    \ in modifiers:\n        name = 'down'\n    else:\n        player.message('You\
+    \ must add shift for up, or control for down.')\n        end()\nelif key == 'R':\n\
+    \    pass  # Handled below.\nelse:\n    name = Direction.key_to_name(key)\n  \
+    \  if 'shift' in modifiers:\n        name += ' and up'\n    elif 'ctrl' in modifiers:\n\
+    \        name += ' and down'\nif key == 'R':\n    direction = choice(Direction.query().all())\n\
+    else:\n    direction = Direction.query(name=name).first()\nif direction is z.direction:\n\
+    \    player.message('Heading unchanged.')\n    end()\nnow = time()\ndiff = now\
+    \ - z.last_turn\nif z.speed is None or diff > z.speed:\n    z.last_turn = now\n\
+    \    z.direction = direction\n    player.beep()\n    player.message(f'New heading:\
+    \ {direction.get_name(player.is_staff)}.')\nelse:\n    player.message('You must\
+    \ wait %.2f seconds before turning again.' % diff)", id: 81, name: starship_course}
+- {builder: true, code: "q = RoomFloorType.query(room_id=player.location.id)\nif a:\n\
+    \    if a[0]:\n        player.message(f'Rows affected: {q.delete()}.')\n    else:\n\
+    \        player.message('Aborted.')\nelse:\n    c = q.count()\n    if not c:\n\
+    \        player.message('There are no floor coverings to delete.')\n    else:\n\
+    \        menu(\n            con, Menu(\n                'Delete Floor Coverings',\
+    \ [\n                    Item(f'Delete {c} floor {util.pluralise(c, \"covering\"\
+    )}?', None),\n                    Item('Yes', __name__, args=[True]),\n      \
+    \              Item('No', __name__, args=[False])\n                ], escapable=True\n\
+    \            )\n        )", id: 82, name: reset_floor_types}
+- {builder: true, code: "footsteps_dir = 'footsteps'\nconvertions = {\n    None: 'Clear',\n\
+    \    False: 'Silent'\n}\nif a:\n    name = a[0]\n    if name is None:\n      \
+    \  RoomFloorType.query(room_id=player.location_id, x=player.x, y=player.y, z=player.z).delete()\n\
+    \    else:\n        floor = RoomFloorType.query(room_id=player.location_id, x=player.x,\
+    \ y=player.y, z=player.z).first()\n        if floor is None:\n            floor\
+    \ = RoomFloorType(x=player.x, y=player.y, z=player.z, room_id=player.location_id)\n\
+    \        if name is False:\n            name = None\n        floor.name = name\n\
+    \        s.add(floor)\n    player.message('Done.')\nelse:\n    items = [LabelItem('Select\
+    \ Floor Covering')]\n    for name in [None, False] + sorted(os.listdir(os.path.join('sounds',\
+    \ footsteps_dir))):\n        items.append(Item(convertions.get(name, name), __name__,\
+    \ args=[os.path.join(footsteps_dir, name) if isinstance(name, str) else name]))\n\
+    \    menu(con, Menu('Floor Covering', items, escapable=True))\n", id: 83, name: set_floor_type}
+- {admin: true, code: "def parse_args(type_name, id=None, type_id=None):\n    return\
+    \ (type_name, id, type_id)\n\ntype_name, id, type_id = parse_args(*a)\n\nother\
+    \ = type_name.lower() + 's'\ncls = Base._decl_class_registry[type_name]\n\nif\
+    \ id is None:\n    items = [Item('Select Object Type', None)]\n    for type in\
+    \ ObjectType.query():\n        items.append(Item(type.get_name(True), __name__,\
+    \ args=[type_name, type.id]))\n    menu(con, Menu(f'{__name__.title()} {type_name}',\
+    \ items, escapable=True))\n    end()\n\ntype = ObjectType.get(id)\nvalid_object(player,\
+    \ type)\n\nif type_id is None:\n    kwargs = {}\n    if cls == Hotkey:\n     \
+    \   kwargs['reusable'] = True\n    objects = cls.query(**kwargs)\n    items =\
+    \ [Item(f'Select {type_name}', None)]\n    for obj in objects:\n        if obj\
+    \ not in getattr(type, other):\n            name = obj.get_name(True)\n      \
+    \      if callable(getattr(obj, 'get_description')):\n                name = f'{name}\
+    \ {obj.get_description()}'\n            items.append(Item(name, __name__, args=[type_name,\
+    \ type.id, obj.id]))\n    menu(con, Menu(f'{__name__.title()} {type_name}', items,\
+    \ escapable=True))\n    end()\n\nobj = cls.get(type_id)\nvalid_object(player,\
+    \ obj)\ngetattr(type, other).append(obj)\ns.add(type)\nplayer.message(f'Added\
+    \ {obj.get_name(True)} to {type.get_name(True)}.')", id: 84, name: bind}
+- {admin: true, code: "def parse_args(type_name, id=None, type_id=None):\n    return\
+    \ (type_name, id, type_id)\n\ntype_name, id, type_id = parse_args(*a)\n\nother\
+    \ = type_name.lower() + 's'\ncls = Base._decl_class_registry[type_name]\n\nif\
+    \ id is None:\n    items = [Item('Select Object Type', None)]\n    for type in\
+    \ ObjectType.query():\n        items.append(Item(type.get_name(True), __name__,\
+    \ args=[type_name, type.id]))\n    menu(con, Menu(f'{__name__.title()} {type_name}',\
+    \ items, escapable=True))\n    end()\n\ntype = ObjectType.get(id)\nvalid_object(player,\
+    \ type)\n\nif type_id is None:\n    items = [Item(f'Select {type_name}', None)]\n\
+    \    for obj in getattr(type, other):\n        name = obj.get_name(True)\n   \
+    \     if callable(getattr(obj, 'get_description')):\n            name = f'{name}\
+    \ {obj.get_description()}'\n        items.append(Item(name, __name__, args=[type_name,\
+    \ type.id, obj.id]))\n    menu(con, Menu(f'{__name__.title()} {type_name}', items,\
+    \ escapable=True))\n    end()\n\nobj = cls.get(type_id)\nvalid_object(player,\
+    \ obj)\ngetattr(type, other).remove(obj)\ns.add(type)\nplayer.message(f'Removed\
+    \ {obj.get_name(True)} from {type.get_name(True)}.')", id: 85, name: unbind}
+- {builder: true, code: "def parse_args(obj_id, type_id=None):\n    return (obj_id,\
+    \ type_id)\n\nobj_id, type_id = parse_args(*a)\n\nobj = Object.get(obj_id)\nvalid_object(player,\
+    \ obj)\nif type_id is None:\n    items = [Item('Select Type', None)]\n    for\
+    \ type in ObjectType.query():\n        if type not in obj.types:\n           \
+    \ items.append(Item(type.get_name(True), __name__, args=[obj.id, type.id]))\n\
+    \    menu(con, Menu('Add Object Type', items, escapable=True))\n    end()\ntype\
+    \ = ObjectType.get(type_id)\nvalid_object(player, type)\nobj.types.append(type)\n\
+    s.add(obj)\nplayer.message(f'Added {type.get_name(True)} to {obj.get_name(True)}.')",
+  id: 86, name: add_type}
+- {builder: true, code: "obj_id, type_id = a\nobj = Object.get(obj_id)\ntype = ObjectType.get(type_id)\n\
+    for thing in (obj, type):\n    valid_object(player, thing)\n\nobj.types.remove(type)\n\
+    s.add(obj)\nplayer.message(f'Removed type {type.get_name(True)} from {obj.get_name(True)}.')",
+  id: 87, name: remove_type}
+- {code: "zone, ship = valid_sensors(player)\nobj = Object.get(con.object_id)\nvalid_object(player,\
+    \ obj)\nindex = a[0]\nif not index:\n    index = 9\nelse:\n    index -= 1\nnames\
+    \ = [x for x in dir(ship) if x.startswith('filter_')]\ntry:\n    name = names[index]\n\
+    \    string = name.replace('_', ' ')\n    value = not getattr(ship, name)\n  \
+    \  if value:\n        msg = string.capitalize()\n    else:\n        msg = \"Don't\
+    \ \" + string\n    setattr(ship, name, value)\n    obj.beep()\n    player.message(msg)\n\
+    except IndexError:\n    player.message('There is no filter at that position.')",
+  id: 88, name: sensor_filter}
+- {code: "obj = Object.get(*a)\nvalid_object(player, obj)\nexit = obj.exit\nvalid_object(player,\
+    \ exit)\nitems = [\n    Item(obj.get_name(player.is_staff), None),\n    Item('Knock',\
+    \ 'knock', args=[obj.id])\n]\nif exit.lockable:\n    items.append(\n        Item(\n\
+    \            'Unlock' if exit.locked else 'Lock', 'lock_exit',\n            args=[obj.id,\
+    \ not exit.locked]\n        )\n    )\n    if exit.password is not None:\n    \
+    \    items.append(\n            Item('Set Code', 'set_exit_code', args=[obj.id])\n\
+    \        )\nif exit.has_chime:\n    items.append(Item('Chime', 'chime', args=[obj.id]))\n\
+    if player.is_staff:\n    items.append(\n        Item('Configure', 'edit_', args=['Entrance',\
+    \ exit.id])\n    )\n    other_side = obj.exit.get_other_side()\n    if other_side\
+    \ is not None:\n        items.append(Item('Configure (Other Side)', 'edit_', args=['Object',\
+    \ other_side.id]))\n    if exit.password is None:\n        items.append(Item('Add\
+    \ Code', 'add_exit_code', args=[exit.id]))\n    else:\n        items.extend(\n\
+    \            [\n                Item('Clear Code', 'clear_exit_code', args=[exit.id]),\n\
+    \                Item('Remove Code', 'remove_exit_code', args=[exit.id])\n   \
+    \         ]\n        )\nif len(items) == 1:\n    player.message(f'{obj.get_name(player.is_staff)}\
+    \ is not a door.')\nelse:\n    menu(con, Menu('Door Menu', items, escapable=True))",
+  id: 89, name: exit_menu}
+- {code: "obj = Object.get(*a)\nassert obj.is_exit, '%r is not an exit.' % obj\nexit\
+    \ = obj.exit\nif not exit.has_chime:\n    player.message(f'{obj.get_name(player.is_staff).capitalize()}\
+    \ has not chime.')\n    end()\nsound = get_sound(exit.chime_sound)\nplayer.do_social(exit.chime_msg,\
+    \ _others=[obj])\nobj.sound(sound)\nexit.location.broadcast_command(random_sound,\
+    \ sound, *exit.coordinates, 1.0)", id: 90, name: chime}
+- {code: "def parse_args(id, state, code=None):\n    return (id, state, code)\n\n\
+    id, state, code = parse_args(*a)\nobj = Object.get(id)\nvalid_object(player, obj)\n\
+    exit = obj.exit\nvalid_object(player, exit)\n\nif exit.locked is state:\n    player.message(f'{obj.get_name(player.is_staff)}\
+    \ is already {\"locked\" if state else \"unlocked\"}.')\nelif not state and exit.password\
+    \ is not None and code is None:\n    exit.enter_code(player)\n    get_text(con,\
+    \ 'Enter code', __name__, args=[obj.id, state])\nelif not state and exit.password\
+    \ is not None and not exit.check_password(code):\n    exit.incorrect_code(player)\n\
+    else:\n    if not state and exit.password is not None:\n        exit.correct_code(player)\n\
+    \    exit.locked = state\n    s.add(exit)\n    if state:\n        msg = exit.lock_msg\n\
+    \        other_msg = exit.other_lock_msg\n        sound = exit.lock_sound\n  \
+    \      other_sound = exit.other_lock_sound\n    else:\n        msg = exit.unlock_msg\n\
+    \        other_msg = exit.other_unlock_msg\n        sound = exit.unlock_sound\n\
+    \        other_sound = exit.other_unlock_sound\n    player.do_social(msg, _others=[obj])\n\
+    \    other_side = exit.get_other_side()\n    if other_side is not None:\n    \
+    \    other_side.exit.lockable=True  # Fix any dodgy exits.\n        other_side.exit.locked\
+    \ = state\n        s.add(other_side.exit)\n        other_side.do_social(other_msg)\n\
+    \        if other_sound is not None:\n            other_sound = get_sound(other_sound)\n\
+    \            other_side.sound(other_sound)\n    if sound is not None:\n      \
+    \  sound = get_sound(sound)\n        obj.sound(sound)", id: 91, name: lock_exit}
+- {code: 'check_staff(player)
+
+    exit = Entrance.get(*a)
+
+    valid_object(player, exit)
+
+    obj = exit.object
+
+    password = random_password()
+
+    exit.set_password(password)
+
+    s.add(exit)
+
+    copy(con, password)
+
+    player.message(f''Set the password for {obj.get_name(True)}.'')', id: 92, name: add_exit_code}
+- {code: 'check_staff(player)
+
+    exit = Entrance.get(*a)
+
+    obj = exit.object
+
+    exit.set_password('''')
+
+    s.add(exit)
+
+    player.message(f''Cleared the code for {obj.get_name(True)}.'')', id: 93, name: clear_exit_code}
+- {code: 'check_staff(player)
+
+    exit = Entrance.get(*a)
+
+    obj = exit.object
+
+    exit.clear_password()
+
+    s.add(exit)
+
+    player.message(f''Removed the code for {obj.get_name(True)}.'')', id: 94, name: remove_exit_code}
+- {code: "def parse_args(id, old=None, new=None):\n    return (id, old, new)\n\nid,\
+    \ old, new = parse_args(*a)\nobj = Object.get(id)\nvalid_object(player, obj)\n\
+    assert obj.is_exit, '%r is not an exit.' % obj\nexit = obj.exit\nif old is None:\n\
+    \    get_text(con, 'Enter the old code', __name__, args=[obj.id])\nelif new is\
+    \ None:\n    get_text(con, 'Enter the new code', __name__, args=[obj.id, old])\n\
+    elif not exit.check_password(old):\n    exit.incorrect_code(player)\nelse:\n \
+    \   exit.correct_code(player)\n    exit.set_password(new)\n    copy(con, new)\n\
+    \    player.message('New code set.')", id: 95, name: set_exit_code}
+- {admin: true, code: "def parse_args(keyword_id=None, topic_id=None):\n    return\
+    \ (keyword_id, topic_id)\n\nkeyword_id, topic_id = parse_args(*a)\nif keyword_id\
+    \ is None:\n    items = [Item('Keywords', None)]\n    for keyword in HelpKeyword.query():\n\
+    \        items.append(Item(keyword.get_name(True), __name__, args=[keyword.id]))\n\
+    \    menu(con, Menu('Select Keyword', items, escapable=True))\nelif topic_id is\
+    \ None:\n    items = [Item('Topic', None)]\n    for topic in HelpTopic.query():\n\
+    \        items.append(Item(topic.get_name(True), __name__, args=[keyword_id, topic.id]))\n\
+    \    menu(con, Menu('Select Topic', items, escapable=True))\nelse:\n    keyword\
+    \ = HelpKeyword.get(keyword_id)\n    topic = HelpTopic.get(topic_id)\n    for\
+    \ thing in (keyword, topic):\n        valid_object(player, thing)\n    topic.keywords.append(keyword)\n\
+    \    s.add(topic)\n    player.message(f'Added keyword {keyword.get_name(True)}\
+    \ to topic {topic.get_name(True)}.')", id: 96, name: add_topic_keyword}
+- {admin: true, code: "def parse_args(topic_id=None, keyword_id=None):\n    return\
+    \ (topic_id, keyword_id)\n\ntopic_id, keyword_id = parse_args(*a)\nif topic_id\
+    \ is None:\n    items = [Item('Help Topics', None)]\n    for topic in HelpTopic.query():\n\
+    \        items.append(Item(topic.get_name(True), __name__, args=[topic.id]))\n\
+    \    menu(con, Menu('Select Topic', items, escapable=True))\nelif keyword_id is\
+    \ None:\n    topic = HelpTopic.get(topic_id)\n    valid_object(player, topic)\n\
+    \    if not topic.keywords:\n        player.message(f'{topic.get_name(True)} has\
+    \ no keywords.')\n    else:\n        items = [Item('Keywords', None)]\n      \
+    \  for keyword in topic.keywords:\n            items.append(Item(keyword.get_name(True),\
+    \ __name__, args=[topic.id, keyword.id]))\n        menu(con, Menu('Select Keyword',\
+    \ items, escapable=True))\nelse:\n    topic = HelpTopic.get(topic_id)\n    keyword\
+    \ = HelpKeyword.get(keyword_id)\n    for thing in (topic, keyword):\n        valid_object(player,\
+    \ thing)\n    if keyword not in topic.keywords:\n        player.message(f'{keyword.get_name(True)}\
+    \ is not in the list of keywords for {topic.get_name(True)}.')\n    else:\n  \
+    \      topic.keywords.remove(keyword)\n        s.add(topic)\n        player.message(f'Removed\
+    \ keyword {keyword.get_name(True)} from topic {topic.get_name(True)}.')", id: 97,
+  name: remove_topic_keyword}
+- {builder: true, code: "footsteps = os.listdir('sounds/footsteps')\nhere = player.location\n\
+    \nif a:\n    data = a[0]\n    x1 = max(0, data['start_x'])\n    x2 = min(here.size_x,\
+    \ data['end_x'])\n    y1 = max(0, data['start_y'])\n    y2 = min(here.size_y,\
+    \ data['end_y'])\n    name = data['name']\n    assert name in footsteps\n    z\
+    \ = player.z\n    done = 0\n    for x in range(x1, x2 + 1):\n        for y in\
+    \ range(y1, y2 + 1):\n            RoomFloorType.query(x=x, y=y, z=z, room_id=here.id).delete()\n\
+    \            s.add(RoomFloorType(name=name, x=x, y=y, z=z, room_id=here.id))\n\
+    \            done += 1\n    player.message(f'Floor coverings added: {done}.')\n\
+    else:\n    fields = [\n        Field('start_x', 0, type=list(range(0, int(here.size_x)\
+    \ + 1))),\n        Field('end_x', 0, type=list(range(0, int(here.size_x) + 1))),\n\
+    \        Field('start_y', 0, type=list(range(0, int(here.size_y) + 1))),\n   \
+    \     Field('end_y', 0, type=list(range(0, int(here.size_y) + 1))),\n        Field('name',\
+    \ footsteps[0], type=footsteps)\n    ]\n    form(con, Form('Create Bulk Floor\
+    \ Coverings', fields, __name__, cancel='Cancel'))", id: 98, name: set_floor_type_range}
+- {code: "obj = Object.get(*a)\nvalid_object(player, obj)\ncheck_location(player,\
+    \ obj)\nplayer.do_social(obj.knock_msg, _others=[obj])\nif obj.knock_sound:\n\
+    \    sound = get_sound(obj.knock_sound)\n    obj.sound(sound)\n    if obj.is_exit:\n\
+    \        other_side = obj.exit.get_other_side()\n        if other_side is not\
+    \ None:\n            other_side.sound(sound)\n    if obj.transit_route is not\
+    \ None and obj.transit_route.room is not None:\n        for person in obj.transit_route.room.objects:\n\
+    \            person.sound(sound, private=True)\n", id: 99, name: knock}
+- {builder: true, code: "def parse_args(id, name=None):\n    return (id, name)\n\n\
+    id, name = parse_args(*a)\n\nobj = Object.get(id)\nvalid_object(player, obj)\n\
+    if obj.transit_route is not None:\n    player.message(f'This object is already\
+    \ linked to transit route {obj.transit.get_name(True)}.')\nelif not name:\n  \
+    \  get_text(con, 'Enter the name for the new transport route', __name__, value=obj.name,\
+    \ args=[id])\nelse:\n    t = TransitRoute(name=name)\n    obj.transit_route =\
+    \ t\n    s.add_all([obj, t])\n    s.commit()\n    player.message(f'Created transit\
+    \ route {t.get_name(True)}.')", id: 100, name: add_transit_route}
+- {builder: true, code: "if a:\n    id = a[0]\n    route = TransitRoute.get(id)\n\
+    \    valid_object(player, route)\n    stop = TransitStop(location_id=player.location_id,\
+    \ transit_route_id=route.id)\n    stop.coordinates = player.coordinates\n    s.add(stop)\n\
+    \    s.commit()\n    player.message('Stop added.')\nelse:\n    items = [Item('Select\
+    \ Transit Route', None)]\n    for route in TransitRoute.query():\n        items.append(Item(route.get_name(True),\
+    \ __name__, args=[route.id]))\n    menu(con, Menu('Select Transit Route', items,\
+    \ escapable=True))", id: 101, name: add_transit_stop}
+- {builder: true, code: "def parse_args(route_id, room_id=None):\n    return (route_id,\
+    \ room_id)\n\nroute_id, room_id = parse_args(*a)\nroute = TransitRoute.get(route_id)\n\
+    valid_object(player, route)\nif room_id is None:\n    items = [Item('Select Room',\
+    \ None)]\n    for room in player.location.zone.rooms:\n        items.append(Item(room.get_name(True),\
+    \ __name__, args=[route.id, room.id]))\n    menu(con, Menu('Add Room', items,\
+    \ escapable=True))\nelse:\n    room = Room.get(room_id)\n    valid_object(player,\
+    \ room)\n    if route.room is not None:\n        player.message(f'{obj.get_name(True)}\
+    \ is already accessible via {obj.transit_route.room.get_name(True)}.')\n    else:\n\
+    \        route.room = room\n        s.add(route)\n        s.commit()\n       \
+    \ player.message(f'Attached {room.get_name(True)} to {route.get_name(True)}.')",
+  id: 102, name: set_transit_room}
+- {builder: true, code: "route = TransitRoute.get(*a)\nvalid_object(player, route)\n\
+    if route.room is None:\n    player.message('Room already cleared.')\nelse:\n \
+    \   route.room = None\n    player.message('ROom cleared.')", id: 103, name: clear_transit_room}
+- {code: "route = TransitRoute.get(*a)\nvalid_object(player, route)\nobj = route.object\n\
+    check_location(player, obj)\nroom = route.room\nif room is None:\n    player.message('No\
+    \ boarding allowed.')\nelse:\n    util.migrate(player, obj, room, route.coordinates,\
+    \ route.board_msg, route.board_sound, route.board_other_msg, route.board_other_sound,\
+    \ route.board_follow_msg)", id: 104, name: board_transit}
+- {builder: true, code: 'id, state = a
+
+    route = TransitRoute.get(id)
+
+    valid_object(player, route)
+
+    route.paused = state
+
+    player.message(f''{route.get_name(True)} {"paused" if state else "resumed"}.'')',
+  id: 105, name: pause_transit_route}
+- {code: "if time() - player.last_walked < player.speed:\n    end()\nkey, modifiers\
+    \ = a\n\nname = Direction.key_to_name(key)\ndirection = Direction.query(name=name,\
+    \ z=0.0).first()\nif con.walk_task is not None and con.walk_task.running:\n  \
+    \  con.walk_task.stop()\n    con.walk_task = None\nif 'shift' in modifiers:\n\
+    \    x, y, z = player.get_corner_coordinates(direction)\n    if (x, y, z) == player.coordinates:\n\
+    \        player.message(f'You are already as far {direction.get_name()} as you\
+    \ can go.')\n    else:\n        con.handle_command('autostroll', dict(x=x, y=y))\n\
+    else:\n    util.walk(player, x=direction.x, y=direction.y)", id: 106, name: travel_direction}
+- {code: "def parse_args(id, start=0):\n    return (id, start)\nid, start = parse_args(*a)\n\
+    channel = CommunicationChannel.get(id)\nvalid_object(player, channel)\nif not\
+    \ channel.messages:\n    player.message('Nothing to display.')\n    end()\nitems\
+    \ = [LabelItem(f'{channel.get_name(player.is_staff)} History ({len(channel.messages)})')]\n\
+    \ndef message_string(message, CopyItem=CopyItem, now=datetime.datetime.utcnow(),\
+    \ staff=player.is_staff, util=util):\n    sender = message.owner.get_name(staff)\n\
+    \    when = now - message.created\n    when = util.format_timedelta(when)\n  \
+    \  return CopyItem(f'{sender} ({when} ago): {message.text}')\n\npage = Page(CommunicationChannelMessage.query(channel_id=id).order_by(CommunicationChannelMessage.created.desc()),\
+    \ start=start)\nitems.extend(page.get_items(message_string, __name__, id))\nmenu(con,\
+    \ Menu('Communication History', items, escapable=True))\n", id: 107, name: communication_channel_history}
+- {admin: true, code: 'id = a[0]
+
+    task = Task.get(id)
+
+    task.next_run = None
+
+    s.add(task)
+
+    player.message(''Done.'')', id: 108, name: expedite_task}
+- {code: "starship_id, room_id = a\nstarship = Starship.get(starship_id)\nroom = Room.query(Room.airlock_id.isnot(None),\
+    \ id=room_id).first()\nfor obj in (room, starship):\n    valid_object(player,\
+    \ obj)\nobj = starship.object\ncheck_location(player, obj)\nif room not in starship.zone.rooms:\n\
+    \    player.message('No such airlock.')\nelse:\n    airlock = room.airlock\n \
+    \   util.migrate(player, obj, room, airlock.coordinates, airlock.board_msg, airlock.board_sound,\
+    \ airlock.board_other_msg, airlock.board_other_sound, airlock.board_follow_msg)",
+  id: 109, name: board_starship}
+- {builder: true, code: 'player.location.airlock = RoomAirlock()
+
+    player.message(''Airlock created.'')', id: 110, name: create_airlock}
+- {code: "channel = CommunicationChannel.get(*a)\nvalid_object(player, channel)\n\
+    items = [LabelItem(f'People listening to {channel.get_name(player.is_staff)}')]\n\
+    for listener in CommunicationChannelListener.join(Object).filter(CommunicationChannelListener.channel_id\
+    \ == channel.id).order_by(Object.connected.desc(), Object.name):\n    obj = Object.get(listener.object_id)\n\
+    \    name = f'{\"* \" if obj.connected else \"\"}{obj.get_name(player.is_staff)}'\n\
+    \    if player.is_admin:\n        i = Item(name, 'communication_channel_action',\
+    \ args=[channel.id, obj.id])\n    else:\n        i = CopyItem(name)\n    items.append(i)\n\
+    if player.is_admin and channel.banned:\n    items.append(LabelItem('Unban'))\n\
+    \    for obj in channel.banned:\n        items.append(Item(obj.get_name(True),\
+    \ 'communication_channel_action', args=[channel.id, obj.id, 'unban']))\nmenu(con,\
+    \ Menu('Channel Listeners', items, escapable=True))\n", id: 111, name: communication_channel_listeners}
+- {code: "def entry_string(entry, staff=player.is_staff, CopyItem=CopyItem):\n   \
+    \ return CopyItem(f'{entry.owner.get_name(staff)}: {entry.text} ({entry.created.ctime()})')\n\
+    \nif a:\n    start = a[0]\nelse:\n    start = 0\nitems = [LabelItem('Changelog')]\n\
+    if player.is_staff:\n    items.append(Item('Add Change', 'add_change'))\nitems.extend(\n\
+    \    Page(\n        ChangelogEntry.query().order_by(ChangelogEntry.created.desc()),\
+    \ start=start\n    ).get_items(entry_string, __name__)\n)\nmenu(con, Menu('Changelog\
+    \ Entries', items, escapable=True))\n", id: 112, name: changelog}
+- {admin: true, code: "if a:\n    entry = ChangelogEntry(owner_id=player.id, text=a[0].strip())\n\
+    \    s.add(entry)\n    sound = get_sound('notifications/changelog')\n    for who\
+    \ in Object.join(Object.player).filter(Player.changelog_notifications.is_(True),\
+    \ Object.connected.is_(True)):\n        connection = who.get_connection()\n  \
+    \      if connection is not None:\n            message(connection, f'Game change\
+    \ from {player.get_name(who.is_staff)}: {entry.text}')\n            interface_sound(connection,\
+    \ sound)\nelse:\n    get_text(con, 'Enter the text of your change', __name__,\
+    \ escapable=True)", id: 113, name: add_change}
+- {code: "def parse_args(mode='recent', start=0):\n    return (mode, start)\n\nmode,\
+    \ start = parse_args(*a)\n\ndef idea_string(idea, staff=player.is_staff, Item=Item):\n\
+    \    return Item(idea.get_name(staff), 'view_idea', args=[idea.id])\n\nitems =\
+    \ [\n    LabelItem('Ideas'),\n    Item('New Idea', 'create_idea'),\n    LabelItem('Reorder')\n\
+    ]\n\nfor name in ('recent', 'oldest', 'votes'):\n    items.append(Item(f'({\"\
+    *\" if mode == name else \" \"}) Order by {name.title()}', __name__, args=[name,\
+    \ start]))\n\nq = Idea.query()\nif mode == 'recent':\n    q = q.order_by(Idea.created.desc())\n\
+    elif mode == 'oldest':\n    q = q.order_by(Idea.created.asc())\nelif mode == 'votes':\n\
+    \    q = q.join(IdeaVote).group_by(Idea).order_by(sqlalchemy.func.count(IdeaVote.__table__.c.idea_id).desc())\n\
+    else:\n    player.message(f'Unsupported mode: {mode}.')\nc = q.count()\nif c:\n\
+    \    items.append(LabelItem(f'Ideas ({c})'))\n    page = Page(q, start=start)\n\
+    \    items.extend(page.get_items(idea_string, __name__, mode))\nelse:\n    items.append(LabelItem('No\
+    \ ideas to show'))\nmenu(con, Menu('Ideas', items, escapable=True))\n", id: 114,
+  name: ideas}
+- {code: "def parse_args(name=None, body=None):\n    return (name, body)\n\nname,\
+    \ body= parse_args(*a)\nif not name:\n    get_text(con, 'Enter a title for your\
+    \ idea', __name__, escapable=True)\nelif not body:\n    get_text(con, 'Enter the\
+    \ text of your new idea', __name__, args=[name], multiline=True)\nelse:\n    i\
+    \ = Idea(owner_id=player.id, name=name, body=body)\n    s.add(i)\n    player.message('Idea\
+    \ created.')\n    con.handle_command('ideas')\n", id: 115, name: create_idea}
+- {code: "id = a[0]\nidea = Idea.get(id)\nvalid_object(idea, player)\nitems = [\n\
+    \    LabelItem('View Idea'),\n    CopyItem(f'Name: {idea.get_name(player.is_staff)}'),\n\
+    \    CopyItem(f'Created: {idea.created.ctime()}'),\n    CopyItem(f'ID: {idea.id}'),\n\
+    \    Item(f'Votes: {util.english_list(idea.votes, empty=\"None\", key=lambda voter,\
+    \ staff=player.is_staff: voter.get_name(staff))} ({len(idea.votes)})', 'vote_idea',\
+    \ args=[idea.id]),\n    Item(f'Comments: {len(idea.comments)})', 'comments_idea',\
+    \ args=[idea.id])\n]\nfor line in Idea.first().body.splitlines():\n    items.append(CopyItem(line))\n\
+    items.append(Item('Back to Ideas', 'ideas'))\nmenu(con, Menu('Idea', items, escapable=True))\n",
+  id: 116, name: view_idea}
+- {code: "id = a[0]\nidea = Idea.get(id)\nvalid_object(idea, player)\nif player in\
+    \ idea.votes:\n    idea.votes.remove(player)\n    msg = 'Vote removed.'\nelse:\n\
+    \    idea.votes.append(player)\n    msg = 'Vote added'\nplayer.message(msg)\n\
+    con.handle_command('view_idea', id)\n", id: 117, name: vote_idea}
+- {code: "def parse_args(id, start=0):\n    return (id, start)\nid, start = parse_args(*a)\n\
+    idea = Idea.get(id)\nvalid_object(idea, player)\nitems = [\n    LabelItem(f'Comments\
+    \ on {idea.get_name(player.is_staff)}'),\n    Item('Add Comment', 'new_comment_idea',\
+    \ args=[id]),\n    CopyItem(f'Comments ({len(idea.comments)})')\n]\n\ndef comment_string(comment,\
+    \ staff=player.is_staff, Item=Item, util=util):\n    text = util.truncate(comment.text)\n\
+    \    return Item(f'#{comment.id}: {comment.owner.get_name(staff)}: {text} ({comment.created.ctime()})',\
+    \ 'view_comment_idea', args=[comment.id])\n\npage = Page(IdeaComment.query(idea_id=id).order_by(IdeaComment.created.desc()),\
+    \ start=start)\nitems.extend(page.get_items(comment_string, __name__, id))\nitems.append(Item('Back',\
+    \ 'view_idea', args=[id]))\nmenu(con, Menu('Comments', items, escapable=True))\n",
+  id: 118, name: comments_idea}
+- {code: "def parse_args(id, text=None):\n    return (id, text)\n\nid, text = parse_args(*a)\n\
+    if text is None:\n    get_text(con, 'Enter the text of your comment', __name__,\
+    \ multiline=True, args=[id])\nelse:\n    if text:\n        comment = IdeaComment(idea_id=id,\
+    \ owner_id=player.id, text=text)\n        s.add(comment)\n        player.message('Comment\
+    \ posted.')\n    else:\n        player.message('Canceled.')\n    con.handle_command('comments_idea',\
+    \ id)\n", id: 119, name: new_comment_idea}
+- {code: "id = a[0]\ncomment = IdeaComment.get(id)\nvalid_object(player, comment)\n\
+    items = [\n    LabelItem(f'Comment #{comment.id} on idea {comment.idea.get_name(player.is_staff)}'),\n\
+    \    Item(f'Author: {comment.owner.get_name(player.is_staff)}', 'author_comments_idea',\
+    \ args=[comment.owner_id]),\n    Item(f'Idea: {comment.idea.get_name(player.is_staff)}',\
+    \ 'view_idea', args=[comment.idea_id]),\n    CopyItem(f'Date: {comment.created.ctime()}')\n\
+    ]\nfor line in comment.text.splitlines():\n    items.append(CopyItem(line))\n\
+    items.append(Item('Back', 'comments_idea', args=[comment.idea_id]))\nmenu(con,\
+    \ Menu('Comment', items, escapable=True))\n", id: 120, name: view_comment_idea}
+- {code: "def comment_string(comment, staff=player.is_staff, Item=Item, util=util):\n\
+    \    text = util.truncate(comment.text)\n    return Item(f'#{comment.id}: {comment.owner.get_name(staff)}:\
+    \ {text} ({comment.created.ctime()})', 'view_comment_idea', args=[comment.id])\n\
+    \ndef parse_args(id, start=0):\n    return (id, start)\nid, start = parse_args(*a)\n\
+    obj = Object.get(id)\nvalid_object(player, obj)\nq = IdeaComment.query(owner_id=id).order_by(IdeaComment.created.desc())\n\
+    page = Page(q, start=start)\nitems = [LabelItem(f'Comments by {obj.get_name(player.is_staff)}')]\n\
+    items.extend(page.get_items(comment_string, __name__, id))\nmenu(con, Menu('Comments',\
+    \ items, escapable=True))\n", id: 121, name: author_comments_idea}
+- {builder: true, code: "title = 'Set Sound'\ndef parse_args(class_name=None, id=None,\
+    \ name=None, path=None, done=False):\n    return (class_name, id, name, path,\
+    \ done)\n\nclass_name, id, name, path, done = parse_args(*a)\n\nif class_name\
+    \ is None or id is None:\n    # Let's select an object from the room.\n    items\
+    \ = [\n        LabelItem('Select Item'),\n        Item(player.location.get_name(True),\
+    \ __name__, args=['Room', player.location_id])\n    ]\n    for thing in player.location.objects:\n\
+    \        items.append(Item(f'{thing.get_name(True)}: {util.directions(player.coordinates,\
+    \ thing.coordinates)}', __name__, args=[thing.__class__.__name__, thing.id]))\n\
+    \    menu(con, Menu(title, items, escapable=True))\n    end()\n\ncls = Base._decl_class_registry[class_name]\n\
+    obj = cls.get(id)\nvalid_object(player, obj)\nif name is None:\n    # Let's select\
+    \ an attribute or related object.\n    items = [LabelItem('Attributes')]\n   \
+    \ ins = sqlalchemy.inspect(cls)\n    for column in ins.c:\n        if column.type.__class__\
+    \ is base.Sound:\n            name = column.name\n            items.append(Item(f'{name.replace(\"\
+    _\", \" \").title()} ({getattr(obj, name)})', __name__, args=[cls.__name__, obj.id,\
+    \ name, getattr(obj, name)]))\n    items.append(LabelItem('Related Objects'))\n\
+    \    for name in ins.relationships.keys():\n        other = getattr(obj, name)\n\
+    \        if other is not None:\n            if not isinstance(other, list):\n\
+    \                other = [other]\n            for thing in other:\n          \
+    \      items.append(Item(f'{name}: {thing}', __name__, args=[thing.__class__.__name__,\
+    \ thing.id]))\n    menu(con, Menu(title, items, escapable=True))\n    end()\n\n\
+    if done:\n    # Let's set the attribute.\n    setattr(obj, name, path)\n    if\
+    \ cls is Object:\n        obj.update_neighbours()\n    elif cls is Room:\n   \
+    \     for thing in obj.objects:\n            thing.identify_location()\n    player.message(f'Sound\
+    \ {\"cleared\" if path is None else \"set\"}.')\nelse:\n    if path is None:\n\
+    \        path = ''\n    if path.startswith('sounds'):\n        absolute = path\n\
+    \    else:\n        absolute = os.path.join('sounds', path)\n    if os.path.isfile(absolute):\n\
+    \        path = os.path.split(path)[0]\n        absolute = os.path.split(absolute)[0]\n\
+    \    elif not os.path.isdir(absolute):\n        # Not a file or a folder.\n  \
+    \      player.message(f'Unknown sound: {path}.')\n        path = ''\n        absolute\
+    \ = 'sounds'\n    args = [cls.__name__, obj.id, name]\n    items = [\n       \
+    \ LabelItem(os.path.split(path)[-1]),\n        Item('Use', __name__, args=args\
+    \ + [path, True])\n    ]\n    if sqlalchemy.inspect(cls).c[name].nullable:\n \
+    \       items.append(Item('Clear', __name__, args=args + [None, True]))\n    updir\
+    \ = os.path.split(path)[0]\n    if path:\n        items.append(Item('..', __name__,\
+    \ args=args + [os.path.split(path)[0]]))\n    for thing in sorted(os.listdir(absolute)):\n\
+    \        full = os.path.join(path, thing)\n        friendly = thing\n        if\
+    \ getattr(obj, name) == full:\n            friendly = f'* {friendly}'\n      \
+    \  items.append(Item(friendly, __name__, args=args + [full, os.path.isfile(os.path.join(absolute,\
+    \ thing))]))\n    menu(con, Menu(title, items, escapable=True))\n", id: 122, name: set_sound}
+- {code: 'id = a[0]
+
+    obj = Chair.get(id)
+
+    valid_object(player, obj)
+
+    check_location(player, obj.object)
+
+    obj.use(player, RestingStates.sitting)', id: 124, name: sit}
+- {code: 'id = a[0]
+
+    obj = Chair.get(id)
+
+    valid_object(player, obj)
+
+    check_location(player, obj.object)
+
+    obj.use(player, RestingStates.lying)', id: 126, name: lie}
+- {code: "if player.resting_state is not RestingStates.standing:\n    if player.sitting\
+    \ is not None:\n        player.sitting.use(player, RestingStates.standing)\n \
+    \   else:\n        player.resting_state = RestingStates.standing\n        player.do_social('%1n|normal\
+    \ stand%1s up.')\nelse:\n    player.message('You are already standing.')", id: 127,
+  name: stand}
+- {builder: true, code: "id, name, type = a\n# Below convertions needed because of\
+    \ interact_object\nif type == 'Credit_Card':\n    type = 'CreditCard'\nelif type\
+    \ == 'Atm':\n    type = 'ATM'\n    if 'bank_id' not in kw:\n        items = [LabelItem('Banks')]\n\
+    \        for bank in Bank.query().order_by(Bank.name):\n            items.append(Item(bank.get_name(True),\
+    \ __name__, args=a, kwargs=dict(bank_id=bank.id)))\n        menu(con, Menu('Select\
+    \ Bank', items, escapable=True))\n        end()\nobj = Object.get(id)\nvalid_object(player,\
+    \ obj)\nthing = Base._decl_class_registry[type](**kw)\ns.add(thing)\ns.commit()\n\
+    player.message(f'Created {thing}.')\nsetattr(obj, name, thing)\n", id: 128, name: add_related_object}
+- {code: "container_id = kw.get('container_id', None)\nobject_id = kw.get('object_id',\
+    \ None)\n\nif object_id is None:\n    if not player.holding:\n        player.message('You\
+    \ have nothing to store.')\n        end()\n    items = [LabelItem('Item to store')]\n\
+    \    for thing in player.holding:\n        items.append(Item(thing.get_name(player.is_staff),\
+    \ __name__, kwargs={'container_id': container_id, 'object_id': thing.id}))\n \
+    \   menu(con, Menu('Store', items, escapable=True))\n    end()\n\nif container_id\
+    \ is None:\n    items = [LabelItem('Select a container')]\n    for thing in player.location.objects:\n\
+    \        if thing.container_id is not None:\n            items.append(Item(thing.get_name(player.is_staff),\
+    \ __name__, kwargs={'container_id': thing.container_id, 'object_id': object_id}))\n\
+    \    menu(con, Menu('Store', items, escapable=True))\n    end()\n\ncontainer =\
+    \ Container.get(container_id)\nobj = Object.get(object_id)\nfor thing in (container,\
+    \ obj):\n    valid_object(player, thing)\ncheck_location(player, container.object)\n\
+    \nif obj.holder_id != player.id:\n    player.message('You can only store things\
+    \ you are holding.')\n    end()\nif obj not in player.holding:\n    player.message('You\
+    \ must be holding that.')\nelse:\n    container.store(player, obj)", id: 129,
+  name: store}
+- {code: "container_id = kw.get('container_id', None)\nobject_id = kw.get('object_id',\
+    \ None)\n\nif container_id is None:\n    items = [LabelItem('Select a container')]\n\
+    \    for thing in player.location.objects:\n        if thing.container_id is not\
+    \ None:\n            items.append(Item(thing.get_name(player.is_staff), __name__,\
+    \ kwargs={'container_id': thing.container_id, 'object_id': object_id}))\n    menu(con,\
+    \ Menu('Retrieve', items, escapable=True))\n    end()\n\ncontainer = Container.get(container_id)\n\
+    valid_object(player, container)\n\nif object_id is None:\n    items = [LabelItem('Select\
+    \ object to retrieve')]\n    for thing in container.contents:\n        items.append(Item(thing.get_name(player.is_staff),\
+    \ __name__, kwargs={'container_id': container.id, 'object_id': thing.id}))\n \
+    \   menu(con, Menu('Retrieve', items, escapable=True))\n    end()\n\nobj = Object.get(object_id)\n\
+    valid_object(player, obj)\nif obj not in container.contents:\n    player.message('No\
+    \ such item.')\ncontainer.retrieve(player, obj)", id: 130, name: retrieve}
+- {code: "check_staff(player)\n\ndef parse_args(shop_id, object_id=None, price=None):\n\
+    \    return (shop_id, object_id, price)\n\nshop_id, object_id, price = parse_args(*a)\n\
+    \nif object_id is None:\n    items = [LabelItem('Choose an object')]\n    for\
+    \ obj in Object.query(fertile=True).order_by(Object.name):\n        items.append(Item(obj.get_name(True),\
+    \ __name__, args=[shop_id, obj.id]))\n    menu(con, Menu('Add Sop Item', items,\
+    \ escapable=True))\n    end()\n\nif price is None:\n    get_text(con, 'Enter a\
+    \ price for your new shop item', __name__, value='1000000.0', args=[shop_id, object_id])\n\
+    \    end()\n\ntry:\n    price = float(price)\nexcept ValueError:\n    player.message(f'Invalid\
+    \ price: {price}.')\n    end()\n\nshop = Shop.get(shop_id)\nobj = Object.get(object_id)\n\
+    for thing in (obj, shop):\n    valid_object(player, thing)\n\ns.add(shop.add_item(obj,\
+    \ price))\nplayer.message('Item added.')", id: 131, name: add_shop_item}
+- {code: "coords = []\nfor thing in a[0].split(',', 2):\n    try:\n        coords.append(float(thing))\n\
+    \    except ValueError:\n        player.message(f'Invalid coordinate: {thing}.')\n\
+    \        end()\n\nship = player.location.zone.starship\nif tuple(coords) != ship.target_coordinates:\n\
+    \    player.location.zone.starship.target_coordinates = coords\n    player.beep()\n\
+    \    player.do_social('%1N make%1s a course change.')\nelse:\n    player.message('Course\
+    \ unchanged.')", id: 132, name: set_ship_coordinates}
+- {code: 'data = a[0][:ServerOptions.get().max_speak_length]
+
+    player.speak(data)', id: 133, name: speak}
+- {admin: true, code: "def parse_args(phone_id, address=None):\n    return (phone_id,\
+    \ address)\n\nphone_id, address = parse_args(*a)\n\nphone = Phone.get(phone_id)\n\
+    valid_object(player, phone)\n\nif not address:\n    get_text(con, 'Enter address',\
+    \ __name__, args=[phone.id])\nelif Phone.address_is_unique(address):\n    phone.address\
+    \ = address\n    player.message(f'Set address for {phone.object.get_name(True)}\
+    \ to {phone.address}.')\nelse:\n    player.message('That address is not unique.\
+    \ Please choose another.')", id: 134, name: set_phone_address}
+- {builder: true, code: 'phone = Phone.get(a[0])
+
+
+    valid_object(player, phone)
+
+    phone.set_address()
+
+    player.message(f''The address for {phone.object.get_name(True)} is {phone.address}.'')',
+  id: 135, name: randomise_phone_address}
+- {code: "def parse_args(phone_id, address=None):\n    return (phone_id, address)\n\
+    \nphone_id, address = parse_args(*a)\nphone = Phone.get(phone_id)\nvalid_object(player,\
+    \ phone)\ncheck_location(player, phone.object)\nif phone.state is not PhoneStates.idle:\n\
+    \    player.message('That phone is already in use.')\nelif not address:\n    get_text(con,\
+    \ 'Enter address to call', __name__, args=[phone.id])\nelse:\n    phone.call(address,\
+    \ player)\n", id: 136, name: call_phone}
+- {code: 'phone = Phone.get(*a)
+
+    valid_object(player, phone)
+
+    check_location(player, phone.object)
+
+    phone.disconnect_call(player)', id: 137, name: hangup_phone}
+- {code: "phone = Phone.get(*a)\nvalid_object(player, phone)\nobj = phone.object\n\
+    check_location(player, obj)\nif phone.state is not PhoneStates.ringing:\n    player.message(f'{obj.get_name(player.is_staff)}\
+    \ is not ringing.')\nelse:\n    phone.reject_call(player)", id: 138, name: reject_phone}
+- {code: "phone = Phone.get(*a)\nvalid_object(player, phone)\nobj = phone.object\n\
+    check_location(player, obj)\nif phone.state is not PhoneStates.ringing:\n    player.message(f'{obj.get_name(player.is_staff)}\
+    \ is not ringing.')\nelse:\n    phone.answer_call(player)", id: 139, name: answer_phone}
+- {code: "phone = Phone.get(*a)\nvalid_object(player, phone)\nobj = phone.object\n\
+    check_location(player, obj)\nitems = [\n    LabelItem(f'Contacts for {obj.get_name(player.is_staff)}\
+    \ ({len(phone.phone_contacts)})'),\n    Item('Add Contact', 'add_contact_phone',\
+    \ args=[phone.id])\n]\nfor contact in phone.phone_contacts:\n    items.append(Item(f'{contact.get_name(player.is_staff)}\
+    \ ({contact.address})', 'contact_menu_phone', args=[contact.id]))\nmenu(con, Menu('Contacts',\
+    \ items, escapable=True))\n", id: 140, name: contacts_phone}
+- {code: "def parse_args(phone_id, name=None, address=None):\n    return (phone_id,\
+    \ name, address)\n\nphone_id, name, address = parse_args(*a)\nphone = Phone.get(phone_id)\n\
+    valid_object(player, phone)\nobj = phone.object\ncheck_location(player, obj)\n\
+    if not name:\n    get_text(con, 'Enter the name for the new contact', __name__,\
+    \ args=[phone.id])\nelif not address:\n    get_text(con, 'Enter the address for\
+    \ the new contact', __name__, args=[phone.id, name])\nelse:\n    phone.add_contact(name,\
+    \ address)\n    player.message(f'Contact {name} added.')", id: 141, name: add_contact_phone}
+- {code: "contact = PhoneContact.get(*a)\nvalid_object(player, contact)\ncheck_location(player,\
+    \ contact.phone.object)\nitems = [\n    LabelItem(contact.get_name(player.is_staff)),\n\
+    \    CopyItem(contact.address),\n    Item('Call', 'call_phone', args=[contact.phone_id,\
+    \ contact.address]),\n    Item('Text', 'text_message_phone', args=[contact.phone_id,\
+    \ contact.address]),\n    Item('Delete', 'delete_contact_phone', args=[contact.id])\n\
+    ]\nmenu(con, Menu('Contact Menu', items, escapable=True))\n", id: 142, name: contact_menu_phone}
+- {code: "def parse_args(contact_id, answer=None):\n    return (contact_id, answer)\n\
+    \ncontact_id, answer = parse_args(*a)\n\ncontact = PhoneContact.get(contact_id)\n\
+    valid_object(player, contact)\ncheck_location(player, contact.phone.object)\n\n\
+    if answer is None:\n    items = [\n        LabelItem(f'Are you sure you want to\
+    \ delete {contact.get_name(player.is_staff)} from your contacts?'),\n        Item('Yes',\
+    \ __name__, args=[contact.id, True]),\n        Item('No', __name__, args=[contact.id,\
+    \ False])\n    ]\n    menu(con, Menu('Delete Contact', items, escapable=True))\n\
+    elif not answer:\n    player.message('Aborted.')\nelse:\n    s.delete(contact)\n\
+    \    player.message('Deleted.')", id: 143, name: delete_contact_phone}
+- {code: "def parse_args(phone_id, emote_string=None):\n    return (phone_id, emote_string)\n\
+    \nphone_id, emote_string = parse_args(*a)\nphone = Phone.get(phone_id)\nvalid_object(player,\
+    \ phone)\nobj = phone.object\ncheck_location(player, obj)\nif not emote_string:\n\
+    \    get_text(con, 'Enter your emote string', __name__, args=[phone_id])\nelse:\n\
+    \    phone.emote(player, emote_string)\n", id: 144, name: emote_phone}
+- {code: "def parse_args(phone_id, speak_string=None):\n    return (phone_id, speak_string)\n\
+    \nphone_id, speak_string = parse_args(*a)\nphone = Phone.get(phone_id)\nvalid_object(player,\
+    \ phone)\nobj = phone.object\ncheck_location(player, obj)\nif not speak_string:\n\
+    \    get_text(con, 'Say something', __name__, args=[phone_id])\nelse:\n      \
+    \  phone.emote(player, '%1n say%1s: \"{text}\"', text=speak_string)\n", id: 145,
+  name: speak_phone}
+- {code: 'phone_id, value = a
+
+
+    phone = Phone.get(phone_id)
+
+    valid_object(player, phone)
+
+    obj = phone.object
+
+    check_location(player, obj)
+
+
+    phone.muted = value
+
+    player.message(f''{obj.get_name(player.is_staff)} is now {"muted" if value else
+    "unmuted"}.'')', id: 147, name: mute_phone}
+- {admin: true, code: 'sounds.clear()
+
+    player.message(''Sounds reset.'')', id: 148, name: reset_sounds}
+- {code: "def parse_args(phone_id, address=None):\n    return (phone_id, address)\n\
+    \nphone_id, address = parse_args(*a)\n\nphone = Phone.get(phone_id)\nvalid_object(player,\
+    \ phone)\nobj = phone.object\ncheck_location(player, obj)\n\nif not address:\n\
+    \    get_text(con, 'Enter address to block', __name__, args=[phone.id])\nelse:\n\
+    \    phone.block_address(address)\n    player.message(f'You block {phone.as_name(address)}\
+    \ from contacting {obj.get_name(player.is_staff)}.')\n", id: 149, name: block_address_phone}
+- {code: "def parse_args(phone_id, address=None):\n    return (phone_id, address)\n\
+    \nphone_id, address = parse_args(*a)\n\nphone = Phone.get(phone_id)\nvalid_object(player,\
+    \ phone)\nobj = phone.object\ncheck_location(player, obj)\n\nif not phone.blocked_phone_addresses:\n\
+    \    player.message(f'There are no blocked numbers on {obj.get_name(player.is_staff)}.')\n\
+    elif not address:\n    items = [LabelItem(f'Blocked Addresses ({len(phone.blocked_phone_addresses)})')]\n\
+    \    for entry in reversed(phone.blocked_phone_addresses):\n        items.append(Item(phone.as_name(entry.address),\
+    \ __name__, args=[phone.id, entry.address]))\n    menu(con, Menu('Unblock Phone\
+    \ Address', items, escapable=True))\nelse:\n    entry = BlockedPhoneAddress.query(phone_id=phone.id,\
+    \ address=address).first()\n    if entry is None:\n        player.message('That\
+    \ address is not blocked.')\n    else:\n        player.message(f'you unblock {phone.as_name(entry.address)}\
+    \ from contacting {obj.get_name(player.is_staff)}.')\n        s.delete(entry)\n",
+  id: 150, name: unblock_address_phone}
+- {code: "phone = Phone.get(*a)\nvalid_object(player, phone)\ncheck_location(player,\
+    \ phone.object)\n\nitems = [\n    LabelItem('Text Messages'),\n    Item('Compose\
+    \ Message', 'text_message_phone', args=[phone.id])\n]\nfor message in reversed(phone.text_messages):\n\
+    \    items.extend(\n        [\n            LabelItem(f'Message received {util.now(message.created).ctime()}\
+    \ from {message.address}'),\n            CopyItem(message.text),\n           \
+    \ Item('Reply', 'text_message_phone', args=[phone.id, message.address]),\n   \
+    \         Item('Delete', 'delete_text_message_phone', args=[message.id])\n   \
+    \     ]\n    )\nmenu(con, Menu('Text Messages', items, escapable=True))\n", id: 151,
+  name: text_messages_phone}
+- {code: "def parse_args(phone_id, address=None, text=None):\n    return (phone_id,\
+    \ address, text)\n\nphone_id, address, text = parse_args(*a)\n\nif not address:\n\
+    \    get_text(con, 'Enter the address to text', __name__, args=[phone_id])\nelif\
+    \ not text:\n    get_text(con, 'Enter text message', __name__, args=[phone_id,\
+    \ address])\nelse:\n    recipient = Phone.by_address(address)\n    phone = Phone.get(phone_id)\n\
+    \    valid_object(player, phone)\n    check_location(player, phone.object)\n \
+    \   if recipient is None or recipient.is_blocked(phone.address):\n        player.message(f'Failed\
+    \ to send message to {phone.as_name(address)}.')\n    else:\n        player.message('You\
+    \ send the text.')\n        recipient.send_text(phone.address, text)\n", id: 152,
+  name: text_message_phone}
+- {code: "def parse_args(message_id, response=None):\n    return (message_id, response)\n\
+    \nmessage_id, response = parse_args(*a)\nmessage = TextMessage.get(message_id)\n\
+    valid_object(player, message)\ncheck_location(player, message.phone.object)\n\n\
+    if response is None:\n    items = [\n        LabelItem('Are you sure?'),\n   \
+    \     Item('Yes', __name__, args=[message_id, True]),\n        Item('No', __name__,\
+    \ args=[message_id, False])\n    ]\n    menu(con, Menu('Delete Text Message',\
+    \ items, escapable=True))\nelif response:\n    s.delete(message)\n    player.message('Message\
+    \ deleted.')\nelse:\n    player.message('Canceled.')\n", id: 153, name: delete_text_message_phone}
+- {code: "def parse_args(object_id=None, text=None):\n    return (object_id, text)\n\
+    \nobject_id, text = parse_args(*a)\n\nif object_id is None:\n    items = [LabelItem('Select\
+    \ Person')]\n    for obj in player.get_visible(Object.id != player.id):\n    \
+    \    items.append(Item(obj.get_name(player.is_staff), __name__, args=[obj.id]))\n\
+    \    menu(con, Menu('Select someone to talk to', items, escapable=True))\nelif\
+    \ text is None:\n    get_text(con, 'Enter text to say', __name__, args=[object_id])\n\
+    elif not text:\n    player.message('You say nothing.')\nelse:\n    obj = Object.get(object_id)\n\
+    \    valid_object(player, obj)\n    check_location(player, obj, coordinates=False)\n\
+    \    player.do_social('%1N turn%1s to %2n and say%1s: \"{text}\"', _others=[obj],\
+    \ text=text)\n    player.sound('players/say.wav')\n", id: 154, name: say_to}
+- {code: "items = [\n    LabelItem('Hotkeys'),\n    Item('Add Remapped Hotkey', 'add_remapped_hotkey'),\n\
+    \    LabelItem('Delete')\n]\nsep = ' + '\nfor key in player.owned_remapped_hotkeys:\n\
+    \    from_string = sep.join(key.from_modifiers)\n    if from_string:\n       \
+    \ from_string += sep\n    from_string += key.from_key\n    to_string = sep.join(key.to_modifiers)\n\
+    \    if to_string:\n        to_string += sep\n    to_string += key.to_key\n  \
+    \  items.append(Item(f'{from_string} -> {to_string}', 'delete_remapped_hotkey',\
+    \ args=[key.id]))\nmenu(con, Menu('Remapped Hotkeys', items, escapable=True))\n",
+  id: 155, name: remapped_hotkeys}
+- {code: "if a:\n    key = RemappedHotkey(**a[0])\n    player.owned_remapped_hotkeys.append(key)\n\
+    \    player.message('Remapped hotkey added.')\nelse:\n    form(con, ObjectForm(RemappedHotkey(),\
+    \ 'add_remapped_hotkey', title='Add Remapped Hotkey'))\n", id: 156, name: add_remapped_hotkey}
+- {code: "key = RemappedHotkey.get(*a)\nvalid_object(player, key)\nif key.owner is\
+    \ player:\n    s.delete(key)\n    player.message('Remapping deleted.')\nelse:\n\
+    \    player.message('No such remapping.')\n", id: 157, name: delete_remapped_hotkey}
+- {admin: true, code: "if a:\n    obj = Object.get(*a)\n    player.message(f'{obj.get_name(True)}\
+    \ is at {obj.location.get_name(True)}.')\nelse:\n    items = [LabelItem('Select\
+    \ Player')]\n    for p in Object.query(Object.player_id.isnot(None)).order_by(Object.name):\n\
+    \        items.append(Item(p.get_name(True), __name__, args=[p.id]))\n    menu(con,\
+    \ Menu('Watch Player', items, escapable=True))\n", id: 158, name: watch_player}
+- {code: "# This command will take the selected amount of money in the selected currency\
+    \ from the selected card before calling command, args, amount, card.id, kwargs.\n\
+    def parse_args(command, args, kwargs, description, currency_id=None, amount=None,\
+    \ object_id=None, password=None):\n    return (command, args, kwargs, description,\
+    \ currency_id, amount, object_id, password)\n\ncommand, args, kwargs, description,\
+    \ currency_id, amount, object_id, password = parse_args(*a)\n\nif currency_id\
+    \ is None:\n    items = [LabelItem('Currencies')]\n    for currency in Currency.query().order_by(Currency.name,\
+    \ Currency.value):\n        items.append(Item(currency.get_name(player.is_staff),\
+    \ __name__, args = [command, args, kwargs, description, currency.id]))\n    menu(con,\
+    \ Menu('Select A Currency', items, escapable=True))\nelif amount is None:\n  \
+    \  get_text(con, 'Enter an amount to transfer', __name__, args=[command, args,\
+    \ kwargs, description, currency_id])\nelif object_id is None:\n    cards = player.get_credit_cards().join(Object.credit_card).filter(CreditCard.currency_id\
+    \ == currency_id)\n    if not cards.count():\n        player.message('You have\
+    \ no cards loaded with the requisite currency.')\n    else:\n        items = [LabelItem('Credit\
+    \ Cards')]\n        for card in cards:\n            items.append(Item(f'{card.get_name(player.is_staff)}\
+    \ ({card.credit_card.value} {card.credit_card.currency.get_name(player.is_staff)})',\
+    \ __name__, args=[command, args, kwargs, description, currency_id, amount, card.id]))\n\
+    \        menu(con, Menu('Select Credit Card', items, escapable=True))\nelif password\
+    \ is None:\n    get_text(con, f'Enter credit card password', __name__, args=[command,\
+    \ args, kwargs, description, currency_id, amount, object_id])\nelse:\n    try:\n\
+    \        amount = float(amount)\n    except ValueError:\n        player.message(f'Invalid\
+    \ amount {amount}.')\n        end()\n    currency = Currency.get(currency_id)\n\
+    \    obj = player.get_credit_cards(id=object_id).first()\n    for thing in (currency,\
+    \ obj):\n        valid_object(player, thing)\n    card = obj.credit_card\n   \
+    \ if card.authenticate(player, password):\n        try:\n            card.transfer(amount,\
+    \ currency, description)\n            con.handle_command(command, *args, amount,\
+    \ card.id, **kwargs)\n        except CreditCardError as e:\n            player.message(*e.args)\n",
+  id: 159, name: credit_card_transfer}
+- {code: "def parse_args(card_id, password=None):\n    return (card_id, password)\n\
+    \ncard_id, password = parse_args(*a)\n\ncard = CreditCard.get(card_id)\nobj =\
+    \ card.object\nvalid_object(player, card)\ncheck_location(player, obj)\nif password\
+    \ is None:\n    get_text(con, f'Enter the password to view the balance of {obj.get_name(player.is_staff)}',\
+    \ __name__, args=[card.id])\nelif card.authenticate(player, password):\n    player.message(f'The\
+    \ balance of {obj.get_name(player.is_staff)} is {card.value} {card.currency.get_name(player.is_staff)}.')\n",
+  id: 160, name: credit_card_balance}
+- {code: "def parse_args(card_id, old=None, new=None):\n    return (card_id, old,\
+    \ new)\n\ncard_id, old, new = parse_args(*a)\n\nif old is None:\n    get_text(con,\
+    \ 'Enter the old password', __name__, args=[card_id])\nelif new is None:\n   \
+    \ get_text(con, 'Enter the new password', __name__, args=[card_id, old])\nelse:\n\
+    \    card = CreditCard.get(card_id)\n    valid_object(player, card)\n    obj =\
+    \ card.object\n    check_location(player, obj)\n    if card.authenticate(player,\
+    \ old):\n        if new:\n            card.reset_password = new\n            action\
+    \ = 'Reset'\n        else:\n            card.password = None\n            action\
+    \ = 'Cleared'\n        player.message(f'{action} the password for {obj.get_name(player.is_staff)}.')\n",
+  id: 161, name: credit_card_password}
+- {code: "def parse_args(card_id, password=None):\n    return (card_id, password)\n\
+    \ncard_id, password = parse_args(*a)\nif password is None:\n    get_text(con,\
+    \ 'Enter password', __name__, args=[card_id])\nelse:\n    card = CreditCard.get(card_id)\n\
+    \    valid_object(player, card)\n    obj = card.object\n    check_location(player,\
+    \ obj)\n    if card.authenticate(player, password):\n        items = [LabelItem(f'Transfers\
+    \ for {obj.get_name(player.is_staff)}')]\n        for transfer in card.transfers:\n\
+    \            items.append(CopyItem(transfer.as_string(player.is_staff)))\n   \
+    \     menu(con, Menu(f'Credit Card Transfers', items, escapable=True))\n", id: 162,
+  name: credit_card_transfers}
+- {admin: true, code: "def parse_args(name=None, description=None, currency_id=None):\n\
+    \    return (name, description, currency_id)\n\nname, description, currency_id\
+    \ = parse_args(*a)\n\nif not name:\n    get_text(con, 'Enter a name for the new\
+    \ bank', __name__)\nelif not description:\n    get_text(con, 'Enter the description\
+    \ for your new bank', __name__, args=[name])\nelif currency_id is None:\n    items\
+    \ = [LabelItem('Currencies')]\n    for currency in Currency.query().order_by(Currency.name):\n\
+    \        items.append(Item(currency.get_name(True), __name__, args=[name, description,\
+    \ currency.id]))\n    menu(con, Menu('Select a currency', items, escapable=True))\n\
+    else:\n    currency = Currency.get(currency_id)\n    valid_object(player, currency)\n\
+    \    b = Bank(name=name, description=description, owner_id=player.id, currency_id=currency.id)\n\
+    \    s.add(b)\n    player.message('Bank created.')\n", id: 163, name: add_bank}
+- {code: raise RuntimeError('Fuck off.'), id: 164, name: fuck_off}
+- {code: "atm = ATM.get(*a)\nvalid_object(player, atm)\nbank = atm.bank\nobj = check_bank(player,\
+    \ bank)\nitems = [\n    LabelItem(bank.get_name(player.is_staff)),\n    CopyItem(bank.welcome_msg),\n\
+    \    LabelItem('Bank Information'),\n    CopyItem(bank.get_description())\n]\n\
+    for name in ('open_charge', 'deposit_charge', 'withdraw_charge'):\n    items.append(CopyItem(f'{name.replace(\"\
+    _\", \" \").title()}: {getattr(bank, name)} {bank.currency.name}'))\n\nfor name\
+    \ in ('savings_interest', 'overdraft_interest'):\n    items.append(CopyItem(f'{name.replace(\"\
+    _\", \" \").title()}: {getattr(bank, name)}%'))\n\nitems.extend(\n    [\n    \
+    \    Item('Open Account', 'open_bank_account', args=[bank.id]),\n        LabelItem('Bank\
+    \ Accounts')\n    ]\n)\n\nfor accessor in BankAccountAccessor.join(BankAccount).filter(BankAccountAccessor.object_id\
+    \ == player.id, BankAccount.bank_id == bank.id).order_by(BankAccount.name, BankAccount.id,\
+    \ BankAccountAccessor.id):\n    account = accessor.account\n    items.append(Item(f'{account.get_name(player.is_staff)}\
+    \ with {account.bank.get_name(player.is_staff)}', 'bank_account_menu', args=[accessor.id]))\n\
+    menu(con, Menu('Banking', items, escapable=True))\n", id: 165, name: banking}
+- {builder: true, code: 'player.player.home = player.location
+
+    player.message(''Home set.'')', id: 166, name: set_home}
+- {admin: true, code: "def parse_args(name=None, description=None):\n    return (name,\
+    \ description)\n\nname, description = parse_args(*a)\n\nif not name:\n    get_text(con,\
+    \ 'Enter the name for your new communication channel', __name__)\nelif not description:\n\
+    \    get_text(con, 'Enter a description', __name__, args=[name])\nelse:\n    s.add(CommunicationChannel(name=name,\
+    \ description=description))\n    player.message('Communication channel created.')\n",
+  id: 167, name: add_communication_channel}
+- {admin: true, code: "def parse_args(channel_id, object_id, action=None):\n    return\
+    \ channel_id, object_id, action\n\nchannel_id, object_id, action = parse_args(*a)\n\
+    \nchannel = CommunicationChannel.get(channel_id)\nobj = Object.get(object_id)\n\
+    for thing in (channel, obj):\n    valid_object(player, thing)\n\nchannel_name\
+    \ = channel.get_name(obj.is_staff)\nplayer_name = player.get_name(obj.is_staff)\n\
+    \nif action is None:\n    items = [LabelItem(f'Actions for {obj.get_name(True)}\
+    \ on the {channel.get_name(True)} channel')]\n    for name in ('remove', 'ban',\
+    \ 'unban', 'warn'):\n        items.append(Item(name.title(), __name__, args=[channel.id,\
+    \ obj.id, name]))\n    menu(con, Menu('Communication Channel Actions', items,\
+    \ escapable=True))\nelif action == 'remove':\n    if obj in channel.listeners:\n\
+    \        channel.listeners.remove(obj)\n        obj.message(f'You have been removed\
+    \ from the {channel_name} communication channel by {player_name}.')\n        player.message('Removed.')\n\
+    \    else:\n        player.message('Nothing to be done.')\nelif action == 'ban':\n\
+    \    if obj in channel.listeners:\n        channel.listeners.remove(obj)\n   \
+    \ if obj not in channel.banned:\n        channel.banned.append(obj)\n    obj.message(f'You\
+    \ have been banned from the {channel_name} communication channel by {player_name}.')\n\
+    \    player.message('Banned.')\nelif action == 'warn':\n    obj.message(f'You\
+    \ have been warned about your conduct on the {channel_name} communication channel\
+    \ by {player_name}.')\n    player.message('They have been warned.')\nelif action\
+    \ == 'unban':\n    if obj in channel.banned:\n        channel.banned.remove(obj)\n\
+    \        obj.message(f'You have been unbannned from the {channel_name} communication\
+    \ channel by {player_name}.')\n        player.message('Unbanned.')\n    else:\n\
+    \        player.message('They are not banned.')\nelse:\n    player.message(f'Unrecognised\
+    \ action: {action}.')\n", id: 168, name: communication_channel_action}
+- {code: 'bank = Bank.get(*a)
+
+    valid_object(player, bank)
+
+    obj = check_bank(player, bank)
+
+    now = util.now().ctime()
+
+    account = BankAccount(bank_id=bank.id, name=f''Account opened on {now} by {player.name}'',
+    balance = -bank.open_charge)
+
+    s.add(account)
+
+    s.commit()
+
+    s.add(account.add_accessor(player, can_lock=True, can_unlock=True, can_delete=True,
+    can_add_accessor=True, can_remove_accessor=True))
+
+    player.message(bank.open_msg)
+
+    con.handle_command(''banking'', obj.atm_id)
+
+    ', id: 169, name: open_bank_account}
+- {code: "accessor = BankAccountAccessor.query(object_id=player.id, id=a[0]).first()\n\
+    valid_object(player, accessor)\naccount = accessor.account\nobj = check_bank(player,\
+    \ account.bank)\nbank = account.bank\ncheck_bank(player, bank)\nplayer.do_social(obj.start_use_msg,\
+    \ _others=[obj])\n\nitems = [\n    LabelItem('Account Menu'),\n    CopyItem(account.get_name(player.is_staff)),\n\
+    \    CopyItem(f'Account held with {bank.get_name(player.is_staff)}'),\n    CopyItem(f'Account\
+    \ opened: {util.now(account.created).ctime()}'),\n    CopyItem(f'Access granted:\
+    \ {util.now(accessor.created).ctime()}'),\n]\n\nif accessor.can_view:\n    items.extend(\n\
+    \        [\n            CopyItem(f'Balance: {account.balance} {bank.currency.name}'),\n\
+    \            CopyItem(f'Available funds: {account.available_funds} {bank.currency.name}'),\n\
+    \            CopyItem(f'Overdraft limit: {account.overdraft_limit} {bank.currency.name}'),\n\
+    \            LabelItem('Actions')\n        ]\n    )\n\nif accessor.can_rename:\n\
+    \    items.append(Item('Rename', 'rename_bank_account', args=a))\n\nif accessor.can_deposit:\n\
+    \    items.append(Item('Deposit', 'deposit_cash', args=a))\n\nif accessor.can_withdraw:\n\
+    \    items.append(Item('Withdraw', 'withdraw_cash', args=a))\n\nif accessor.can_lock\
+    \ and not account.locked:\n    items.append(Item('Lock', 'lock_bank_account',\
+    \ args=a))\n\nif accessor.can_unlock and account.locked:\n    items.append(Item('Unlock',\
+    \ 'unlock_bank_account', args=a))\n\nif accessor.can_add_accessor:\n    items.append(Item('Add\
+    \ Accessor', 'add_accessor', args=a))\n\nif accessor.can_remove_accessor and len(account.accessors)\
+    \ > 1:\n    items.append(LabelItem('Accessors'))\n    for accessor in account.accessors:\n\
+    \        items.append(Item(accessor.object.get_name(player.is_staff), 'edit_accessor',\
+    \ args=a))\n\nmenu(con, Menu('Bank Account', items, escapable=True))\n", id: 170,
+  name: bank_account_menu}
+- {code: "def parse_args(accessor_id, name=None):\n    return (accessor_id, name)\n\
+    \naccessor_id, name = parse_args(*a)\n\nif not name:\n    get_text(con, 'Enter\
+    \ a new name for the account', __name__, args=[accessor_id])\nelse:\n    accessor\
+    \ = BankAccountAccessor.get(accessor_id)\n    valid_object(player, accessor)\n\
+    \    try:\n        accessor.authenticate(player, can_rename=True)\n    except\
+    \ BankAccountError as e:\n        player.message(*e.args)\n        end()\n   \
+    \ account = accessor.account\n    bank = account.bank\n    check_bank(player,\
+    \ bank)\n    account.balance -= bank.rename_charge\n    account.name = name\n\
+    \    player.message(account.rename_msg)\n    con.handle_command('bank_account_menu',\
+    \ accessor.id)\n", id: 171, name: rename_bank_account}
+- {code: "def parse_args(accessor_id, amount=None, card_id=False, currency_id=None):\n\
+    \    return (accessor_id, amount, card_id, currency_id)\n\naccessor_id, amount,\
+    \ card_id, currency_id = parse_args(*a)\n\nif not amount:\n    get_text(con, 'Enter\
+    \ the amount you wishh to withdraw', __name__, args=[accessor_id])\nelif card_id\
+    \ is False:\n    items = [\n        LabelItem('Select Credit Card'),\n       \
+    \ Item('New Card', __name__, args=[accessor_id, amount, None])\n    ]\n    for\
+    \ card in player.get_credit_cards():\n        items.append(Item(card.get_name(player.is_staff),\
+    \ __name__, args=[accessor_id, amount, card.id]))\n    menu(con, Menu('Withdraw\
+    \ Money', items, escapable=True))\nelif currency_id is None and card_id is False:\n\
+    \    items = [LabelItem('Currencies')]\n    for currency in Currency.query().order_by(Currency.name,\
+    \ Currency.id):\n        items.append(Item(currency.get_name(player.is_staff),\
+    \ __name__, args=[accessor_id, amount, currency.id]))\n    menu(con, Menu('Select\
+    \ Currency', items, escapable=True))\nelse:\n    try:\n        amount = float(amount)\n\
+    \    except ValueError:\n        player.message('Invalid amount.')\n        end()\n\
+    \    accessor = BankAccountAccessor.get(accessor_id)\n    try:\n        accessor.authenticate(player,\
+    \ can_withdraw=True)\n    except BankAccessError as e:\n        player.message(*e.args)\n\
+    \        end()\n    if card_id is None:\n        currency = Currency.get(currency_id)\n\
+    \    else:\n        card = player.get_credit_cards(id=card_id).first()\n     \
+    \   valid_object(player, card)\n        check_location(player, card)\n       \
+    \ currency = card.credit_card.currency\n    valid_object(player, currency)\n \
+    \   account = accessor.account\n    obj = check_bank(player, account.bank)\n \
+    \   try:\n        card = atm.withdraw(player, account, currency, amount, card_id=card_id)\n\
+    \        card.anchored = False\n        assert card.card is not None, f'{card.get_name(True)}\
+    \ issued by {obj.get_name(True)} to {player.get_name(True)} is not a credit card.'\n\
+    \        card.card.object = card\n        s.add_all([card, card.card])\n     \
+    \   s.commit()\n    except ATMError as e:\n        player.message(*e.args)\n \
+    \   finally:\n        con.handle_command('bank_account_menu', accessor.id)\n",
+  id: 172, name: withdraw_cash}
+- {code: "def parse_args(accessor_id, amount=None, card_id=None):\n    return (accessor_id,\
+    \ amount, card_id)\n\naccessor_id, amount, card_id = parse_args(*a)\n\naccessor\
+    \ = BankAccountAccessor.get(accessor_id)\nvalid_object(player, accessor)\ntry:\n\
+    \    accessor.authenticate(player, can_deposit=True)\nexcept BankAccessError as\
+    \ e:\n    player.message(*e.args)\n    end()\nbank = accessor.account.bank\nobj\
+    \ = check_bank(player, bank)\n\nif amount is None or card_id is None:\n    con.handle_command('credit_card_transfer',\
+    \ __name__, [accessor_id], {}, obj.atm.deposit_description, bank.currency_id,\
+    \ amount)\nelse:\n    player.do_social(atm.deposit_msg, _others=[obj])\n    con.handle_command('bank_account_menu',\
+    \ atm_id, accessor_id)\n", id: 173, name: deposit_cash}
+Credit:
+- {description: For inspiring me to write this game., id: 1, name: Science Fiction
+    Authors}
+- {description: 'For being awesome, and not complaining when I spent more time working
+    on Mindspace than I did with her.', id: 2, name: Claire}
+- {description: For reminding me of the important things in life... Like sticks and
+    lakes., id: 3, name: Fliss the Dog}
+- {description: For forcing me to leave the house at least once a week., id: 4, name: Coventry
+    Resource Centre for the Blind}
+- {description: 'For being my longest standing friend, and never failing to pepper
+    me with at least a thousand awesome ideas at a time.', id: 5, name: Nilesh Mistry}
+- {description: 'For being the newest addition to my friends, and taking to the building
+    system like a duck to water... Also for providing tea, ideas, and occasional cathartic
+    cleaning services.', id: 6, name: Beth Ramm}
+- {description: For sleeping in such a german way that one could not help but be impressed.,
+  id: 7, name: Hitler the Cat}
+- {description: 'To everyone who has provided me with ideas, feedback and other assorted
+    help, I salute you.', id: 8, name: Others}
+Hotkey:
+- {admin: true, alt: false, code: 'get_text(con, ''Enter some code'', ''python'')',
+  ctrl: false, description: Enter code into a Python shell., id: 1, name: BACKSPACE,
+  shift: false}
+- {admin: true, alt: false, code: "names = ('Command', 'Hotkey', 'Action', 'Task',\
+    \ 'StarshipEngine', 'ObjectType', 'Gender', 'Currency', 'Zone', 'Bank')\nitems\
+    \ = [Item('Search', None)]\nfor name in names:\n    items.append(Item(f'Search\
+    \ {name}s', 'search_', args=[name, 'menu_']))\nitems.extend(\n    [\n        Item('Find\
+    \ Object', 'find_object'),\n        LabelItem('Add, Edit, and Delete')\n    ]\n\
+    )\nfor name in names:\n    cls = Base._decl_class_registry[name]\n    items.append(LabelItem(name\
+    \ + 's'))\n    for action in ('add', 'edit', 'delete'):\n        if cls is Bank\
+    \ and action == 'add':\n            items.append(Item('Add Bank', 'add_bank'))\n\
+    \        else:\n            items.append(Item(f'{action.title()} {name}', f'{action}_',\
+    \ args=[name]))\n    if hasattr(cls, 'revisions'):\n        items.append(Item(f'{name}\
+    \ Revisions', 'show_revisions', args=[name]))\nitems.extend(\n    [\n        Item('Rules',\
+    \ None),\n        Item('Add Rule', 'add_', args=['Rule']),\n        Item('Edit\
+    \ Rule', 'edit_', args=['Rule']),\n        Item('Delete Rule', 'delete_', args=['Rule']),\n\
+    \        Item('Python Console', 'key', args=['BACKSPACE']),\n        Item('Administrative\
+    \ Actions', None),\n        Item('Bring Player', 'bring_object'),\n        Item('Join\
+    \ Player', 'join_object'),\n        Item('Make an Announcement', 'announce'),\n\
+    \        Item('Manage Connections', 'manage_connections'),\n        Item('Watch\
+    \ Player', 'watch_player'),\n        Item('Shutdown', 'shutdown'),\n        LabelItem('Programming'),\n\
+    \        Item('Reset Sounds', 'reset_sounds')\n    ]\n)\nfor name in ('Action',\
+    \ 'Hotkey'):\n    for action in ('bind', 'unbind'):\n        items.append(Item(f'{action.title()}\
+    \ {name}', action, args=[name]))\nmenu(con, Menu('Administration', items, escapable=True))\n",
+  ctrl: false, description: Administration menu., id: 2, name: DELETE, shift: false}
+- {alt: false, code: "items = [\n    LabelItem('Game Options'),\n    Item('Disconnect',\
+    \ 'quit'),\n    CopyItem('No connection metrics available' if player.player.connected_time\
+    \ is None else f'Total time connected: {util.format_timedelta(player.player.connected_time)}'),\n\
+    \    Item(f'{\"set\" if player.pose is None else \"Clear\"} pose', 'set_pose'),\n\
+    \    Item('Mail', 'mail'),\n    Item('Rules', 'rules'),\n    Item('Ideas', 'ideas'),\n\
+    \    Item('Changelog', 'changelog'),\n    Item('Visit Mailing List', 'show_url',\
+    \ args=['mindspace-users@groups.io', 'https://groups.io/g/mindspace-users']),\n\
+    \    Item('Donate', 'show_url', args=['Visit Donator Page', 'https://www.patreon.com/chris_norman']),\n\
+    \    Item('BBC Sound FX', 'show_url', args=['BBC Sound FX', 'http://bbcsfx.acropolis.org.uk/']),\n\
+    \    Item('BBC Sound FX License', 'show_url', args=['BBC RemArc License', 'https://github.com/bbcarchdev/Remarc/blob/master/doc/2016.09.27_RemArc_Content%20licence_Terms%20of%20Use_final.pdf']),\n\
+    \    LabelItem('Options'),\n    Item('Options', 'configure_account'),\n    Item('Remap\
+    \ Keys', 'remapped_hotkeys')\n]\nfor x in dir(player.player):\n    if x.endswith('_notifications'):\n\
+    \        state = getattr(player.player, x)\n        items.append(Item(f'{\"disable\"\
+    \ if state else \"enable\"} {x.replace(\"_\", \" \").title()}', 'set_player_option',\
+    \ args=[x, -1 if state else 1]))\nm = Menu('Game', items, escapable=True)\nmenu(con,\
+    \ m)", ctrl: false, description: Access the game menu., id: 3, name: ESCAPE, shift: false}
+- {alt: false, builder: true, code: "items = [\n    Item('Building Menu', None),\n\
+    \    Item('Set floor Type', 'set_floor_type'),\n    Item('Bulk Set Floor Types',\
+    \ 'set_floor_type_range'),\n    Item('Create Room', 'create_room'),\n    Item('Create\
+    \ Object', 'create_object'),\n    Item('Build Exit', 'build_exit'),\n    Item('Build\
+    \ Portal', 'build_portal'),\n    Item('Configure Room Objects', 'configure_object'),\n\
+    \    Item('Random Sounds', None),\n    Item('Add Random Sound', 'add_random_sound',\
+    \ args=['Room', player.location.id]),\n    Item('Edit Random Sound', 'edit_random_sound',\
+    \ args=['Room', player.location.id]),\n    Item('Delete Random Sound', 'delete_random_sound',\
+    \ args=['Room', player.location.id]),\n    Item('Configuration', None),\n    Item('Configure\
+    \ Room', 'key', args=['F2']),\n    Item('Configure Zone', 'configure_zone'),\n\
+    \    Item('Delete Room Object', 'delete_object'),\n    Item('Reset Flooring',\
+    \ 'reset_floor_types'),\n    Item('Preview Sounds', 'preview_sounds'),\n    Item('Add\
+    \ Transit Stop', 'add_transit_stop')\n]\nobj = player.location\nitems.append(LabelItem('Room\
+    \ Flags'))\nif obj.airlock_id is None:\n    items.append(Item('Add Airlock', 'create_airlock'))\n\
+    else:\n    for name in ('edit', 'delete'):\n        items.append(Item(f'{name.title()}\
+    \ Airlock', f'{name}_', args=['RoomAirlock', obj.airlock_id]))\nif obj.airlock\
+    \ is not None:\n    items.append(Item('Configure Airlock', 'edit_', args=['RoomAirlock',\
+    \ obj.airlock_id]))\nif obj.transit_route is not None:\n    route = obj.transit_route\n\
+    \    items.append(LabelItem(route.get_name(True)))\n    items.append(Item('Resume'\
+    \ if route.paused else 'Pause', 'pause_transit_route', args=[route.id, not route.paused]))\n\
+    \    for name in ('edit', 'delete'):\n        items.append(Item(f'{name.title()}\
+    \ Transit Route', f'{name}_', args=['TransitRoute', route.id]))\n    items.append(Item(f'Stops\
+    \ ({len(route.stops)})', None))\n    for stop in route.stops:\n        for name\
+    \ in ('edit', 'delete'):\n            items.append(Item(f'{name.title()} {stop.location.get_name(True)}\
+    \ stop', f'{name}_', args=['TransitStop', stop.id]))\nmenu(con, Menu('Building\
+    \ Commands', items, escapable=True))", ctrl: false, description: Building menu.,
+  id: 5, name: B, shift: false}
+- {alt: false, code: "items = [LabelItem('Adverts')]\nif player.is_admin:\n    for\
+    \ name in ('add', 'edit', 'delete'):\n        items.append(Item(f'{name.title()}\
+    \ Advert', f'{name}_', args=['Advert']))\nq = Advert.query().order_by(Advert.last_shown.desc())\n\
+    adverts = q.all()\nfor ad in adverts:\n    items.append(\n        Item(ad.text,\
+    \ 'show_url', args=[ad.text, ad.url])\n    )\nm = Menu('Adverts', items, escapable=True)\n\
+    menu(con, m)", ctrl: false, description: Show a list of adverts., id: 6, name: A,
+  shift: false}
+- {alt: false, code: "q = Object.join(Object.player).filter(Object.connected.is_(True)).order_by(Player.last_connected,\
+    \ Object.name)\nitems = [LabelItem(f'Connected Players ({q.count()})')]\nfor obj\
+    \ in q:\n    items.append(Item(obj.get_name(player.is_staff), 'compose_mail',\
+    \ args=[obj.id]))\nmenu(con, Menu('Who', items, escapable=True))\n", ctrl: false,
+  description: Show connected players., id: 7, name: P, shift: false}
+- {alt: false, code: 'objects_menu(player, exits=False)', ctrl: false, description: Start
+    interacting with nearby objects., id: 8, name: S, shift: false}
+- {alt: false, code: "kwargs = dict(objects=False)\nif 'shift' in modifiers:\n   \
+    \ kwargs['command_name'] = 'exit_menu'\nobjects_menu(player, **kwargs)", ctrl: false,
+  description: Use a nearby exit., id: 9, name: D}
+- {alt: false, code: "q = Object.query(Object.id != player.id, *player.same_coordinates(),\
+    \ location_id=player.location_id)\nobjects = []\nitems = [Item('Select Object',\
+    \ None)]\nfor obj in q:\n    if obj.get_hotkeys():\n        objects.append(obj)\n\
+    \        items.append(Item(obj.get_name(player.is_staff), 'use', args=[obj.id]))\n\
+    if not objects:\n    player.message('There is nothing to use.')\nelif len(objects)\
+    \ == 1:\n    con.handle_command('use', objects[0].id)\nelse:\n    menu(con, Menu('Use\
+    \ Object', items, escapable=True))", ctrl: false, description: Start using a nearby
+    object., id: 10, name: ENTER, shift: false}
+- {alt: false, code: "if not player.holding:\n    player.message('You are empty handed.')\n\
+    \    end()\nitems = [Item('Inventory', None)]\nfor obj in player.holding:\n  \
+    \  items.append(Item(obj.get_name(player.is_staff), 'interact_object', args=[obj.id]))\n\
+    menu(con, Menu('Inventory', items, escapable=True))", ctrl: false, description: Inventory
+    menu., id: 11, name: F11, shift: false}
+- {alt: false, code: 'get_text(con, ''Enter text to say'', ''say'', escapable=True)',
+  ctrl: false, description: Say something., id: 12, name: '''', shift: false}
+- {alt: false, code: 'con.handle_command(''set_player_option'', ''ambience_volume'',
+    -0.1)', ctrl: false, description: Decrease ambience volume., id: 16, name: F5,
+  shift: false}
+- {alt: false, code: 'con.handle_command(''set_player_option'', ''ambience_volume'',
+    0.1)', ctrl: false, description: Increase ambience volume., id: 17, name: F6,
+  shift: false}
+- {alt: false, code: 'con.handle_command(''set_player_option'', ''music_volume'',
+    -0.1)', ctrl: false, description: Decrease music volume., id: 18, name: F7, shift: false}
+- {alt: false, code: 'con.handle_command(''set_player_option'', ''music_volume'',
+    0.1)', ctrl: false, description: Increase music volume., id: 19, name: F8, shift: false}
+- {alt: false, code: 'con.handle_command(''set_player_option'', ''sound_volume'',
+    -0.1)', ctrl: false, description: Decrease sound volume., id: 20, name: F9, shift: false}
+- {alt: false, code: 'con.handle_command(''set_player_option'', ''sound_volume'',
+    0.1)', ctrl: false, description: Increase sound volume., id: 21, name: F10, shift: false}
+- {alt: false, code: "loc = player.location\nc = player.coordinates\nplayer.message(\n\
+    \    f'{loc.zone.get_name(player.is_builder)}; {loc.get_name(player.is_builder)},\
+    \ coordinates ({\"%g, %g, %g\" % c}).\\n{loc.get_description()}'\n)", ctrl: false,
+  description: Announce your current location., id: 22, name: K, shift: false}
+- {alt: false, code: "items = [LabelItem('Hotkeys')]\nfor key in Hotkey.query(reusable=False).order_by(Hotkey.name):\n\
+    \    if key.objects:\n        continue\n    modifiers = []\n    args=[key.name,\
+    \ []]\n    for name in ('ctrl', 'shift', 'alt'):\n        value = getattr(key,\
+    \ name)\n        if value is None:\n            modifiers.append(f'[{name}]')\n\
+    \        elif value is True:\n            args[-1].append(name)\n            modifiers.append(name.upper())\n\
+    \    items.append(Item(f'{\" \".join(modifiers)}{\" \" if modifiers else \"\"\
+    }{key.get_name(player.is_staff)}: {key.get_description()}', 'key', args=args))\n\
+    menu(con, Menu('Hotkeys', items, escapable=True))", ctrl: false, description: Get
+    a list of available hotkeys., id: 23, name: F1, shift: false}
+- {alt: false, code: "stuff = sorted(\n    player.get_visible(Object.id != player.id).all(),\n\
+    \    key=lambda thing, util=util, player=player: util.distance_between(thing.coordinates,\
+    \ player.coordinates)\n)\nif player.scanned is None or player.scanned not in stuff:\n\
+    \    index = 0\nelse:\n    index = stuff.index(player.scanned)\nif not stuff:\n\
+    \    player.message('There is nothing here.')\n    player.sound(empty_room, private=True)\n\
+    \    end()\nelif 'shift' in modifiers:\n    index -= 1\nelse:\n    index += 1\n\
+    if index >= len(stuff):\n    index = 0\nobj = stuff[index]\nplayer.scanned = obj\n\
+    player.inspect(obj)\n", ctrl: false, description: Show what's in the current room.,
+  id: 24, name: TAB}
+- {alt: false, code: 'util.show_objects(con.get_player(s), lambda obj: obj.exit is
+    None)', ctrl: false, description: Show all objects in the current room., id: 25,
+  name: Z, shift: false}
+- {alt: false, code: 'util.show_objects(con.get_player(s), lambda obj: obj.exit is
+    not None)', ctrl: false, description: Show all exits in the current room., id: 26,
+  name: X, shift: false}
+- {alt: false, code: 'player.message(''Coordinates: (%g, %g, %g).'' % player.coordinates)',
+  ctrl: false, description: Show your coordinates., id: 27, name: C, shift: false}
+- {alt: false, builder: true, code: "loc = player.location\nf = ObjectForm(\n    loc,\
+    \ 'configure_room', args=[loc.id],\n    cancel='Cancel'\n)\nform(con, f)", ctrl: false,
+  description: Configure the current room., id: 28, name: F2, shift: false}
+- {alt: false, code: 'con.handle_command(''travel_direction'', self.name, modifiers)',
+  ctrl: false, description: Walk north., id: 29, name: I}
+- {alt: false, code: 'con.handle_command(''travel_direction'', self.name, modifiers)',
+  ctrl: false, description: Walk northeast., id: 30, name: O}
+- {alt: false, code: 'con.handle_command(''travel_direction'', self.name, modifiers)',
+  ctrl: false, description: Walk east., id: 31, name: L}
+- {alt: false, code: 'con.handle_command(''travel_direction'', self.name, modifiers)',
+  ctrl: false, description: Walk southeast., id: 32, name: .}
+- {alt: false, code: 'con.handle_command(''travel_direction'', self.name, modifiers)',
+  ctrl: false, description: Walk south., id: 33, name: ','}
+- {alt: false, code: 'con.handle_command(''travel_direction'', self.name, modifiers)',
+  ctrl: false, description: Walk southwest., id: 34, name: M}
+- {alt: false, code: 'con.handle_command(''travel_direction'', self.name, modifiers)',
+  ctrl: false, description: Walk west., id: 35, name: J}
+- {alt: false, code: 'con.handle_command(''travel_direction'', self.name, modifiers)',
+  ctrl: false, description: Walk northwest., id: 36, name: U}
+- {alt: false, code: "items = [Item('Statistics:', None)]\nfor stat in server_info():\n\
+    \    items.append(Item(stat, 'copy', args=[stat]))\nm = Menu('Server Statistics',\
+    \ items, escapable=True)\nmenu(con, m)", ctrl: false, description: View server
+    statistics., id: 37, name: Q, shift: false}
+- {alt: false, code: 'get_text(con, ''Enter text to emote'', ''emote'', escapable=True)',
+  ctrl: false, description: Emote something., id: 38, name: E, shift: false}
+- {alt: false, builder: true, code: "args = ['teleport']\nif 'shift' in modifiers:\n\
+    \    args.append(player.location.zone_id)\ncon.handle_command(*args)", ctrl: false,
+  description: Teleport menu., id: 39, name: T}
+- {alt: false, code: 'obj.beep()
+
+    player.message(''A light blinks indicating engine status.'')', ctrl: false, description: Turn
+    on test engines., id: 40, name: E, reusable: true, shift: false}
+- {alt: false, code: 'obj.beep()
+
+    player.message(''A light indicates speed.'')', ctrl: false, description: Test
+    speed setting., id: 41, name: S, reusable: true, shift: false}
+- {alt: false, code: "items = [LabelItem('Communication Channels')]\nfor c in CommunicationChannel.query():\n\
+    \    if player in c.banned or c.builder and not player.is_builder or c.admin and\
+    \ not player.is_admin:\n        continue\n    elif c in player.communication_channels:\n\
+    \        action = 'Mute'\n        cmd = 'remove'\n    else:\n        action =\
+    \ 'Listen to'\n        cmd = 'add'\n    items.append(\n        Item(\n       \
+    \     f'{action} {c.get_name(player.is_staff)}',\n            'communication_channel',\
+    \ args=[cmd, c.id]\n        )\n    )\nif player.is_staff:\n    items.append(LabelItem('Administration'))\n\
+    \    for name in ('add', 'edit', 'delete'):\n        items.append(Item(f'{name.title()}\
+    \ Channel', 'add_communication_channel' if name == 'add' else f'{name}_', args=([]\
+    \ if name == 'add' else ['CommunicationChannel'])))\nmenu(con, Menu('Communication\
+    \ Channels', items, escapable=True))\n", ctrl: false, description: Mute or unmute
+    communication channels., id: 42, name: ;, shift: false}
+- {code: 'con.handle_command(''number_action'', int(self.name), modifiers)', description: Transmit
+    to your first communication channel., id: 43, name: '1'}
+- {code: 'con.handle_command(''number_action'', int(self.name), modifiers)', description: Transmit
+    to your second communication channel., id: 44, name: '2'}
+- {code: 'con.handle_command(''number_action'', int(self.name), modifiers)', description: Transmit
+    to your third communication channel., id: 45, name: '3'}
+- {code: 'con.handle_command(''number_action'', int(self.name), modifiers)', description: Transmit
+    to your fourth communication channel, id: 46, name: '4'}
+- {code: 'con.handle_command(''number_action'', int(self.name), modifiers)', description: Transmit
+    to your fifth communication channel., id: 47, name: '5'}
+- {code: 'con.handle_command(''number_action'', int(self.name), modifiers)', description: Transmit
+    to your sixth communication channel., id: 48, name: '6'}
+- {code: 'con.handle_command(''number_action'', int(self.name), modifiers)', description: Transmit
+    to your seventh communication channel., id: 49, name: '7'}
+- {code: 'con.handle_command(''number_action'', int(self.name), modifiers)', description: Transmit
+    to your eighth communication channel., id: 50, name: '8'}
+- {code: 'con.handle_command(''number_action'', int(self.name), modifiers)', description: Transmit
+    to your nineth communication channel., id: 51, name: '9'}
+- {code: 'con.handle_command(''number_action'', int(self.name), modifiers)', description: Select
+    a communication channel to transmit on., id: 52, name: '0'}
+- {alt: false, code: "loc = player.location\nsize = ' X '.join([str(int(x)) for x\
+    \ in loc.size])\nobjects = 0\nexits = 0\nplayers = 0\nfor obj in loc.objects:\n\
+    \    if obj is player:\n        continue\n    elif obj.is_exit:\n        exits\
+    \ += 1\n    elif obj.is_player:\n        players += 1\n    else:\n        objects\
+    \ += 1\nplayer.message(f'Size: {size}.\\nObjects: {objects}.\\nPlayers: {players}.\\\
+    nExits: {exits}.')\nif player.location.zone.owner is not None:\n    player.message(f'This\
+    \ zone was built by {player.location.zone.owner.get_name(player.is_staff)}.')\n",
+  ctrl: false, description: View information about your location., id: 53, name: V,
+  shift: false}
+- {alt: false, code: "items = [\n    Item('Help', None),\n    Item('Search Help',\
+    \ 'search_help'),\n    Item('List of Help Topics', 'view_help')\n]\nif player.is_admin:\n\
+    \    for thing in ('Topic', 'Keyword'):\n        for action in ('add', 'edit',\
+    \ 'delete'):\n            items.append(Item(f'{action.title()} Help {thing}',\
+    \ f'{action}_', args=[f'Help{thing}']))\nitems.append(Item('Add Topic Keyword',\
+    \ 'add_topic_keyword'))\nitems.append(Item('Remove Topic Keyword', 'remove_topic_keyword'))\n\
+    menu(con, Menu('Help', items, escapable=True))", ctrl: false, description: Help
+    Menu., id: 54, name: H, shift: false}
+- {alt: false, code: "if 'shift' in modifiers:\n    obj = player.scanned\n    if obj\
+    \ is None or obj not in player.get_visible().all():\n        player.message('You\
+    \ must first select an object with the tab key.')\n    elif obj.coordinates ==\
+    \ player.coordinates:\n        player.message('You are already there.')\n    else:\n\
+    \        con.handle_command('autostroll', dict(x=obj.x, y=obj.y, z=obj.z))\nelse:\n\
+    \    con.handle_command('autostroll')", ctrl: false, description: Start automatically
+    walking. Add in shift to automatically walk to the previously scanned object.,
+  id: 56, name: W}
+- {alt: false, code: "items = []\nif player.following is None:\n    items.append(Item('You\
+    \ are not currently following anyone', None))\nelse:\n    name = player.following.get_name(player.is_staff)\n\
+    \    items.append(Item(f'Stop following {name}', 'stop_following'))\nif player.followers:\n\
+    \    for obj in player.followers:\n        items.append(\n            Item(f'Ditch\
+    \ {obj.get_name(player.is_staff)}', 'ditch', args=[obj.id])\n    )\nelse:\n  \
+    \  if player.following is None:\n        player.message('You have no followers\
+    \ and are following no one.')\n        end()\nmenu(con, Menu('Follow', items,\
+    \ escapable=True))", ctrl: false, description: Organise your group., id: 57, name: F,
+  shift: false}
+- {alt: false, code: "z = player.location.zone\nship = z.starship\ncheck_in_space(player)\n\
+    if ship.engine is None:\n    player.message('No engines found.')\nelif z.direction\
+    \ is None:\n    player.message('You must first set a course.')\nelif z.ambience_rate\
+    \ >= 1.0:\n    player.message('The ship is already at full acceleration.')\nelse:\n\
+    \    obj.beep()\n    ship.set_acceleration(min(1.0, z.ambience_rate + 0.1))",
+  ctrl: false, description: Accelerate., id: 58, name: '=', reusable: true, shift: false}
+- {alt: false, code: "z = player.location.zone\nship = z.starship\ncheck_in_space(player)\n\
+    if ship.engine is None:\n    player.message('No engines found.')\nelif z.direction\
+    \ is None:\n    player.message('You must first set a course.')\nelif z.ambience_rate\
+    \ <= 0.0:\n    player.message('The ship is not accelerating.')\nelse:\n    obj.beep()\n\
+    \    ship.set_acceleration(max(0.0, z.ambience_rate - 0.1))", ctrl: false, description: Decelerate.,
+  id: 59, name: '-', reusable: true, shift: false}
+- {alt: false, code: 'obj.beep()
+
+    player.message(''Coordinates: (%.2f, %.2f, %.2f).'' % player.location.zone.coordinates)',
+  ctrl: false, description: Show your ship's coordinates., id: 60, name: C, reusable: true,
+  shift: false}
+- {alt: false, code: "obj.beep()\nz = obj.location.zone\nif z.acceleration is None:\n\
+    \    player.message('Not accelerating.')\nelse:\n    player.message(util.format_speed(z.acceleration))",
+  ctrl: false, description: Show the current acceleration., id: 61, name: A, reusable: true,
+  shift: false}
+- {alt: false, code: "obj.beep()\nz = obj.location.zone\nif z.speed is None:\n   \
+    \ player.message('Not moving.')\nelse:\n    player.message(util.format_speed(z.speed))",
+  ctrl: false, description: Show the current speed., id: 62, name: S, reusable: true,
+  shift: false}
+- {alt: false, code: "z = obj.location.zone\nobj.beep()\nif z.direction is None:\n\
+    \    player.message('You have no course.')\nelse:\n    player.message(f'Heading:\
+    \ {z.direction.name.title()}.')", ctrl: false, description: Show the ship's heading.,
+  id: 63, name: H, reusable: true, shift: false}
+- {alt: false, code: 'con.handle_command(''starship_course'', self.name, modifiers)',
+  description: Set heading to north., id: 64, name: I, reusable: true}
+- {alt: false, code: 'con.handle_command(''starship_course'', self.name, modifiers)',
+  description: Set heading to northeast., id: 65, name: O, reusable: true}
+- {alt: false, code: 'con.handle_command(''starship_course'', self.name, modifiers)',
+  description: Set heading to east., id: 66, name: L, reusable: true}
+- {alt: false, code: 'con.handle_command(''starship_course'', self.name, modifiers)',
+  description: Set heading to southeast., id: 67, name: ., reusable: true}
+- {alt: false, code: 'con.handle_command(''starship_course'', self.name, modifiers)',
+  description: Set heading to south., id: 68, name: ',', reusable: true}
+- {alt: false, code: 'con.handle_command(''starship_course'', self.name, modifiers)',
+  description: Set heading to southwest., id: 69, name: M, reusable: true}
+- {alt: false, code: 'con.handle_command(''starship_course'', self.name, modifiers)',
+  description: Set heading to west., id: 70, name: J, reusable: true}
+- {alt: false, code: 'con.handle_command(''starship_course'', self.name, modifiers)',
+  description: Set heading to northwest., id: 71, name: U, reusable: true}
+- {alt: false, code: 'con.handle_command(''starship_course'', self.name, modifiers)',
+  description: Set heading to up or down., id: 72, name: K, reusable: true}
+- {alt: false, code: 'con.handle_command(''starship_course'', self.name, [])', ctrl: false,
+  description: Set a random heading., id: 73, name: R, reusable: true, shift: false}
+- {alt: false, code: "z = player.location.zone\ncheck_in_space(player)\nnow = time()\n\
+    diff = now - z.last_turn\nif z.speed is None:\n    player.message('You are not\
+    \ moving.')\nelif diff > z.speed:\n    obj.beep()\n    z.last_turn = now\n   \
+    \ z.accelerating = not z.accelerating\n    player.message(f'Starship {\"accelerating\"\
+    \ if z.accelerating else \"decelerating\"}.')\nelse:\n    player.message('You\
+    \ must wait %.2f seconds before changing direction.' % diff)", ctrl: false, description: Flip
+    the starship between acceleration and deceleration., id: 74, name: F, reusable: true,
+  shift: false}
+- {alt: false, code: "z = player.location.zone\nship = z.starship\nif ship is None\
+    \ or ship.engine is None:\n    player.message('No engines found.')\nelif z.speed\
+    \ is None:\n    player.message('You are not moving.')\nelse:\n    obj.beep()\n\
+    \    player.message(f'Time to decelerate: {util.format_timedelta(ship.get_deceleration_time())}\
+    \ ({util.format_distance(ship.get_deceleration_distance())})at full thrust.')",
+  ctrl: false, description: Show deceleration time., id: 75, name: T, reusable: true,
+  shift: false}
+- {alt: false, code: "zone = player.location.zone\nship = zone.starship\nif not ship.sensors:\n\
+    \    player.message('No sensors found.')\n    end()\nobjects = zone.visible_objects()\n\
+    if not objects:\n    ship.last_scanned = None\n    player.message('Nothing on\
+    \ scan.')\n    end()\nif ship.last_scanned is None or ship.last_scanned not in\
+    \ objects:\n    ship.last_scanned = objects[0]\nelse:\n    i = objects.index(ship.last_scanned)\n\
+    \    if 'shift' in modifiers:\n        i -= 1\n    else:\n        i += 1\n   \
+    \ if i >= len(objects):\n        obj = objects[0]\n    else:\n        obj = objects[i]\n\
+    \    ship.last_scanned = obj\nobj = ship.last_scanned\nship.play_object_sound(obj,\
+    \ player)\ndistance = util.format_distance_simple(util.distance_between(zone.coordinates,\
+    \ obj.coordinates))\ndirection = util.direction_between(zone.coordinates, obj.coordinates)\n\
+    if direction is None:\n    direction = ''\nelse:\n    direction = ' ' + direction.name\n\
+    player.message(f'{obj.get_name(player.is_staff)} ({obj.get_type()}): {distance}{direction}.')",
+  ctrl: false, description: Select sensor contact., id: 76, name: TAB, reusable: true}
+- {alt: false, code: "zone = player.location.zone\nship = zone.starship\nif ship is\
+    \ None or ship.sensors is None:\n    player.message('No sensors found.')\n   \
+    \ end()\nobj = ship.last_scanned\nif obj is None or obj not in zone.visible_objects():\n\
+    \    player.message('Nothing scanned.')\n    end()\nship.play_object_sound(obj,\
+    \ player)\ndirections = util.directions(zone.coordinates, obj.coordinates, format=util.format_distance_simple)\n\
+    player.message(f'{obj.get_name(player.is_staff)} ({obj.get_type()}): {directions}.')",
+  ctrl: false, description: Show the absolute distance to the most recently scanned
+    object., id: 77, name: D, reusable: true, shift: false}
+- {alt: false, code: "zone = player.location.zone\nship = zone.starship\nif ship is\
+    \ None or ship.sensors is None:\n    player.message('No sensors found.')\n   \
+    \ end()\nobj = ship.last_scanned\nif obj is None or obj not in zone.visible_objects():\n\
+    \    player.message('Nothing scanned.')\n    end()\nplayer.message(obj.get_name(player.is_staff))\n\
+    player.message(f'Type: {obj.get_type()}')\nplayer.message(f'Speed: {\"not moving\"\
+    \ if obj.speed is None else util.format_speed(obj.speed)}')\nplayer.message('Coordinates:\
+    \ (%.2f, %.2f, %.2f)' % obj.coordinates)\nplayer.message(f'Orbiting: {\"nothing\"\
+    \ if obj.orbit is None else obj.orbit.orbiting.get_name(player.is_staff)}')",
+  ctrl: false, description: Examine most recently scanned object., id: 78, name: X,
+  reusable: true, shift: false}
+- {alt: false, code: "zone = player.location.zone\nship = zone.starship\nif ship is\
+    \ None or ship.sensors is None:\n    player.message('No sensors found.')\nelse:\n\
+    \    objects = 0\n    for obj in zone.visible_objects():\n        objects += 1\n\
+    \        ship.play_object_sound(obj, player)\n    player.message(f'{objects} sensor\
+    \ {util.pluralise(objects, \"contact\")}.')", ctrl: false, description: Show number
+    of sensor contacts., id: 79, name: A, reusable: true, shift: false}
+- {alt: false, code: 'con.handle_command(''sensor_filter'', int(self.name))', ctrl: false,
+  description: Toggle sensor filter., id: 80, name: '1', reusable: true, shift: false}
+- {alt: false, code: 'con.handle_command(''sensor_filter'', int(self.name))
+
+    ', ctrl: false, description: Toggle sensor filter., id: 81, name: '2', reusable: true,
+  shift: false}
+- {alt: false, code: 'con.handle_command(''sensor_filter'', int(self.name))
+
+    ', ctrl: false, description: Toggle sensor filter., id: 82, name: '3', reusable: true,
+  shift: false}
+- {alt: false, code: 'con.handle_command(''sensor_filter'', int(self.name))
+
+    ', ctrl: false, description: Toggle sensor filter., id: 83, name: '4', reusable: true,
+  shift: false}
+- {alt: false, code: 'con.handle_command(''sensor_filter'', int(self.name))
+
+    ', ctrl: false, description: Toggle sensor filter., id: 84, name: '5', reusable: true,
+  shift: false}
+- {alt: false, code: 'con.handle_command(''sensor_filter'', int(self.name))
+
+    ', ctrl: false, description: Toggle sensor filter., id: 85, name: '6', reusable: true,
+  shift: false}
+- {alt: false, code: 'con.handle_command(''sensor_filter'', int(self.name))
+
+    ', ctrl: false, description: Toggle sensor filter., id: 86, name: '7', reusable: true,
+  shift: false}
+- {alt: false, code: 'con.handle_command(''sensor_filter'', int(self.name))
+
+    ', ctrl: false, description: Toggle sensor filter., id: 87, name: '8', reusable: true,
+  shift: false}
+- {alt: false, code: 'con.handle_command(''sensor_filter'', int(self.name))
+
+    ', ctrl: false, description: Toggle sensor filter., id: 88, name: '9', reusable: true,
+  shift: false}
+- {alt: false, code: 'con.handle_command(''sensor_filter'', int(self.name))
+
+    ', ctrl: false, description: Toggle sensor filter., id: 89, name: '0', reusable: true,
+  shift: false}
+- {alt: false, builder: true, code: "items = [Item('Select Object', None)]\nfor obj\
+    \ in player.location.objects:\n    items.append(Item(f'{obj.get_name(True)}: {util.directions(player.coordinates,\
+    \ obj.coordinates)}', 'edit_', args=[obj.__class__.__name__, obj.id]))\nmenu(con,\
+    \ Menu('Configure Object', items, escapable=True))", ctrl: false, description: Configure
+    room Objects., id: 90, name: C, shift: true}
+- {alt: true, code: "directions = Direction.query(z=0.0)\nitems = [LabelItem('Directions')]\n\
+    x1, y1, z1 = player.coordinates\nxs, ys, zs = player.location.size\nfor direction\
+    \ in directions:\n    if (\n        (\n            direction.x > 0 and x1 >= xs\n\
+    \        ) or (\n            direction.x < 0 and not x1\n        )\n    ) or (\n\
+    \        (\n            direction.y > 0 and y1 >= xs\n        ) or (\n       \
+    \     direction.y < 0 and not y1\n        )\n    ):\n        continue\n    x2,\
+    \ y2, z2 = player.get_corner_coordinates(direction)\n    if [x2, y2, z2] != [x1,\
+    \ y1, z1]:\n        items.append(Item(direction.get_name(player.is_staff), 'autostroll',\
+    \ args=[dict(x=x2, y=y2)]))\nif len(items) > 1:\n    menu(con, Menu('Autostroll',\
+    \ items, escapable=True))\nelse:\n    player.message('There is nowhere to go.')",
+  ctrl: true, description: Walk in a given direction., id: 91, name: W, shift: false}
+- {code: "if player.is_admin:\n    channels = CommunicationChannel.query().order_by(CommunicationChannel.name).all()\n\
+    else:\n    channels = sorted(player.communication_channels, key=lambda channel:\
+    \ channel.name)\nif not channels:\n    player.message('You must tune into at least\
+    \ one communication channel.')\n    end()\nitems = [LabelItem(f'Communication\
+    \ channels ({len(player.communication_channels)})')]\nfor channel in channels:\n\
+    \    items.append(Item(channel.get_name(player.is_staff), 'communication_channel_history',\
+    \ args=[channel.id]))\nmenu(con, Menu('Communication History', items, escapable=True))\n",
+  description: Show communication history, id: 92, name: ;, shift: true}
+- {admin: true, alt: true, code: "check_admin(player)\ntasks = Task.query().order_by(Task.paused.desc(),\
+    \ Task.name).all()\nitems = [LabelItem(f'Tasks ({len(tasks)})')]\nnow = time()\n\
+    for t in tasks:\n    name = t.get_name(True)\n    description = t.get_description()\n\
+    \    if t.next_run is None:\n        next_run = 'Not scheduled'\n    elif now\
+    \ > t.next_run:\n        next_run = 'Recently Run'\n    else:\n        next_run\
+    \ = t.next_run - now\n        next_run = datetime.timedelta(seconds=next_run)\n\
+    \        next_run = util.format_timedelta(next_run)\n    paused = 'Paused' if\
+    \ t.paused else 'Running'\n    items.append(Item(f'{name} [{paused}] ({next_run}):\
+    \ {description}', 'expedite_task', args=[t.id]))\nmenu(con, Menu('Server Tasks',\
+    \ items, escapable=True))", ctrl: false, description: Show running tasks., id: 93,
+  name: T, shift: false}
+- {alt: false, code: "items = [LabelItem(f'Communication Channels ({len(player.communication_channels)})')]\n\
+    if player.is_admin:\n    channels = CommunicationChannel.query().order_by(CommunicationChannel.name)\n\
+    else:\n    channels = sorted(player.communication_channels, key=lambda channel:\
+    \ channel.name)\nfor channel in channels:\n    items.append(Item(channel.get_name(player.is_staff),\
+    \ 'communication_channel_listeners', args=[channel.id]))\nmenu(con, Menu('Communication\
+    \ Channel Listeners', items, escapable=True))\n", ctrl: true, description: Show
+    who is listening to a communication channel., id: 94, name: ;, shift: false}
+- {alt: false, code: 'player.player.help_mode = True
+
+    player.message(''Help mode enabled. Press escape to exit.'')', ctrl: false, description: Enable
+    help mode., id: 95, name: /, shift: true}
+- {alt: false, builder: true, code: con.handle_command('set_sound'), ctrl: false,
+  description: Set a sound for an object., id: 96, name: S, shift: true}
+- {alt: false, code: con.handle_command('stand'), ctrl: false, description: Stand
+    up., id: 97, name: /, shift: false}
+- {alt: false, code: "z = player.location.zone\nt = z.starship.target\nif t is None:\n\
+    \    player.message('Autopilot is not set.')\nelse:\n    if t.object is None:\n\
+    \        target = '(%g, %g, %g)' % t.coordinates\n    else:\n        target =\
+    \ t.object.get_name(player.is_staff)\n    player.message(f'{target} at {util.format_distance(util.distance_between(z.coordinates,\
+    \ t.coordinates))} {util.direction_between(z.coordinates, t.coordinates).get_name(player.is_staff)}.')",
+  ctrl: false, description: Show the autopilot target., id: 98, name: T, reusable: true,
+  shift: false}
+- {alt: false, code: "obj.beep()\nif player.location.zone.accelerating:\n    player.message('Accelerating.')\n\
+    else:\n    player.message('Decelerating.')", ctrl: false, description: Show whether
+    your ship is accelerating or decelerating., id: 99, name: D, reusable: true, shift: false}
+- {alt: false, code: con.send('toggle_recording'), ctrl: false, description: Press
+    once to start recording then again to speak whatever you just recorded., id: 100,
+  name: R, shift: false}
+- {alt: false, code: 'player.message(''Recording canceled.'')
+
+    con.send(''cancel_recording'')
+
+    ', ctrl: false, description: Cancel recording., id: 101, name: R, shift: true}
+- {alt: false, code: con.handle_command('say_to'), ctrl: false, description: Say something
+    to somene else in the room, id: 102, name: '''', shift: true}
