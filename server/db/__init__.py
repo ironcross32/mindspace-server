@@ -170,13 +170,16 @@ def finalise_db():
             )
 
 
-def load_db():
-    """Load the database from a single flat file."""
+def load_db(filename=None):
+    """Load the database from a single flat file. If filename is None use
+    db_file."""
     logger.info('Creating database tables...')
     Base.metadata.create_all()
-    if os.path.isfile(db_file):
-        logger.info('Loading the database from %s.', db_file)
-        with open(db_file, 'r') as f:
+    if filename is None:
+        filename = db_file
+    if os.path.isfile(filename):
+        logger.info('Loading the database from %s.', filename)
+        with open(filename, 'r') as f:
             y = load(f)
         with session() as s:
             objects = dumper_load(y, get_classes())
@@ -186,16 +189,16 @@ def load_db():
     finalise_db()
 
 
-def dump_db(where=None):
+def dump_db(filename=None):
     """Dump the database to single files."""
-    if where is None:
-        where = db_file
-    logger.info('Dumping the database to %s.', where)
+    if filename is None:
+        filename = db_file
+    logger.info('Dumping the database to %s.', filename)
     objects = []
     for cls in get_classes():
         objects.extend(Session.query(cls))
     y = dumper_dump(objects, dump_object)
-    with open(where, 'w') as f:
+    with open(filename, 'w') as f:
         dump(y, stream=f)
     return len(objects)
 
