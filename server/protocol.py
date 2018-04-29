@@ -120,6 +120,7 @@ def get_text(
         args = []
     if kwargs is None:
         kwargs = {}
+    interface_sound(con, get_sound(os.path.join('notifications', 'text.wav')))
     con.send(
         'get_text', message, command, value, multiline, escapable, args, kwargs
     )
