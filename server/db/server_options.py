@@ -3,7 +3,7 @@
 from socket import getfqdn
 from datetime import timedelta
 from sqlalchemy import Column, Integer, Interval, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from .base import Base, NameMixin, message
 from .session import Session
 
@@ -24,7 +24,10 @@ class ServerOptions(Base, NameMixin):
         Interval, nullable=False, default=timedelta(days=30)
     )
     first_room_id = Column(Integer, ForeignKey('rooms.id'), nullable=False)
-    first_room = relationship('Room', backref='first_room_options')
+    first_room = relationship(
+        'Room',
+        backref=backref('first_room_options', cascade='all, delete-orphan')
+    )
     purge_after = Column(Interval, nullable=False, default=timedelta(days=30))
     mail_from_name = message('Mindspace Webmaster')
     mail_from_address = message(f'webmaster@{getfqdn()}')
@@ -36,7 +39,10 @@ class ServerOptions(Base, NameMixin):
     system_object_id = Column(
         Integer, ForeignKey('objects.id'), nullable=False, default=0
     )
-    system_object = relationship('Object', backref='transmit_as_for_options')
+    system_object = relationship(
+        'Object',
+        backref=backref('system_object_options', cascade='all, delete-orphan')
+    )
     command_error_msg = message(
         'There was an error with your command. The staff have been notified.'
     )

@@ -1,7 +1,7 @@
 """Provides the Window class."""
 
 from sqlalchemy import Column, Boolean, Integer, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from .base import Base, message, Sound
 
 
@@ -14,7 +14,9 @@ class Window(Base):
         Integer, ForeignKey('rooms.id'), nullable=False,
         default=lambda: Base._decl_class_registry['Room'].first().id
     )
-    overlooking = relationship('Room', backref='windows')
+    overlooking = relationship(
+        'Room', backref=backref('windows', cascade='all, delete-orphan')
+    )
     open_msg = message('%1N open%1s %2n.')
     close_msg = message('%1N close%1s %2n.')
     open_sound = Column(Sound, nullable=True)
