@@ -1,6 +1,5 @@
 """Provides classes to do with communication channels."""
 
-import os.path
 from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship, backref
 from .base import (
@@ -8,7 +7,7 @@ from .base import (
     PermissionsMixin, CreatedMixin, TextMixin, Sound, message
 )
 from .session import Session as s
-from ..sound import sounds_dir, get_sound
+from ..sound import get_sound
 from ..socials import factory
 
 
@@ -40,11 +39,7 @@ class CommunicationChannel(
 
     __tablename__ = 'communication_channels'
     transmit_format = message('[{channel_name}] %1N transmit%1s: "{message}"')
-    transmit_sound = Column(
-        Sound, nullable=False, default=os.path.join(
-            sounds_dir, 'communication', 'transmit.wav'
-        )
-    )
+    transmit_sound = Column(Sound, nullable=True)
     listeners = relationship(
         'Object', secondary=CommunicationChannelListener.__table__,
         backref='communication_channels'
@@ -80,14 +75,18 @@ class CommunicationChannel(
             format, [who], channel_name=self.name, message=m.text
         )
         first, second = strings
-        sound = get_sound(self.transmit_sound)
+        if self.transmit_sound is None:
+            sound = None
+        else:
+            sound = get_sound(self.transmit_sound)
         for l in self.listeners:
             if l is who:
                 string = first
             else:
                 string = second
             l.message(string, channel=self.name)
-            l.sound(sound, private=True)
+            if sound is not None:
+                l.sound(sound, private=True)
         return m
 
 
