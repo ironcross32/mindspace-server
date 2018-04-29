@@ -9,7 +9,7 @@ from .base import (
 
 
 class HotkeySecondary(Base):
-    """Link keys to object commands."""
+    """Link keys to objects."""
 
     __tablename__ = 'hotkeys_secondary'
     hotkey_id = Column(Integer, ForeignKey('hotkeys.id'), nullable=False)
