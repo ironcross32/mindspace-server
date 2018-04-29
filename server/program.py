@@ -113,14 +113,18 @@ def check_staff(player):
 
 
 def check_bank(player, bank):
-    """Ensure player can actually access the bank they're trying to access."""
+    """Ensure player can actually access the bank they're trying to access. If
+    they can, return a suitable Object instance bound to an ATM instance
+    registered with that bank."""
     valid_object(player, bank)
-    if not Object.join(Object.atm).filter(
+    obj = Object.join(Object.atm).filter(
         Object.location_id == player.location_id, *player.same_coordinates(),
         ATM.bank_id == bank.id
-    ).count():
+    ).first()
+    if obj is None:
         player.message('You cannot access that bank from here.')
         end()
+    return obj
 
 
 def server_info():
