@@ -97,6 +97,7 @@ def form(con, form):
 
 def menu(con, menu):
     """Tell the client to display menu."""
+    interface_sound(con, get_sound(os.path.join('notifications', 'form.wav')))
     con.send('menu', *menu.dump())
 
 
