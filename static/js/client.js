@@ -948,11 +948,9 @@ let mindspace_functions = {
         quitting = true
     },
     message: obj => {
-        let [message, channel, style] = obj.args
+        let message = obj.args[0]
+        let style = obj.args[2]
         let p = write_message(message)
-        if (channel !== null) {
-            p.innerText = `[${channel}] ${p.innerText}`
-        }
         if (style !== null) {
             p.style.cssText = style
         }
