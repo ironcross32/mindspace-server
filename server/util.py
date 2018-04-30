@@ -237,7 +237,7 @@ def emote(player, string):
         string, others = factory.convert_emote_string(
             string, player.match, [player]
         )
-        player.do_social(string, _others=others[1:], _channel='emote')
+        player.do_social(string, _others=others[1:])
     except NoMatchError as e:
         player.message('Nothing found matching %s.' % e.args)
 
