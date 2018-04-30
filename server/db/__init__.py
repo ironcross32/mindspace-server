@@ -4,7 +4,6 @@ import os
 import os.path
 import logging
 from inspect import isclass
-from time import time
 from sqlalchemy import inspect, event
 from twisted.internet import reactor
 from yaml import dump, load
@@ -195,13 +194,11 @@ def dump_db(filename=None, thread=False):
     """Dump the database to single files."""
     if filename is None:
         filename = db_file
-    started = time()
     logger.info('Dumping the database to %s.', filename)
     objects = []
     for cls in get_classes():
         objects.extend(Session.query(cls))
     y = dumper_dump(objects, dump_object)
-    logging.info('Objects dictionary built in %.2f seconds.', time() - started)
     args = (filename, y)
     if thread:
         reactor.callInThread(dump_objects, *args)
