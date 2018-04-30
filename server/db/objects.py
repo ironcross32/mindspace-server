@@ -13,6 +13,7 @@ from .base import (
     DescriptionMixin, OwnerMixin, RandomSoundMixin, RandomSoundContainerMixin,
     StarshipMixin, HiddenMixin, CreatedMixin, DataMixin, message, Sound
 )
+from .server_options import ServerOptions
 from .session import Session
 from .communication import CommunicationChannel
 from ..util import directions
@@ -174,6 +175,15 @@ class Object(
     get_sound = Column(Sound, nullable=True)
     drop_sound = Column(Sound, nullable=True)
     give_sound = Column(Sound, nullable=True)
+
+    def can_change_name(self):
+        """Returns a timedelta indicating when this object can change its own
+        name or None."""
+        if self.last_name_change is not None:
+            elapsed = datetime.utcnow() - self.last_name_change
+            i = ServerOptions.get().name_change_interval
+            if elapsed < i:
+                return i - elapsed
 
     def inspect(self, obj):
         """Used to quickly inspect any object."""

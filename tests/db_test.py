@@ -1,7 +1,10 @@
+from datetime import datetime, timedelta
 from server.db import (
     Object, ServerOptions, CommunicationChannel, CommunicationChannelMessage,
     session, Player, Shop, ShopItem
 )
+
+now = datetime.utcnow()
 
 
 def test_system():
@@ -78,3 +81,14 @@ def test_delete_shop():
         assert shop.id is not None
         assert Shop.get(shop.id) is None
         assert not ShopItem.query(shop_id=shop.id).count()
+
+
+def test_can_change_name():
+    o = Object()
+    assert o.last_name_change is None
+    assert o.can_change_name() is None
+    o.last_name_change=now - ServerOptions.get().name_change_interval
+    assert o.can_change_name() is None
+    i = timedelta(days=1)
+    o.last_name_change += i
+    assert o.can_change_name() <= i
