@@ -481,17 +481,23 @@ class Object(
             args.append(CommunicationChannel.admin.is_(False))
         return Session.query(CommunicationChannel).filter(*args)
 
-    def say(self, text, channel='say'):
+    def say(self, text):
         """Have this object say something."""
         self.sound(self.say_sound)
+        channel = self.get_channel()
         self.do_social(self.say_msg, text=text, _channel=channel)
 
-    def do_social(self, string, _others=None, _channel=None, *args, **kwargs):
+    def get_channel(self, channel):
+        """Return a unique channel name for this object."""
+        return f'{channel}-{self.id}'
+
+    def do_social(self, string, _others=None, *args, **kwargs):
         """Get social strings and send them out to players within visual range.
         This object will be the first object in the perspectives list, that
         list will be extended by _others. The message channel will be set to
-        _channel."""
+        emote-id where id is the id of this object."""
         perspectives = [self]
+        channel = self.get_channel('emote')
         if _others is not None:
             perspectives.extend(_others)
         strings = factory.get_strings(string, perspectives, **kwargs)
@@ -502,7 +508,7 @@ class Object(
                 msg = strings[perspectives.index(obj)]
             else:
                 msg = strings[-1]
-            obj.message(msg, channel=_channel)
+            obj.message(msg, channel=channel)
 
     def match(self, string):
         """Match a string with an object from this room."""

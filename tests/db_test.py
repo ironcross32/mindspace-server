@@ -100,3 +100,12 @@ def test_set_name():
     o.set_name(name)
     assert o.last_name_change >= now
     assert o.name == name
+
+
+def test_get_channel():
+    with session() as s:
+        o = Object(name='Test Object')
+        assert o.get_channel('test') == 'test-None'
+        s.add(o)
+        s.commit()
+        assert o.get_channel('test') == f'test-{o.id}'
