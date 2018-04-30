@@ -4,6 +4,7 @@ import os
 import os.path
 import logging
 from inspect import isclass
+from time import time
 from sqlalchemy import inspect, event
 from yaml import dump, load
 from db_dumper import load as dumper_load, dump as dumper_dump
@@ -193,11 +194,13 @@ def dump_db(filename=None):
     """Dump the database to single files."""
     if filename is None:
         filename = db_file
+    started = time()
     logger.info('Dumping the database to %s.', filename)
     objects = []
     for cls in get_classes():
         objects.extend(Session.query(cls))
     y = dumper_dump(objects, dump_object)
+    logging.info('Objects dictionary built in %.2f seconds.', time() - started)
     with open(filename, 'w') as f:
         dump(y, stream=f)
     return len(objects)
