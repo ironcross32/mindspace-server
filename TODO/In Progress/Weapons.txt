@@ -1,0 +1,1 @@
+A combat system should be implemented which allows players to fight both with distance weapons (rifles, pistols and the like), and to have hand-to-hand fights with fists and kicks ETC.

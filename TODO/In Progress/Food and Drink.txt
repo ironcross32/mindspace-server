@@ -1,0 +1,1 @@
+It should be possible to obtain food and drink.

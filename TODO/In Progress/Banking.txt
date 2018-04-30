@@ -1,0 +1,1 @@
+It should be possible for multiple banks and currencies to be created with player-facing systems to allow for convertion between the currencies, and the aquisition of credit cards which allow players to buy things in the game.

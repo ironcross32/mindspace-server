@@ -1,0 +1,5 @@
+It should be possible to call other players with phone-like objects.
+
+Phones also support a notion of a contacts list and blocked numbers. They can also send and receive texts.
+
+They cannot be used for conference calls.

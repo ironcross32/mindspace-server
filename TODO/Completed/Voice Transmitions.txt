@@ -1,0 +1,5 @@
+It should be possible to communicate by voice from within Mindspace.
+
+It is now possible by pressing the R key. When recording is complete, you can press R again to send the recording.
+
+If you wish to cancel, simply press Shift R.

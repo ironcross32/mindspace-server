@@ -1,0 +1,3 @@
+It should be possible for spacial objects to orbit each other.
+
+These orbits should be nested, so for example a starship should be able to orbit a planet which is orbiting a star which is orbiting a blackhole.

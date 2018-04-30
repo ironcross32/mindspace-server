@@ -1,0 +1,1 @@
+It should be possible for starships to pick a destination and move there with no further player intervention.

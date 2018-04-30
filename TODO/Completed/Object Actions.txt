@@ -1,0 +1,3 @@
+It should be possible to create groups of actions which can be bound to an Object instance, rather like the parent / child model used by Lambda MOO et al.
+
+Such groups can now be created. All actions appear in the s menu.

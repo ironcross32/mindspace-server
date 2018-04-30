@@ -1,0 +1,3 @@
+It should be possible to remap keys so that people not using a UK keyboard layout can enjoy the game.
+
+This has now been completed and can be accessed from the main game menu.
