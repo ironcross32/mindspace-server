@@ -13,11 +13,22 @@ def test_curses():
 
 
 def test_valid_name():
-    assert server.valid_name('test')
-    assert not server.valid_name('arse bag')
-    assert not server.valid_name('Bob Fuckteeth')
-    assert not server.valid_name('arseflannel')
-    assert server.valid_name('Tom Scunthorpe')
-    assert not server.valid_name('test\ning')
-    assert not server.valid_name('hello\r\nworld')
-    assert not server.valid_name('test\rthis')
+    valid_names = (
+        'Chris Norman',
+        'Gemma-Louise Goulston',
+        'Craig D\'andrea',
+        'Philip Bottomly-Smithe',
+        'Freddy'
+    )
+    invalid_names = (
+        'C\'raig-Philip Danger-Widget'
+        'Arsebucket',
+        'Clammon Jerkoff'
+        'B00b Smile',
+        'Test\nthis'
+    )
+    for name in valid_names:
+        assert server.valid_name(name), 'Should be a valid name: %r.' % name
+    for name in invalid_names:
+        assert not server.valid_name(name), \
+            'Should not be a valid name: %r.' % name

@@ -2,6 +2,7 @@
 
 import logging
 import os.path
+import re
 from time import time
 from datetime import datetime
 from json import dumps, loads
@@ -54,10 +55,11 @@ class Server:
 
     def valid_name(self, name):
         """Ensure a name is free of curses."""
-        if '\r' in name or '\n' in name:
+        m = re.match(ServerOptions.get().character_name_regexp, name)
+        if m is None:
             return False
+        name = name.lower()
         for word in name.split(' '):
-            word = word.lower()
             for curse in self.curses:
                 if word.startswith(curse):
                     return False

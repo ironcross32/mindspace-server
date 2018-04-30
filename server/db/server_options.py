@@ -46,6 +46,16 @@ class ServerOptions(Base, NameMixin):
     command_error_msg = message(
         'There was an error with your command. The staff have been notified.'
     )
+    character_name_regexp = message(
+        '^[A-Z][a-z]*(?:[-][A-Z]|[\'][a-z])?[a-z]*(?: [A-Z][a-z]*(?:[-][A-Z]'
+        '|[\'][a-z])?[a-z]*)?$'
+    )
+    invalid_name_msg = message(
+        'Invalid name. Check for proper capitalisation, that there are no '
+        'spaces before or after it, and it is a name that you would be happy '
+        'to call across the room at a posh dinner. When you have checked all '
+        'these things try again.'
+    )
 
     @classmethod
     def get(cls):
