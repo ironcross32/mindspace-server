@@ -29,7 +29,7 @@ class Player(Base, PermissionsMixin, PasswordMixin, LockedMixin):
     mail_notifications = Column(Boolean, nullable=False, default=True)
     idea_notifications = Column(Boolean, nullable=False, default=True)
     changelog_notifications = Column(Boolean, nullable=False, default=True)
-    show_channels = Column(Boolean, nullable=False, default=False)
+    channel_notifications = Column(Boolean, nullable=False, default=False)
     home_id = Column(Integer, ForeignKey('rooms.id'), nullable=True)
     home = relationship('Room', backref='squatters')
 

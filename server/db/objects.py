@@ -400,7 +400,7 @@ class Object(
             if style is None and self.player is not None:
                 style = self.player.default_style
             if channel is not None and self.player is not None and \
-               self.player.show_channels:
+               self.player.channel_notifications:
                 self.message(f'Channel: {channel}')
             return _message(con, text, channel=channel, style=style)
         elif self.is_phone:
