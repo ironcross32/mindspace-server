@@ -15,6 +15,7 @@ def test_curses():
 def test_valid_name():
     assert server.valid_name('test')
     assert not server.valid_name('arse bag')
+    assert not server.valid_name('Bob Fuckteeth')
     assert not server.valid_name('arseflannel')
     assert server.valid_name('Tom Scunthorpe')
     assert not server.valid_name('test\ning')

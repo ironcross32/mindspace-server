@@ -57,6 +57,7 @@ class Server:
         if '\r' in name or '\n' in name:
             return False
         for word in name.split(' '):
+            word = word.lower()
             for curse in self.curses:
                 if word.startswith(curse):
                     return False
