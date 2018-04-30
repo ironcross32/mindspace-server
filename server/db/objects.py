@@ -393,11 +393,13 @@ class Object(
         """Get the connection associated with this object."""
         return connections.get(self.id)
 
-    def message(self, text, channel=None):
+    def message(self, text, channel=None, style=None):
         """Send a message to this object."""
         con = self.get_connection()
         if con is not None:
-            return _message(con, text, channel=channel)
+            if style is None and self.player is not None:
+                style = self.player.default_style
+            return _message(con, text, channel=channel, style=style)
         elif self.is_phone:
             phone = self.phone
             if channel == 'say' and phone.state is PhoneStates.connected and \

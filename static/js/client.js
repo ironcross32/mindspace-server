@@ -621,6 +621,7 @@ function write_message(text) {
     p.innerText = text
     output.appendChild(p)
     scroll_bottom()
+    return p
 }
 
 function write_special(text) {
@@ -946,7 +947,16 @@ let mindspace_functions = {
     remember_quit: () => {
         quitting = true
     },
-    message: obj => {write_message(obj.args[0])},
+    message: obj => {
+        let [message, channel, style] = obj.args
+        let p = write_message(message)
+        if (channel !== null) {
+            p.innerText = `[${channel}] ${p.innerText}`
+        }
+        if (style !== null) {
+            p.style.cssText = style
+        }
+    },
     delete: obj => {
         let id = obj.args[0]
         if (objects[id] !== undefined) {

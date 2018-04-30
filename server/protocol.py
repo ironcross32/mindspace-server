@@ -5,9 +5,9 @@ import os.path
 from .sound import get_sound
 
 
-def message(con, message, channel=None):
+def message(con, message, channel=None, style=None):
     """Get the client to display a message."""
-    con.send('message', message, channel)
+    con.send('message', message, channel, style)
 
 
 def url(con, title, url):
