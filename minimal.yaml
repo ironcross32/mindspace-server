@@ -57,15 +57,13 @@ Command:
   id: 6, name: add_}
 - {code: "if a:\n    data = a[0]\n    account = player.player\n    account.email =\
     \ data.get('email', account.email) or None\n    name = data.get('name', '').title().strip()\n\
-    \    ok = True\n    if name and name != player.name:\n        if player.last_name_change\
-    \ is not None:\n            elapsed = datetime.datetime.utcnow() - player.last_name_change\n\
-    \            i = server_options().name_change_interval\n            if elapsed\
-    \ < i:\n                ok = False\n                player.message(f'You cannot\
-    \ change your name for another {util.format_timedelta(i - elapsed)}.')\n     \
-    \   elif Object.query(Object.player_id.isnot(None), sqlalchemy.func.lower(Object.name)\
-    \ == name.lower()).count():\n            ok = False\n            player.message('That\
-    \ name is already taken.')\n        if ok:\n            old = player.name\n  \
-    \          player.set_name(name)\n            s.add(player)\n            if old\
+    \    if name and name != player.name:\n        when = player.can_change_name()\n\
+    \        if when is not None:\n            player.message(f'You cannot change\
+    \ your name for another {util.format_timedelta(when)}.')\n        elif not server.valid_name(name):\n\
+    \            player.message(server_options().invalid_name_msg)\n        elif Object.query(Object.player_id.isnot(None),\
+    \ sqlalchemy.func.lower(Object.name) == name.lower()).count():\n            player.message('That\
+    \ name is already taken.')\n        else:\n            old = player.name\n   \
+    \         player.set_name(name)\n            s.add(player)\n            if old\
     \ is not None:\n                for connection in server.connections:\n      \
     \              message(connection, f'{old} is now known as {name}.')\n       \
     \     else:\n                player.message(f'You are now known as {name}.')\n\
@@ -454,7 +452,7 @@ Command:
     \    for name in ('add', 'edit', 'delete'):\n        items.append(Item(f'{name.title()}\
     \ Rule', f'{name}_', args=['Rule']))\nmenu(con, Menu('Game Rules', items, escapable=True))",
   id: 46, name: rules}
-- {builder: true, code: "items = [Item('Select Object', None)]\nfor obj in player.location.objects:\n\
+- {builder: true, code: "items = [LabelItem('Select Object')]\nfor obj in player.location.objects:\n\
     \    if obj.is_player:\n        continue\n    items.append(Item(f'{obj.get_name(True)}\
     \ ({util.directions(player.coordinates, obj.coordinates)})', 'delete_', args=['Object',\
     \ obj.id]))\nmenu(con, Menu('Delete Object', items, escapable=True))", id: 47,
@@ -597,34 +595,34 @@ Command:
     \      objects = player.get_visible(Object.id != player.id).order_by(Object.name).all()\n\
     \            try:\n                player.scanned = objects[number]\n        \
     \        player.inspect(player.scanned)\n            except IndexError:\n    \
-    \            pass\n            finally:\n                end()\n        try:\n\
-    \            social = player.socials[number]\n        except IndexError:\n   \
-    \         if 'ctrl' in modifiers:\n                social = Social(object_id=player.id,\
-    \ name='Untitled Social', first='', second='', third='')\n                s.add(social)\n\
-    \                s.commit()\n            else:\n                player.message(f'No\
-    \ social at position {number + 1}.')\n                end()\n        if modifiers\
-    \ == ['alt']:\n            try:\n                player.do_social(social.first)\n\
-    \            except SocialsError as e:\n                on_error(player, e)\n\
-    \        elif modifiers == ['ctrl']:\n            f = ObjectForm(social, 'edit_',\
-    \ title='Edit Social', args=['Social', social.id], cancel='Cancel')\n        \
-    \    form(con, f)\n        elif modifiers == ['shift']:\n            if id is\
-    \ None:\n                items = [Item(f'Select Object for {social.get_name(player.is_staff)}',\
-    \ None)]\n                for obj in player.get_visible():\n                 \
-    \   items.append(Item(obj.get_name(player.is_staff), __name__, args=[number +\
-    \ 1, modifiers, obj.id]))\n                menu(con, Menu('Social', items, escapable=True))\n\
-    \            else:\n                obj = player.get_visible(Object.id == id).first()\n\
-    \                if obj is None:\n                    player.message('Invalid\
-    \ object.')\n                else:\n                    if obj is player:\n  \
-    \                      text = social.second\n                    else:\n     \
-    \                   text = social.third\n                    try:\n          \
-    \              player.do_social(text, _others=[obj], _channel='social')\n    \
-    \                except SocialsError as e:\n                        on_error(player,\
-    \ e)\n    else:\n        try:\n            channel = player.communication_channels[number]\n\
-    \            con.handle_command('transmit', channel.id)\n        except IndexError:\n\
-    \            player.message(f'No channel at position {number + 1}.')\nelse:\n\
-    \    if not modifiers:\n        items = [Item('Communication Channels', None)]\n\
-    \        for c in player.possible_communication_channels():\n            if player\
-    \ in c.listeners:\n                items.append(Item(c.get_name(player.is_staff),\
+    \            player.message('There are not that many objects.')\n            finally:\n\
+    \                end()\n        try:\n            social = player.socials[number]\n\
+    \        except IndexError:\n            if 'ctrl' in modifiers:\n           \
+    \     social = Social(object_id=player.id, name='Untitled Social', first='', second='',\
+    \ third='')\n                s.add(social)\n                s.commit()\n     \
+    \       else:\n                player.message(f'No social at position {number\
+    \ + 1}.')\n                end()\n        if modifiers == ['alt']:\n         \
+    \   try:\n                player.do_social(social.first)\n            except SocialsError\
+    \ as e:\n                on_error(player, e)\n        elif modifiers == ['ctrl']:\n\
+    \            f = ObjectForm(social, 'edit_', title='Edit Social', args=['Social',\
+    \ social.id], cancel='Cancel')\n            form(con, f)\n        elif modifiers\
+    \ == ['shift']:\n            if id is None:\n                items = [Item(f'Select\
+    \ Object for {social.get_name(player.is_staff)}', None)]\n                for\
+    \ obj in player.get_visible():\n                    items.append(Item(obj.get_name(player.is_staff),\
+    \ __name__, args=[number + 1, modifiers, obj.id]))\n                menu(con,\
+    \ Menu('Social', items, escapable=True))\n            else:\n                obj\
+    \ = player.get_visible(Object.id == id).first()\n                if obj is None:\n\
+    \                    player.message('Invalid object.')\n                else:\n\
+    \                    if obj is player:\n                        text = social.second\n\
+    \                    else:\n                        text = social.third\n    \
+    \                try:\n                        player.do_social(text, _others=[obj],\
+    \ _channel='social')\n                    except SocialsError as e:\n        \
+    \                on_error(player, e)\n    else:\n        try:\n            channel\
+    \ = player.communication_channels[number]\n            con.handle_command('transmit',\
+    \ channel.id)\n        except IndexError:\n            player.message(f'No channel\
+    \ at position {number + 1}.')\nelse:\n    if not modifiers:\n        items = [Item('Communication\
+    \ Channels', None)]\n        for c in player.possible_communication_channels():\n\
+    \            if player in c.listeners:\n                items.append(Item(c.get_name(player.is_staff),\
     \ 'transmit', args=[c.id]))\n        menu(con, Menu('Transmit Message', items,\
     \ escapable=True))\n    elif modifiers == ['shift']:\n        items = [Item('Social\
     \ Suffixes.', None)]\n        for string in (\n            'Format: %[index[formatter]][|[filter]]',\n\
@@ -1619,7 +1617,7 @@ Command:
     \ Item('New Card', __name__, args=[accessor_id, amount, None])\n    ]\n    for\
     \ card in player.get_credit_cards():\n        items.append(Item(card.get_name(player.is_staff),\
     \ __name__, args=[accessor_id, amount, card.id]))\n    menu(con, Menu('Withdraw\
-    \ Money', items, escapable=True))\nelif currency_id is None and card_id is False:\n\
+    \ Money', items, escapable=True))\nelif currency_id is None and card_id is None:\n\
     \    items = [LabelItem('Currencies')]\n    for currency in Currency.query().order_by(Currency.name,\
     \ Currency.id):\n        items.append(Item(currency.get_name(player.is_staff),\
     \ __name__, args=[accessor_id, amount, currency.id]))\n    menu(con, Menu('Select\
@@ -1630,9 +1628,9 @@ Command:
     \        end()\n    if card_id is None:\n        currency = Currency.get(currency_id)\n\
     \    else:\n        card = player.get_credit_cards(id=card_id).first()\n     \
     \   valid_object(player, card)\n        check_location(player, card)\n       \
-    \ currency = card.credit_card.currency\n    valid_object(player, currency)\n \
-    \   account = accessor.account\n    obj = check_bank(player, account.bank)\n \
-    \   try:\n        card = atm.withdraw(player, account, currency, amount, card_id=card_id)\n\
+    \ currency = card.credit_card.currency\n    player.message('Working.')\n    valid_object(player,\
+    \ currency)\n    account = accessor.account\n    obj = check_bank(player, account.bank)\n\
+    \    try:\n        card = atm.withdraw(player, account, currency, amount, card_id=card_id)\n\
     \        card.anchored = False\n        assert card.card is not None, f'{card.get_name(True)}\
     \ issued by {obj.get_name(True)} to {player.get_name(True)} is not a credit card.'\n\
     \        card.card.object = card\n        s.add_all([card, card.card])\n     \
@@ -1648,6 +1646,30 @@ Command:
     \ __name__, [accessor_id], {}, obj.atm.deposit_description, bank.currency_id,\
     \ amount)\nelse:\n    player.do_social(atm.deposit_msg, _others=[obj])\n    con.handle_command('bank_account_menu',\
     \ atm_id, accessor_id)\n", id: 173, name: deposit_cash}
+- {code: "def parse_args(name, response=None):\n    return (name, response)\n\nname,\
+    \ response = parse_args(*a)\n\nname = name.title().strip()\nif not name:\n   \
+    \ player.message('You must choose a name.')\nelif not server.valid_name(name):\n\
+    \    player.message(server_options().invalid_name_msg)\nelif response is None:\n\
+    \    items = [\n        LabelItem('Are you sure?'),\n        CopyItem(f'You will\
+    \ henceforth be known as {name}.'),\n        Item('Yes, set my name', __name__,\
+    \ args=[name, True]),\n        Item('No, stop!', __name__, args=[name, False])\n\
+    \    ]\n    menu(con, Menu('Change Character Name', items, escapable=True))\n\
+    elif not response:\n    player.message('Name unchanged.')\nelse:\n    player.name\
+    \ = name\n    player.do_social('%1N change%1s %1his name to {name}.', name=name)\n",
+  id: 174, name: set_character_name}
+- {code: "def parse_args(style_id=None, style_text=None):\n    return (style_id, style_text)\n\
+    \nstyle_id, style_text = parse_args(*a)\n\nif style_id is None:\n    items = [LabelItem('Text\
+    \ Styles')]\n    for style in TextStyle.query(player_id=player.player_id).order_by(TextStyle.name):\n\
+    \        items.append(Item(f'{\"Default\" if style.name is None else style.get_name(player.is_staff)}:\
+    \ {style.example_text}', __name__, args=[style.id]))\n    items.append(Item('CSS\
+    \ Cheatsheet', 'show_url', args=['CSS Cheatsheet', 'https://adam-marsden.co.uk/css-cheat-sheet']))\n\
+    \    menu(con, Menu('Edit Text Style', items, escapable=True))\nelse:\n    style\
+    \ = TextStyle.query(player_id=player.player_id, id=style_id).first()\n    valid_object(player,\
+    \ style)\n    if style_text is None:\n        player.message(f'Example text: {style.example_text}',\
+    \ channel=style.name)\n        get_text(con, 'Enter the new CSS', __name__, args=[style.id],\
+    \ value=style.style)\n    else:\n        style.style = style_text\n        s.add(style)\n\
+    \        s.commit()\n        player.message('New style set.', channel=style.name)\n",
+  id: 175, name: text_styles}
 Credit:
 - {description: For inspiring me to write this game., id: 1, name: Science Fiction
     Authors}
@@ -1703,11 +1725,12 @@ Hotkey:
     \    Item('BBC Sound FX', 'show_url', args=['BBC Sound FX', 'http://bbcsfx.acropolis.org.uk/']),\n\
     \    Item('BBC Sound FX License', 'show_url', args=['BBC RemArc License', 'https://github.com/bbcarchdev/Remarc/blob/master/doc/2016.09.27_RemArc_Content%20licence_Terms%20of%20Use_final.pdf']),\n\
     \    LabelItem('Options'),\n    Item('Options', 'configure_account'),\n    Item('Remap\
-    \ Keys', 'remapped_hotkeys')\n]\nfor x in dir(player.player):\n    if x.endswith('_notifications'):\n\
-    \        state = getattr(player.player, x)\n        items.append(Item(f'{\"disable\"\
-    \ if state else \"enable\"} {x.replace(\"_\", \" \").title()}', 'set_player_option',\
-    \ args=[x, -1 if state else 1]))\nm = Menu('Game', items, escapable=True)\nmenu(con,\
-    \ m)", ctrl: false, description: Access the game menu., id: 3, name: ESCAPE, shift: false}
+    \ Keys', 'remapped_hotkeys'),\n    Item('Text Styles', 'text_styles')\n]\nfor\
+    \ x in dir(player.player):\n    if x.endswith('_notifications'):\n        state\
+    \ = getattr(player.player, x)\n        items.append(Item(f'{\"disable\" if state\
+    \ else \"enable\"} {x.replace(\"_\", \" \").title()}', 'set_player_option', args=[x,\
+    \ -1 if state else 1]))\nm = Menu('Game', items, escapable=True)\nmenu(con, m)",
+  ctrl: false, description: Access the game menu., id: 3, name: ESCAPE, shift: false}
 - {alt: false, builder: true, code: "items = [\n    Item('Building Menu', None),\n\
     \    Item('Set floor Type', 'set_floor_type'),\n    Item('Bulk Set Floor Types',\
     \ 'set_floor_type_range'),\n    Item('Create Room', 'create_room'),\n    Item('Create\
@@ -2122,3 +2145,5 @@ Hotkey:
     ', ctrl: false, description: Cancel recording., id: 101, name: R, shift: true}
 - {alt: false, code: con.handle_command('say_to'), ctrl: false, description: Say something
     to somene else in the room, id: 102, name: '''', shift: true}
+- {alt: false, builder: true, code: con.handle_command('delete_object'), ctrl: false,
+  description: Delete an object from the room., id: 103, name: DELETE, shift: true}
