@@ -87,7 +87,7 @@ def test_can_change_name():
     o = Object()
     assert o.last_name_change is None
     assert o.can_change_name() is None
-    o.last_name_change=now - ServerOptions.get().name_change_interval
+    o.last_name_change = now - ServerOptions.get().name_change_interval
     assert o.can_change_name() is None
     i = timedelta(days=1)
     o.last_name_change += i
