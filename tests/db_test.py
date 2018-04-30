@@ -92,3 +92,11 @@ def test_can_change_name():
     i = timedelta(days=1)
     o.last_name_change += i
     assert o.can_change_name() <= i
+
+
+def test_set_name():
+    name = 'Changing now'
+    o = Object()
+    o.set_name(name)
+    assert o.last_name_change >= now
+    assert o.name == name

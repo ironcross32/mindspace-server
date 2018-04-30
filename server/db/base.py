@@ -3,6 +3,7 @@
 import logging
 import os
 import os.path
+from datetime import datetime
 from time import time
 from inspect import isclass
 from random import choice, uniform
@@ -19,7 +20,6 @@ from .engine import engine
 from .session import Session
 from ..protocol import identify, random_sound
 from ..sound import sounds_dir, get_sound
-from ..util import now
 from ..forms import Label, Field, text
 
 logger = logging.getLogger(__name__)
@@ -215,7 +215,7 @@ class NameMixin:
     def set_name(self, value):
         """Set self.name. No saving is performed."""
         self.name = value
-        self.last_name_change = now()
+        self.last_name_change = datetime.utcnow()
 
 
 class PermissionsMixin:
