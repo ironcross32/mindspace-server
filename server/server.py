@@ -47,6 +47,20 @@ class Server:
         self.started = None
         self.logged_players = set()
         self.connections = []
+        self.curses = []
+        with open('curses.txt', 'r') as f:
+            for curse in f.readlines():
+                self.curses.append(curse.strip().lower())
+
+    def valid_name(self, name):
+        """Ensure a name is free of curses."""
+        if '\r' in name or '\n' in name:
+            return False
+        for word in name.split(' '):
+            for curse in self.curses:
+                if word.startswith(curse):
+                    return False
+        return True
 
     def accept(self, offers):
         """Accept offers from the browser."""
