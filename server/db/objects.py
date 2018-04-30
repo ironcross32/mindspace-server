@@ -494,13 +494,14 @@ class Object(
         """Return a unique channel name for this object."""
         return f'{channel}-{self.id}'
 
-    def do_social(self, string, _others=None, *args, **kwargs):
+    def do_social(self, string, _channel=None, _others=None, *args, **kwargs):
         """Get social strings and send them out to players within visual range.
         This object will be the first object in the perspectives list, that
-        list will be extended by _others. The message channel will be set to
-        emote-id where id is the id of this object."""
+        list will be extended by _others. If _channel is None then
+        self.get_channel('emote') will be used."""
         perspectives = [self]
-        channel = self.get_channel('emote')
+        if _channel is None:
+            _channel = self.get_channel('emote')
         if _others is not None:
             perspectives.extend(_others)
         strings = factory.get_strings(string, perspectives, **kwargs)
@@ -511,7 +512,7 @@ class Object(
                 msg = strings[perspectives.index(obj)]
             else:
                 msg = strings[-1]
-            obj.message(msg, channel=channel)
+            obj.message(msg, channel=_channel)
 
     def match(self, string):
         """Match a string with an object from this room."""
