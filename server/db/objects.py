@@ -487,7 +487,7 @@ class Object(
     def say(self, text):
         """Have this object say something."""
         self.sound(self.say_sound)
-        channel = self.get_channel()
+        channel = self.get_channel('say')
         self.do_social(self.say_msg, text=text, _channel=channel)
 
     def get_channel(self, channel):
