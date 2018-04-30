@@ -5,7 +5,8 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship, backref
 from .base import (
-    Base, PermissionsMixin, PasswordMixin, LockedMixin, message, NameMixin
+    Base, PermissionsMixin, PasswordMixin, LockedMixin, message, NameMixin,
+    Text
 )
 from ..protocol import options
 
@@ -44,6 +45,7 @@ class TextStyle(Base, NameMixin):
 
     __tablename__ = 'text_styles'
     style = message('color: white; background-color: black')
+    example_text = Column(Text, nullable=True)
     player_id = Column(Integer, ForeignKey('players.id'), nullable=False)
     player = relationship(
         'Player', backref=backref('text_styles', cascade='all, delete-orphan')

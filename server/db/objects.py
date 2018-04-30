@@ -495,14 +495,17 @@ class Object(
         """Return a unique channel name for this object."""
         return f'{channel}-{self.id}'
 
-    def get_style(self, channel):
+    def get_style(self, channel, example=None):
         """Get an appropriate style for the provided channel."""
         if self.player is not None:
             style = TextStyle.query(
                 player_id=self.player_id, name=channel
             ).first()
             if style is None:
-                style = TextStyle(player_id=self.player_id, name=channel)
+                style = TextStyle(
+                    player_id=self.player_id, name=channel,
+                    example_text=example
+                )
                 Session.add(style)
                 Session.commit()
             return style.style
