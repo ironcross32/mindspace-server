@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from server.db import (
     Object, ServerOptions, CommunicationChannel, CommunicationChannelMessage,
-    session, Player, Shop, ShopItem
+    session, Player, Shop, ShopItem, TextStyle
 )
 
 now = datetime.utcnow()
@@ -109,3 +109,17 @@ def test_get_channel():
         s.add(o)
         s.commit()
         assert o.get_channel('test') == f'test-{o.id}'
+
+
+def test_get_style():
+    with session() as s:
+        o = Object(name='Test Player')
+        p = Player(username='test styles')
+        s.add(o)
+        s.commit()
+        o.player = p
+        s.commit()
+        assert not p.text_styles
+        s = o.get_style(None)
+        assert len(p.text_styles) == 1
+        assert s == TextStyle.style.default.arg

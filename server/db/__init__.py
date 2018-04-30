@@ -11,7 +11,7 @@ from .engine import engine
 from .session import Session, session
 from .base import Base, DataMixin
 from .rooms import Room, RoomRandomSound, RoomFloorType, RoomAirlock
-from .players import Player
+from .players import Player, TextStyle
 from .objects import Object, ObjectRandomSound, RestingStates
 from .actions import Action, ObjectAction
 from .entrances import Entrance
@@ -221,5 +221,5 @@ __all__ = (
     'PhoneContact', 'Phone', 'PhoneStates', 'BlockedPhoneAddress',
     'TextMessage', 'RemappedHotkey', 'CreditCard', 'CreditCardTransfer',
     'TransferDirections', 'CreditCardError', 'Bank', 'BankAccountAccessor',
-    'BankAccount', 'ATM', 'ATMError', 'BankAccessError'
+    'BankAccount', 'ATM', 'ATMError', 'BankAccessError', 'TextStyle'
 )

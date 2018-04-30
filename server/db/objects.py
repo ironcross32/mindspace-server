@@ -13,6 +13,7 @@ from .base import (
     DescriptionMixin, OwnerMixin, RandomSoundMixin, RandomSoundContainerMixin,
     StarshipMixin, HiddenMixin, CreatedMixin, DataMixin, message, Sound
 )
+from .players import TextStyle
 from .server_options import ServerOptions
 from .session import Session
 from .communication import CommunicationChannel
@@ -397,8 +398,8 @@ class Object(
         """Send a message to this object."""
         con = self.get_connection()
         if con is not None:
-            if style is None and self.player is not None:
-                style = self.player.default_style
+            if style is None:
+                style = self.get_style(channel)
             if channel is not None and self.player is not None and \
                self.player.channel_notifications:
                 self.message(f'Channel: {channel}')
@@ -493,6 +494,18 @@ class Object(
     def get_channel(self, channel):
         """Return a unique channel name for this object."""
         return f'{channel}-{self.id}'
+
+    def get_style(self, channel):
+        """Get an appropriate style for the provided channel."""
+        if self.player is not None:
+            style = TextStyle.query(
+                player_id=self.player_id, name=channel
+            ).first()
+            if style is None:
+                style = TextStyle(player_id=self.player_id, name=channel)
+                Session.add(style)
+                Session.commit()
+            return style.style
 
     def do_social(self, string, _channel=None, _others=None, *args, **kwargs):
         """Get social strings and send them out to players within visual range.

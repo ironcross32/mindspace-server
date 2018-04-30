@@ -3,8 +3,10 @@
 from sqlalchemy import (
     Column, String, Float, Boolean, Interval, DateTime, Integer, ForeignKey
 )
-from sqlalchemy.orm import relationship
-from .base import Base, PermissionsMixin, PasswordMixin, LockedMixin, message
+from sqlalchemy.orm import relationship, backref
+from .base import (
+    Base, PermissionsMixin, PasswordMixin, LockedMixin, message, NameMixin
+)
 from ..protocol import options
 
 
@@ -12,7 +14,6 @@ class Player(Base, PermissionsMixin, PasswordMixin, LockedMixin):
     """Player options."""
 
     __tablename__ = 'players'
-    default_style = message(None, nullable=True)
     help_mode = Column(Boolean, nullable=False, default=False)
     donator = Column(Boolean, nullable=False, default=False)
     connected_time = Column(Interval, nullable=True)
@@ -36,3 +37,14 @@ class Player(Base, PermissionsMixin, PasswordMixin, LockedMixin):
     def send_options(self, connection):
         """Send player options over connection."""
         return options(connection, self)
+
+
+class TextStyle(Base, NameMixin):
+    """A style for text."""
+
+    __tablename__ = 'text_styles'
+    style = message('color: white; background-color: black')
+    player_id = Column(Integer, ForeignKey('players.id'), nullable=False)
+    player = relationship(
+        'Player', backref=backref('text_styles', cascade='all, delete-orphan')
+    )
