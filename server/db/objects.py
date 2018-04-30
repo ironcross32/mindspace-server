@@ -399,7 +399,7 @@ class Object(
         con = self.get_connection()
         if con is not None:
             if style is None:
-                style = self.get_style(channel)
+                style = self.get_style(channel, text)
             if channel is not None and self.player is not None and \
                self.player.channel_notifications:
                 self.message(f'Channel: {channel}')
