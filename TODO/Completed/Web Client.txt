@@ -1,0 +1,5 @@
+A web client which can be used on any device with an internet connection.
+
+This client should support full sounds and all game features.
+
+The web client is now the only way to connect to Mindspace.

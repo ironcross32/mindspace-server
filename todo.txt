@@ -1,5 +1,18 @@
-Web client
-Starship autopilot
+Everything in this file is something which would be awesome to have in Mindspace eventually.
+
+Entries with a * next to them are considered completed.
+Entries with a ? next to them are still under development.
+
+-----
+
+* Web client
+? Starship autopilot
+? Spacial objects orbiting each other
 Food and drink
 Weapons
-SSL
+* SSL
+* Voice transmitions
+? Banking
+* Phones
+* Object actions - make it possible to bind multiple actions to an object with one command.
+* Random sounds which can be emitted by an object

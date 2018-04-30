@@ -1,0 +1,3 @@
+It should be possible to connect to Mindspace using SSL. This gives us access to the microphone and other perks.
+
+SSL is now the only way to connect to Mindspace. A HTTP redirect is setup to redirect clients.

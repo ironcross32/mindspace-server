@@ -16,7 +16,7 @@ def test_valid_name():
     valid_names = (
         'Chris Norman',
         'Gemma-Louise Goulston',
-        'Craig D\'andrea',
+        'Craig D\'Andrea',
         'Philip Bottomly-Smithe',
         'Freddy'
     )

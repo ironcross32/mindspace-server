@@ -7,6 +7,8 @@ from sqlalchemy.orm import relationship, backref
 from .base import Base, NameMixin, message
 from .session import Session
 
+name_re = '[A-Z][a-z]*(?:[-\'][A-Z])?[a-z]*'
+
 
 class ServerOptions(Base, NameMixin):
     """Server options."""
@@ -46,10 +48,7 @@ class ServerOptions(Base, NameMixin):
     command_error_msg = message(
         'There was an error with your command. The staff have been notified.'
     )
-    character_name_regexp = message(
-        '^[A-Z][a-z]*(?:[-][A-Z]|[\'][a-z])?[a-z]*(?: [A-Z][a-z]*(?:[-][A-Z]'
-        '|[\'][a-z])?[a-z]*)?$'
-    )
+    character_name_regexp = message('^%s(?: %s)?$' % (name_re, name_re))
     invalid_name_msg = message(
         'Invalid name. Check for proper capitalisation, that there are no '
         'spaces before or after it, and it is a name that you would be happy '
