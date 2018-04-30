@@ -528,11 +528,11 @@ class BoardMixin:
     board_msg = message('%1N board%1s %2n.')
     board_follow_msg = message('%1N follow%1s %2n onto %3n.')
     board_sound = Column(
-        Sound, nullable=True, default='ambiences/AirlockEnter.wav'
+        Sound, nullable=True, default='exits/AirlockEnter.wav'
     )
     board_other_msg = message('%1N arrive%1s.')
     board_other_sound = Column(
-        Sound, nullable=True, default='ambiences/AirlockEnter.wav'
+        Sound, nullable=True, default='exits/AirlockEnter.wav'
     )
 
 
@@ -540,11 +540,11 @@ class LeaveMixin:
     leave_msg = message('%1N disembark%1s from %2n.')
     leave_follow_msg = message('%1N follow%1s %2n.')
     leave_sound = Column(
-        Sound, nullable=True, default='ambiences/AirlockExit.wav'
+        Sound, nullable=True, default='exits/AirlockExit.wav'
     )
     leave_other_msg = message('%1N disembark%1s.')
     leave_other_sound = Column(
-        Sound, nullable=True, default='ambiences/AirlockExit.wav'
+        Sound, nullable=True, default='exits/AirlockExit.wav'
     )
 
 

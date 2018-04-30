@@ -44,7 +44,7 @@ class Entrance(
     other_lock_sound = Column(Sound, nullable=True)
     chime_msg = message('%1N ring%1s the chime on %2n.')
     chime_sound = Column(
-        Sound, nullable=False, default='ambiences/doorbell.wav'
+        Sound, nullable=False, default='exits/doorbell.wav'
     )
     has_chime = Column(Boolean, nullable=False, default=False)
 
