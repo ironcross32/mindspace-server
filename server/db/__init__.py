@@ -190,21 +190,26 @@ def load_db(filename=None):
     finalise_db()
 
 
+def objects_as_dicts():
+    """Return all objects in the database as dictionaries suitable for
+    dumping."""
+    objects = []
+    for cls in get_classes():
+        objects.extend(Session.query(cls))
+    return dumper_dump(objects, dump_object)
+
+
 def dump_db(filename=None, thread=False):
     """Dump the database to single files."""
     if filename is None:
         filename = db_file
     logger.info('Dumping the database to %s.', filename)
-    objects = []
-    for cls in get_classes():
-        objects.extend(Session.query(cls))
-    y = dumper_dump(objects, dump_object)
+    y = objects_as_dicts()
     args = (filename, y)
     if thread:
         reactor.callInThread(dump_objects, *args)
     else:
         dump_objects(*args)
-    return len(objects)
 
 
 def dump_objects(filename, d):

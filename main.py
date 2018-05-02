@@ -68,7 +68,7 @@ if __name__ == '__main__':
     if ServerOptions.get() is None:
         logging.critical('Invalid ID for server options: %d.', args.options_id)
     else:
-        logging.info(repr(ServerOptions.get()))
+        logging.info('Using server options: %s.', ServerOptions.get())
     build_context()
     try:
         server.start_listening(args.private_key, args.cert_key)
@@ -85,7 +85,7 @@ if __name__ == '__main__':
     logging.info('Initialisation completed in %.2f seconds.', time() - started)
     reactor.run()
     started = time()
-    n = dump_db()
+    dump_db()
     logging.info(
         'Objects dumped: %d (%.2f seconds).', Base.number_of_objects(),
         time() - started
