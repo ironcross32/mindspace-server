@@ -122,6 +122,7 @@ def finalise_db():
         options = ServerOptions.get()
         if Object.get(0) is None:
             s.add(Object(id=0, name='System', description='The System Object'))
+            s.commit()
         options.system_object_id = 0
         s.add(options)
         if not Zone.count():
@@ -131,6 +132,7 @@ def finalise_db():
             s.add(
                 Room(name='The First Room', zone_id=Zone.first().id)
             )
+            s.commit()
         options.first_room = Room.first()
         s.add(options)
         s.commit()
