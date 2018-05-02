@@ -77,7 +77,9 @@ if __name__ == '__main__':
         logging.critical('Listening failed.')
         logging.exception(e)
         raise SystemExit
-    logging.getLogger().addHandler(LogHandler())
+    handler = LogHandler()
+    logger = logging.getLogger()
+    logger.addHandler(handler)
     with session() as s:
         for t in Task.query():
             t.next_run = time() + t.interval
@@ -85,6 +87,8 @@ if __name__ == '__main__':
     logging.info('Initialisation completed in %.2f seconds.', time() - started)
     reactor.run()
     started = time()
+    # Reactor has finished, let's stop writing to the database.
+    logger.removeHandler(handler)
     dump_db()
     logging.info(
         'Objects dumped: %d (%.2f seconds).', Base.number_of_objects(),
