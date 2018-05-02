@@ -117,8 +117,13 @@ def dump_object(obj):
 def finalise_db():
     """Create skeleton objects."""
     with session() as s:
+        if not ServerOptions.count():
+            s.add(ServerOptions(name='Default'))
+        options = ServerOptions.get()
         if Object.get(0) is None:
             s.add(Object(id=0, name='System', description='The System Object'))
+        options.system_object_id = 0
+        s.add(options)
         if not Zone.count():
             s.add(Zone(name='The First Zone'))
             s.commit()
@@ -126,6 +131,8 @@ def finalise_db():
             s.add(
                 Room(name='The First Room', zone_id=Zone.first().id)
             )
+        options.first_room = Room.first()
+        s.add(options)
         s.commit()
         if not Direction.count():
             # Create default directions:
@@ -150,8 +157,6 @@ def finalise_db():
                 ).first()
                 s.add(d)
                 s.commit()
-        if not ServerOptions.count():
-            s.add(ServerOptions(name='Default', first_room=Room.first()))
         Player.query(connected=True).update({Player.connected: False})
         if not Gender.count():
             s.add(Gender(name='Neutral'))

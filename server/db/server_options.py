@@ -25,7 +25,7 @@ class ServerOptions(Base, NameMixin):
     name_change_interval = Column(
         Interval, nullable=False, default=timedelta(days=30)
     )
-    first_room_id = Column(Integer, ForeignKey('rooms.id'), nullable=False)
+    first_room_id = Column(Integer, ForeignKey('rooms.id'), nullable=True)
     first_room = relationship(
         'Room',
         backref=backref('first_room_options', cascade='all, delete-orphan')
@@ -38,9 +38,7 @@ class ServerOptions(Base, NameMixin):
     )
     max_speak_length = Column(Integer, nullable=False, default=1000000)
     max_phone_address_length = Column(Integer, nullable=False, default=8)
-    system_object_id = Column(
-        Integer, ForeignKey('objects.id'), nullable=False, default=0
-    )
+    system_object_id = Column(Integer, ForeignKey('objects.id'), nullable=True)
     system_object = relationship(
         'Object',
         backref=backref('system_object_options', cascade='all, delete-orphan')
