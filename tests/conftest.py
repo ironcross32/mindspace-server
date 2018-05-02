@@ -1,7 +1,11 @@
+from server import db_engine
+
+db_engine.engine_args = ('sqlite:///:memory:',)
+
 from server.db import (
     Base, Currency, Object, CreditCard, session, Room, finalise_db
-)
-from server.server import server
+)  # noqa E402
+from server.server import server  # noqa E402
 assert server is not None  # Stop pytest from moaning.
 
 

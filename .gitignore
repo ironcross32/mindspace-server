@@ -102,3 +102,4 @@ ENV/
 world*
 *.pem
 .pytest_cache
+*.sqlite3
