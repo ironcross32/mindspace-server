@@ -18,3 +18,4 @@ emote-utils
 random-password
 pyopenssl
 db-dumper
+alembic
