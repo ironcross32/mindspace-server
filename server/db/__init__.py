@@ -152,7 +152,7 @@ def finalise_db():
                 s.commit()
         if not ServerOptions.count():
             s.add(ServerOptions(name='Default', first_room=Room.first()))
-        Object.query(connected=True).update({Object.connected: False})
+        Player.query(connected=True).update({Player.connected: False})
         if not Gender.count():
             s.add(Gender(name='Neutral'))
             s.add(

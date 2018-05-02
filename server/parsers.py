@@ -127,7 +127,7 @@ def login(con, username, password):
         character_id(con, obj.id)
         obj.identify_location()
         obj.player.send_options(con)
-        obj.connected = True
+        obj.player.connected = True
         s.add_all([obj, obj.player])
         if MailMessage.query(to_id=obj.id, read=False).count():
             obj.message('You have unread mail.')

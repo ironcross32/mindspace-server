@@ -88,7 +88,6 @@ class Object(
     )
     recent_direction = relationship('Direction', backref='recently_traveled')
     log = Column(Boolean, nullable=False, default=False)
-    connected = Column(Boolean, nullable=False, default=False)
     anchored = Column(Boolean, nullable=False, default=True)
     steps = Column(Integer, nullable=False, default=0)
     holder_id = Column(Integer, ForeignKey('objects.id'), nullable=True)

@@ -142,7 +142,7 @@ class ProtocolBase:
         if getattr(self, 'player_id', None) is not None:
             with session() as s:
                 player = self.get_player(s)
-                player.connected = False
+                player.player.connected = False
                 for account in Player.query(disconnect_notifications=True):
                     obj = account.object
                     if obj is None:
