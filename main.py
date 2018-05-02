@@ -5,12 +5,17 @@ from time import time
 from argparse import ArgumentParser, FileType, ArgumentDefaultsHelpFormatter
 from twisted.internet import reactor, error
 from server.server import server
-from server.db import ServerOptions, Task, session, Base
+from server.db import ServerOptions, Task, session, Base, load_db, finalise_db
 from server.program import build_context
 from server.log_handler import LogHandler
 from server.tasks import tasks_task, tasks_errback
 
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
+
+parser.add_argument(
+    '-i', '--import-yaml', default=None,
+    help='Import a previously-dumped database'
+)
 
 parser.add_argument(
     '-o', '--options-id', type=int, default=1,
@@ -63,6 +68,12 @@ if __name__ == '__main__':
     started = time()
     logging.info('Creating database tables...')
     Base.metadata.create_all()
+    if args.import_yaml:
+        if Base.number_of_objects():
+            logging.critical('Refusing to import while there are objects present in the database.')
+        else:
+            load_db(args.import_yaml)
+    finalise_db()
     log_number_of_objects()
     if args.test_db:
         logging.info('Database loaded successfully.')
