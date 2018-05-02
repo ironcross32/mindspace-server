@@ -5,7 +5,7 @@ from time import time
 from argparse import ArgumentParser, FileType, ArgumentDefaultsHelpFormatter
 from twisted.internet import reactor, error
 from server.server import server
-from server.db import load_db, dump_db, ServerOptions, Task, session, Base
+from server.db import ServerOptions, Task, session, Base
 from server.program import build_context
 from server.log_handler import LogHandler
 from server.tasks import tasks_task, tasks_errback
@@ -48,6 +48,11 @@ parser.add_argument(
 )
 
 
+def log_number_of_objects():
+    """Log the number of objects in the base."""
+    logging.info('Objects in database: %d.', Base.number_of_objects())
+
+
 if __name__ == '__main__':
     started = time()
     args = parser.parse_args()
@@ -56,11 +61,9 @@ if __name__ == '__main__':
         stream=args.log_file
     )
     started = time()
-    load_db()
-    logging.info(
-        'Objects loaded: %d (%.2f seconds).', Base.number_of_objects(),
-        time() - started
-    )
+    logging.info('Creating database tables...')
+    Base.metadata.create_all()
+    log_number_of_objects()
     if args.test_db:
         logging.info('Database loaded successfully.')
         raise SystemExit
@@ -86,11 +89,5 @@ if __name__ == '__main__':
             s.add(t)
     logging.info('Initialisation completed in %.2f seconds.', time() - started)
     reactor.run()
-    started = time()
-    # Reactor has finished, let's stop writing to the database.
-    logger.removeHandler(handler)
-    dump_db()
-    logging.info(
-        'Objects dumped: %d (%.2f seconds).', Base.number_of_objects(),
-        time() - started
-    )
+    logging.info('Server quitting.')
+    log_number_of_objects()

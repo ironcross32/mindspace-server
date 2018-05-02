@@ -174,20 +174,22 @@ def finalise_db():
 def load_db(filename=None):
     """Load the database from a single flat file. If filename is None use
     db_file."""
-    logger.info('Creating database tables...')
-    Base.metadata.create_all()
     if filename is None:
         filename = db_file
     if os.path.isfile(filename):
         logger.info('Loading the database from %s.', filename)
         with open(filename, 'r') as f:
-            y = load(f)
-        with session() as s:
-            objects = dumper_load(y, get_classes())
-            s.add_all(objects)
+            data = load(f)
+        load_objects(data)
     else:
         logger.info('Starting with blank database.')
     finalise_db()
+
+
+def load_objects(data):
+    with session() as s:
+        objects = dumper_load(data, get_classes())
+        s.add_all(objects)
 
 
 def objects_as_dicts():

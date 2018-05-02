@@ -7,6 +7,7 @@ from server.db import (
 )  # noqa E402
 from server.server import server  # noqa E402
 assert server is not None  # Stop pytest from moaning.
+Base.metadata.create_all()
 
 
 class Message(Exception):
