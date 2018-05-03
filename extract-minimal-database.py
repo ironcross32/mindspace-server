@@ -40,9 +40,10 @@ def main():
             q.delete()
             s.commit()
     started = time()
-    dumped = dump_db(args.outfile)
+    dump_db(args.outfile)
     logging.info(
-        'Objects dumped: %d (%.2f seconds).', dumped, time() - started
+        'Objects dumped: %d (%.2f seconds).', Base.number_of_objects(),
+        time() - started
     )
 
 
