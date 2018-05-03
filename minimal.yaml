@@ -9,7 +9,7 @@ Command:
     \         description = ''\n        items.append(Item(f'{thing}{description}',\
     \ __name__, args=[type, thing.id]))\n    m = Menu(f'Choose {cls.__name__.lower()}',\
     \ items, escapable=True)\n    menu(con, m)\n    end()\nobj = cls.get(id)\nvalid_object(player,\
-    \ obj)\nif not hasattr(obj, 'owner') or obj.owner is not player:\n    check_admin(player)\n\
+    \ obj)\nif getattr(obj, 'owner', None) is not player:\n    check_staff(player)\n\
     try:\n    if data:\n        for name, value in data.items():\n            if '.'\
     \ in name:\n                where, name = name.split('.')\n                where\
     \ = getattr(obj, where)\n            else:\n                where = obj\n    \
@@ -22,22 +22,22 @@ Command:
     \ obj.get_name(True) if hasattr(obj, 'get_name') else repr(obj))\n    logger.exception(e)\n\
     form(con, ObjectForm(obj, __name__, args=[type, obj.id], cancel='Cancel'))", id: 3,
   name: edit_}
-- {admin: true, code: "def parse_args(t, id=None, res=None):\n    return (t, id, res)\n\
-    \ntype, id, response = parse_args(*a)\nif type == 'Credit_Card':  # From interact_object.\n\
-    \    type = 'CreditCard'\ncls = Base._decl_class_registry[type]\nif id is None:\n\
-    \    items = [LabelItem(f'Select {cls.__name__.lower()}')]\n    for obj in cls.query().order_by(cls.name\
-    \ if hasattr(cls, 'name') else cls.id):\n        items.append(Item(getattr(obj,\
-    \ 'text', str(obj)), __name__, args=[type, obj.id]))\n    m = Menu(f'Delete {cls.__name__}',\
-    \ items, escapable=True)\n    menu(con, m)\n    end()\nobj = cls.get(id)\nvalid_object(player,\
-    \ obj)\nif response is None:\n    items = [\n        LabelItem(f'Are you sure\
-    \ you want to delete {obj}?'),\n        Item('Yes', __name__, args=[type, obj.id,\
-    \ True]),\n        Item('No', __name__, args=[type, obj.id, False])\n    ]\n \
-    \   m = Menu(f'Delete {type}', items, escapable=True)\n    menu(con, m)\nelif\
-    \ response:\n    if isinstance(obj, Object):\n        if obj.is_player:\n    \
-    \        player.message('You cannot delete players.')\n            end()\n   \
-    \     elif obj.is_exit:\n            s.delete(obj.exit)\n    s.delete(obj)\n \
-    \   player.message('Deleted.')\nelse:\n    player.message('Not deleting.')\n",
-  id: 4, name: delete_}
+- {code: "def parse_args(t, id=None, res=None):\n    return (t, id, res)\n\ntype,\
+    \ id, response = parse_args(*a)\nif type == 'Credit_Card':  # From interact_object.\n\
+    \    type = 'CreditCard'\ncls = Base._decl_class_registry[type]\ncheck_staff(player)\n\
+    if id is None:\n    items = [LabelItem(f'Select {cls.__name__.lower()}')]\n  \
+    \  for obj in cls.query().order_by(cls.name if hasattr(cls, 'name') else cls.id):\n\
+    \        items.append(Item(getattr(obj, 'text', str(obj)), __name__, args=[type,\
+    \ obj.id]))\n    m = Menu(f'Delete {cls.__name__}', items, escapable=True)\n \
+    \   menu(con, m)\n    end()\nobj = cls.get(id)\nvalid_object(player, obj)\nif\
+    \ response is None:\n    items = [\n        LabelItem(f'Are you sure you want\
+    \ to delete {obj}?'),\n        Item('Yes', __name__, args=[type, obj.id, True]),\n\
+    \        Item('No', __name__, args=[type, obj.id, False])\n    ]\n    m = Menu(f'Delete\
+    \ {type}', items, escapable=True)\n    menu(con, m)\nelif response:\n    if isinstance(obj,\
+    \ Object):\n        if obj.is_player:\n            player.message('You cannot\
+    \ delete players.')\n            end()\n        elif obj.is_exit:\n          \
+    \  s.delete(obj.exit)\n    s.delete(obj)\n    player.message('Deleted.')\nelse:\n\
+    \    player.message('Not deleting.')\n", id: 4, name: delete_}
 - {admin: true, code: "if not a:\n    get_text(con, 'Enter the reason for the shutdown',\
     \ __name__, value='Server restarting.')\nelse:\n    reason = a[0]\n    sound =\
     \ get_sound(os.path.join('notifications', 'shutdown.wav'))\n    for connection\
@@ -1620,32 +1620,33 @@ Command:
     \ Money', items, escapable=True))\nelif currency_id is None and card_id is None:\n\
     \    items = [LabelItem('Currencies')]\n    for currency in Currency.query().order_by(Currency.name,\
     \ Currency.id):\n        items.append(Item(currency.get_name(player.is_staff),\
-    \ __name__, args=[accessor_id, amount, currency.id]))\n    menu(con, Menu('Select\
-    \ Currency', items, escapable=True))\nelse:\n    try:\n        amount = float(amount)\n\
-    \    except ValueError:\n        player.message('Invalid amount.')\n        end()\n\
-    \    accessor = BankAccountAccessor.get(accessor_id)\n    try:\n        accessor.authenticate(player,\
-    \ can_withdraw=True)\n    except BankAccessError as e:\n        player.message(*e.args)\n\
-    \        end()\n    if card_id is None:\n        currency = Currency.get(currency_id)\n\
-    \    else:\n        card = player.get_credit_cards(id=card_id).first()\n     \
-    \   valid_object(player, card)\n        check_location(player, card)\n       \
-    \ currency = card.credit_card.currency\n    player.message('Working.')\n    valid_object(player,\
-    \ currency)\n    account = accessor.account\n    obj = check_bank(player, account.bank)\n\
-    \    try:\n        card = atm.withdraw(player, account, currency, amount, card_id=card_id)\n\
-    \        card.anchored = False\n        assert card.card is not None, f'{card.get_name(True)}\
-    \ issued by {obj.get_name(True)} to {player.get_name(True)} is not a credit card.'\n\
-    \        card.card.object = card\n        s.add_all([card, card.card])\n     \
-    \   s.commit()\n    except ATMError as e:\n        player.message(*e.args)\n \
-    \   finally:\n        con.handle_command('bank_account_menu', accessor.id)\n",
+    \ __name__, args=[accessor_id, amount, card_id, currency.id]))\n    menu(con,\
+    \ Menu('Select Currency', items, escapable=True))\nelse:\n    try:\n        amount\
+    \ = float(amount)\n    except ValueError:\n        player.message('Invalid amount.')\n\
+    \        end()\n    accessor = BankAccountAccessor.get(accessor_id)\n    try:\n\
+    \        accessor.authenticate(player, can_withdraw=True)\n    except BankAccessError\
+    \ as e:\n        player.message(*e.args)\n        end()\n    if card_id is None:\n\
+    \        currency = Currency.get(currency_id)\n    else:\n        card = player.get_credit_cards(id=card_id).first()\n\
+    \        valid_object(player, card)\n        check_location(player, card)\n  \
+    \      currency = card.credit_card.currency\n    valid_object(player, currency)\n\
+    \    account = accessor.account\n    obj = check_bank(player, account.bank)\n\
+    \    try:\n        card = obj.atm.withdraw(player, account, currency, amount,\
+    \ card_id=card_id)\n        card.anchored = False\n        assert card.card is\
+    \ not None, f'{card.get_name(True)} issued by {obj.get_name(True)} to {player.get_name(True)}\
+    \ is not a credit card.'\n        card.card.object = card\n        s.add_all([card,\
+    \ card.card])\n        s.commit()\n    except ATMError as e:\n        player.message(*e.args)\n\
+    \    finally:\n        con.handle_command('bank_account_menu', accessor.id)\n",
   id: 172, name: withdraw_cash}
 - {code: "def parse_args(accessor_id, amount=None, card_id=None):\n    return (accessor_id,\
     \ amount, card_id)\n\naccessor_id, amount, card_id = parse_args(*a)\n\naccessor\
     \ = BankAccountAccessor.get(accessor_id)\nvalid_object(player, accessor)\ntry:\n\
     \    accessor.authenticate(player, can_deposit=True)\nexcept BankAccessError as\
     \ e:\n    player.message(*e.args)\n    end()\nbank = accessor.account.bank\nobj\
-    \ = check_bank(player, bank)\n\nif amount is None or card_id is None:\n    con.handle_command('credit_card_transfer',\
-    \ __name__, [accessor_id], {}, obj.atm.deposit_description, bank.currency_id,\
-    \ amount)\nelse:\n    player.do_social(atm.deposit_msg, _others=[obj])\n    con.handle_command('bank_account_menu',\
-    \ atm_id, accessor_id)\n", id: 173, name: deposit_cash}
+    \ = check_bank(player, bank)\natm = obj.atm\n\nif amount is None or card_id is\
+    \ None:\n    con.handle_command('credit_card_transfer', __name__, [accessor_id],\
+    \ {}, atm.deposit_description, bank.currency_id, amount)\nelse:\n    player.do_social(atm.deposit_msg,\
+    \ _others=[obj])\n    accessor.account.balance += amount\n    con.handle_command('bank_account_menu',\
+    \ accessor_id)\n", id: 173, name: deposit_cash}
 - {code: "def parse_args(name, response=None):\n    return (name, response)\n\nname,\
     \ response = parse_args(*a)\n\nname = name.title().strip()\nif not name:\n   \
     \ player.message('You must choose a name.')\nelif not server.valid_name(name):\n\
@@ -1670,6 +1671,10 @@ Command:
     \ value=style.style)\n    else:\n        style.style = style_text\n        s.add(style)\n\
     \        s.commit()\n        player.message('New style set.', channel=style.name)\n",
   id: 175, name: text_styles}
+- {admin: true, code: "player.message('Cleaning the database...')\ngone = 0\nfor cls\
+    \ in (CommunicationChannelMessage, Revision, LoggedCommand):\n    deleted = cls.query().delete()\n\
+    \    gone += deleted\n    player.message(f'{cls.__name__}: {deleted}')\nplayer.message(f'Objects\
+    \ deleted: {gone}.')\n", id: 176, name: clean_db}
 Credit:
 - {description: For inspiring me to write this game., id: 1, name: Science Fiction
     Authors}
@@ -1710,9 +1715,10 @@ Hotkey:
     \ Player', 'join_object'),\n        Item('Make an Announcement', 'announce'),\n\
     \        Item('Manage Connections', 'manage_connections'),\n        Item('Watch\
     \ Player', 'watch_player'),\n        Item('Shutdown', 'shutdown'),\n        LabelItem('Programming'),\n\
-    \        Item('Reset Sounds', 'reset_sounds')\n    ]\n)\nfor name in ('Action',\
-    \ 'Hotkey'):\n    for action in ('bind', 'unbind'):\n        items.append(Item(f'{action.title()}\
-    \ {name}', action, args=[name]))\nmenu(con, Menu('Administration', items, escapable=True))\n",
+    \        Item('Reset Sounds', 'reset_sounds'),\n        Item('Clean Database',\
+    \ 'clean_db')\n    ]\n)\nfor name in ('Action', 'Hotkey'):\n    for action in\
+    \ ('bind', 'unbind'):\n        items.append(Item(f'{action.title()} {name}', action,\
+    \ args=[name]))\nmenu(con, Menu('Administration', items, escapable=True))\n",
   ctrl: false, description: Administration menu., id: 2, name: DELETE, shift: false}
 - {alt: false, code: "items = [\n    LabelItem('Game Options'),\n    Item('Disconnect',\
     \ 'quit'),\n    CopyItem('No connection metrics available' if player.player.connected_time\
