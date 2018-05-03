@@ -64,6 +64,11 @@ class _Base:
     id = Column(Integer, primary_key=True)
 
     @classmethod
+    def get_foreign_keys(cls):
+        """Get all foreignkeys of this class."""
+        return [x for x in inspect(cls).c.values() if x.foreign_keys]
+
+    @classmethod
     def get_class(cls, table):
         """Return the class which reflects this table."""
         for thing in cls._decl_class_registry.values():

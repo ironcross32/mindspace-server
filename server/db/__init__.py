@@ -95,6 +95,12 @@ def get_classes():
     return classes
 
 
+def get_sorted_classes():
+    """Get a list of classes sorted by the number of foreign key columns in
+    their tables."""
+    return sorted(get_classes(), key=lambda cls: len(cls.get_foreign_keys()))
+
+
 def dump_object(obj):
     """Return object obj as a dictionary."""
     cls = obj.__class__
@@ -171,6 +177,17 @@ def finalise_db():
             )
 
 
+def save_object(obj):
+    """Save an object to the database."""
+    Session.add(obj)
+    Session.commit()
+
+
+def save_objects(objects):
+    Session.add_all(objects)
+    Session.commit()
+
+
 def load_db(filename=None):
     """Load the database from a single flat file. If filename is None use
     db_file."""
@@ -182,9 +199,7 @@ def load_db(filename=None):
         logger.info('Loading the database from %s.', filename)
         with open(filename, 'r') as f:
             y = load(f)
-        with session() as s:
-            objects = dumper_load(y, get_classes())
-            s.add_all(objects)
+        dumper_load(y, get_sorted_classes(), class_save=save_objects)
     else:
         logger.info('Starting with blank database.')
     finalise_db()
@@ -236,5 +251,6 @@ __all__ = (
     'PhoneContact', 'Phone', 'PhoneStates', 'BlockedPhoneAddress',
     'TextMessage', 'RemappedHotkey', 'CreditCard', 'CreditCardTransfer',
     'TransferDirections', 'CreditCardError', 'Bank', 'BankAccountAccessor',
-    'BankAccount', 'ATM', 'ATMError', 'BankAccessError', 'TextStyle'
+    'BankAccount', 'ATM', 'ATMError', 'BankAccessError', 'TextStyle',
+    'get_sorted_classes'
 )
