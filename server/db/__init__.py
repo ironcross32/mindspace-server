@@ -11,7 +11,7 @@ from db_dumper import load as dumper_load, dump as dumper_dump
 from .engine import engine
 from .session import Session, session
 from .base import Base, DataMixin
-from .rooms import Room, RoomRandomSound, RoomFloorType, RoomAirlock
+from .rooms import Room, RoomRandomSound, RoomFloorTile, RoomAirlock
 from .players import Player, TextStyle
 from .objects import Object, ObjectRandomSound, RestingStates
 from .actions import Action, ObjectAction
@@ -243,7 +243,7 @@ __all__ = (
     'HelpTopic', 'HelpKeyword', 'ServerOptions', 'Mobile', 'Social',
     'ObjectRandomSound', 'output_directory', 'Window', 'IdeaVote', 'Idea',
     'IdeaComment', 'ChangelogEntry', 'MailMessage', 'LoggedCommand', 'Credit',
-    'StarshipEngine', 'RoomFloorType', 'ObjectTypeActionSecondary',
+    'StarshipEngine', 'RoomFloorTile', 'ObjectTypeActionSecondary',
     'ObjectTypeHotkeySecondary', 'ObjectTypeSecondary', 'ObjectType', 'Orbit',
     'Starship', 'StarshipSensors', 'Star', 'Task', 'TransitStop',
     'TransitRoute', 'get_classes', 'finalise_db', 'RoomAirlock', 'Gender',

@@ -26,12 +26,44 @@ class RoomRandomSound(RandomSoundMixin, Base):
     room = relationship('Room', backref='random_sounds')
 
 
-class RoomFloorType(Base, CoordinatesMixin, NameMixin):
+class RoomFloorTile(Base, NameMixin):
     """An altered floor type for a room."""
 
-    __tablename__ = 'room_floor_types'
+    __tablename__ = 'room_floor_tiles'
     room_id = Column(Integer, ForeignKey('rooms.id'), nullable=False)
     room = relationship('Room', backref='floor_types')
+    start_x = Column(Float, nullable=False)
+    start_y = Column(Float, nullable=False)
+    start_z = Column(Float, nullable=False)
+    end_x = Column(Float, nullable=False)
+    end_y = Column(Float, nullable=False)
+    end_z = Column(Float, nullable=False)
+
+    @property
+    def start_coordinates(self):
+        """Return start coordinates."""
+        return (self.start_x, self.start_y, self.start_z)
+
+    @start_coordinates.setter
+    def start_coordinates(self, value):
+        self.start_x, self.start_y, self.start_z = value
+
+    @property
+    def end_coordinates(self):
+        """Return end coordinates."""
+        return (self.end_x, self.end_y, self.end_z)
+
+    @end_coordinates.setter
+    def end_coordinates(self, value):
+        self.end_x, self.end_y, self.end_z = value
+
+    def covers(self, x, y, z):
+        """Returns True if this tile covers the given coordinates, and False
+        otherwise."""
+        if self.start_x <= x and self.end_x >= x and self.end_z >= z:
+            # Passed the x check, now let's check y.
+            return self.start_y <= y and self.end_y >= y and self.end_z >= z
+        return False
 
 
 class RoomAirlock(Base, CoordinatesMixin, BoardMixin, LeaveMixin):
@@ -63,6 +95,15 @@ class Room(
     floor_type = Column(
         Sound, nullable=True, default=os.path.join(floor_types_dir, 'grass')
     )
+
+    def tile_at(self, x, y, z):
+        """Return the tile that spans the given coordinates."""
+        return RoomFloorTile.query(
+            RoomFloorTile.start_x <= x, RoomFloorTile.start_y <= y,
+            RoomFloorTile.start_z <= z, RoomFloorTile.end_x >= x,
+            RoomFloorTile.end_y >= y, RoomFloorTile.end_z >= z,
+            RoomFloorTile.room_id == self.id
+        ).first()
 
     def convolver_choices(self):
         res = [None]
@@ -147,9 +188,7 @@ class Room(
         name = None
         if coordinates is not None:
             x, y, z = coordinates
-            covering = RoomFloorType.query(
-                room_id=self.id, x=x, y=y, z=z
-            ).first()
+            covering = self.tile_at(x, y, z)
             if covering is not None:
                 name = covering.name
         else:
