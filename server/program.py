@@ -312,7 +312,7 @@ def build_context():
         for name in dir(module):
             member = getattr(module, name)
             if callable(member) or isinstance(
-                member, (list, dict, sound.Sound)
+                member, (list, dict, sound.Sound, str)
             ):
                 ctx[name] = member
     ctx.update(
