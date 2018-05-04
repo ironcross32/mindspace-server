@@ -1,11 +1,11 @@
 """Provides routines for running programs."""
 
 import os
+import re
 import sys
 from traceback import format_exception
 import datetime
 import logging
-import re
 import random
 from time import time, ctime, strftime
 from platform import platform, architecture, python_implementation
@@ -27,9 +27,22 @@ from .mail import Message
 
 logger = logging.getLogger(__name__)
 
+coordinates_re = re.compile(
+    r'^[[(]?(\d+[.]?\d*)[, ]+(\d+[.]?\d*)[, ]+(\d+[.]?\d*)[])]?$'
+)
+
 
 class PermissionError(Exception):
     """Someone did something naughty."""
+
+
+def get_coordinates(player, string):
+    m = coordinates_re.match(string)
+    if m is None:
+        player.message(f'Invalid coordinates: {string}.')
+        end()
+    x, y, z = m.groups()
+    return (float(x), float(y), float(z))
 
 
 def check_in_space(player, starship=None):
@@ -246,6 +259,7 @@ ctx = dict(
     check_builder=check_builder,
     check_staff=check_staff,
     check_bank=check_bank,
+    get_coordinates=get_coordinates,
     exc=exc,
     PythonShell=PythonShell,
     redirect_stdout=redirect_stdout,
