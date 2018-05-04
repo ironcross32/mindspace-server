@@ -103,7 +103,7 @@ class Room(
             RoomFloorTile.start_z <= z, RoomFloorTile.end_x >= x,
             RoomFloorTile.end_y >= y, RoomFloorTile.end_z >= z,
             RoomFloorTile.room_id == self.id
-        ).first()
+        ).order_by(RoomFloorTile.id.desc()).first()
 
     def convolver_choices(self):
         res = [None]
