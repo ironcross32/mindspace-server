@@ -31,7 +31,7 @@ class RoomFloorTile(Base, NameMixin):
 
     __tablename__ = 'room_floor_tiles'
     room_id = Column(Integer, ForeignKey('rooms.id'), nullable=False)
-    room = relationship('Room', backref='floor_types')
+    room = relationship('Room', backref='tiles')
     start_x = Column(Float, nullable=False)
     start_y = Column(Float, nullable=False)
     start_z = Column(Float, nullable=False)
