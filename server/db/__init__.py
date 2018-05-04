@@ -11,7 +11,9 @@ from db_dumper import load as dumper_load, dump as dumper_dump
 from .engine import engine
 from .session import Session, session
 from .base import Base, DataMixin
-from .rooms import Room, RoomRandomSound, RoomFloorTile, RoomAirlock
+from .rooms import (
+    Room, RoomRandomSound, RoomFloorTile, RoomAirlock, floor_types_dir
+)
 from .players import Player, TextStyle
 from .objects import Object, ObjectRandomSound, RestingStates
 from .actions import Action, ObjectAction
@@ -252,5 +254,5 @@ __all__ = (
     'TextMessage', 'RemappedHotkey', 'CreditCard', 'CreditCardTransfer',
     'TransferDirections', 'CreditCardError', 'Bank', 'BankAccountAccessor',
     'BankAccount', 'ATM', 'ATMError', 'BankAccessError', 'TextStyle',
-    'get_sorted_classes'
+    'get_sorted_classes', 'floor_types_dir'
 )
