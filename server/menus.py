@@ -37,7 +37,7 @@ class Menu:
 
     title = attrib()
     items = attrib()
-    escapable = attrib(default=Factory(bool))
+    escapable = attrib(default=Factory(lambda: True))
 
     def dump(self):
         """Prepare this object for sending."""
@@ -134,3 +134,26 @@ class Page:
             items.append(LabelItem('Pagination'))
             items.extend(actions)
         return items
+
+
+class DeleteMenu(Menu):
+    """A menu which can be used for deleting something."""
+
+    def __init__(
+        self, message, command, args=None, kwargs=None, yes='Yes', no='No',
+        escapable=True
+    ):
+        if args is None:
+            args = ()
+        if kwargs is None:
+            kwargs = {}
+        yes_args = list(args)
+        yes_args.append(True)
+        no_args = list(args)
+        no_args.append(False)
+        items = [
+            LabelItem(message),
+            Item(yes, command, args=yes_args, kwargs=kwargs),
+            Item(no, command, args=no_args, kwargs=kwargs)
+        ]
+        super().__init__(message, items, escapable=escapable)
