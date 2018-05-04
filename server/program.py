@@ -312,10 +312,11 @@ def build_context():
         for name in dir(module):
             member = getattr(module, name)
             if callable(member) or isinstance(
-                member, (list, dict, sound.Sound, str)
+                member, (list, dict, sound.Sound)
             ):
                 ctx[name] = member
     ctx.update(
+        floor_types_dir=db.floor_types_dir,
         server=server.server,
         reactor=reactor,
         run_program=run_program
