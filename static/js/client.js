@@ -12,6 +12,35 @@ let ArrayType = Uint8Array
 // https://developers.google.com/web/updates/2012/06/How-to-convert-ArrayBuffer-to-and-from-String
 // <code>
 
+function init_microphone() {
+    if (!microphone_select.childElementCount) {
+        write_message("No microphones found on this system.")
+    }
+    navigator.mediaDevices.getUserMedia({audio: {deviceId: microphone_select.value}, video: false}).then(
+        stream => {
+            if (MediaRecorder === undefined) {
+                write_message("*** No MediaRecorder available. Recording your voice will be impossible on this device. ***")
+            } else {
+                recorder = new MediaRecorder(stream)
+                recorder.ondataavailable = (e) => {
+                    if (cancel_recording) {
+                        return
+                    }
+                    let webm = new Blob(new Array(e.data), { type: "audio/m4a"})
+                    let reader = new FileReader()
+                    reader.onloadend = () => {
+                        microphone_data = reader.result
+                        send({name: "speak", args: [ab2str(microphone_data)]})
+                    }
+                    reader.readAsArrayBuffer(webm)
+                }
+            }
+        }, () => {
+            alert("Failed to use microphone.")
+        }
+    )
+}
+
 function ab2str(buf) {
     return String.fromCharCode.apply(null, new ArrayType(buf))
 }
@@ -169,29 +198,7 @@ function create_main_mixer() {
 function create_environment() {
     if (environment === null) {
         environment = create_mixer(player.sound_volume, audio.destination)
-        navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(
-            stream => {
-                if (MediaRecorder === undefined) {
-                    write_message("*** No MediaRecorder available. Recording your voice will be impossible on this device. ***")
-                } else {
-                    recorder = new MediaRecorder(stream)
-                    recorder.ondataavailable = (e) => {
-                        if (cancel_recording) {
-                            return
-                        }
-                        let webm = new Blob(new Array(e.data), { type: "audio/m4a"})
-                        let reader = new FileReader()
-                        reader.onloadend = () => {
-                            microphone_data = reader.result
-                            send({name: "speak", args: [ab2str(microphone_data)]})
-                        }
-                        reader.readAsArrayBuffer(webm)
-                    }
-                }
-            }, () => {
-                alert("Failed to use microphone.")
-            }
-        )
+        init_microphone()
     }
 }
 
@@ -274,6 +281,28 @@ let connected = false
 // Page elements.
 
 let microphone_select = document.getElementById("microphone")
+
+if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+    write_message("Unable to get a list of devices.")
+} else {
+    navigator.mediaDevices.enumerateDevices().then(
+        (devices) => {
+            devices.forEach(
+                (device) => {
+                    if (device.kind == "audioinput") {
+                        let child = document.createElement("option")
+                        child.value = device.deviceId
+                        child.innerText = device.label
+                        microphone_select.appendChild(child)
+                    }
+                }
+            )
+        }
+    )
+}
+
+microphone_select.onchange = init_microphone
+
 let voice_voice = document.getElementById("voice-voice")
 
 voice_voice.onchange = () => {
