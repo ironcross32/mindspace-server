@@ -376,9 +376,6 @@ for (let button of document.querySelectorAll(".key-standard")) {
 document.ontouchstart = unlock_audio
 document.onkeydown = (e) => {
     let current = document.activeElement
-    if (escape !== null && e.key != "escape") {
-        return
-    }
     if (
         (
             (
@@ -398,11 +395,15 @@ document.onkeydown = (e) => {
     if (escape_element === menu) {
         let func = menu_keys[key]
         if (func !== undefined) {
-            return func(e)
+            func(e)
         }
+        return
     }
     if (key == "CONTROL") {
         window.speechSynthesis.cancel()
+    }
+    if (escape_element !== null && e.key != "escape") {
+        return
     }
     let modifiers = []
     for (let name of ["ctrl", "shift", "alt"]) {
