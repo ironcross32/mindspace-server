@@ -292,8 +292,8 @@ if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
                     if (device.kind == "audioinput") {
                         let child = document.createElement("option")
                         child.value = device.deviceId
-                        child.innerText = device.label
-                        microphone_select.appendChild(child)
+                        child.text = device.label
+                        microphone_select.add(child)
                     }
                 }
             )
