@@ -184,7 +184,7 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
                 obj.recent_exit_id = None
                 obj.coordinates = (px, py, pz)
                 obj.update_neighbours()
-                if message is not None:
+                if msg is not None:
                     string = factory.get_strings(msg, [obj, other])[0]
                     obj.message(string)
                 if obj is player:
