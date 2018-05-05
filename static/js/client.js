@@ -389,11 +389,10 @@ document.onkeydown = (e) => {
             current.className == "url"
         )
     ) {
-        write_message(`Key pressed: ${e.kjey}.`)
         return
     }
     let key = e.key.toUpperCase()
-    if (escape_element === menu) {
+    if (escape_element === menu && e.key != "ESCAPE") {
         let func = menu_keys[key]
         if (func !== undefined) {
             func(e)
