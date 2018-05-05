@@ -25,19 +25,6 @@ class Mobile(Base, PauseMixin):
     max_move_interval = Column(Float, nullable=False, default=15.0)
     follow_exits = Column(Boolean, nullable=False, default=False)
 
-    def get_all_fields(self):
-        fields = [
-            self.make_field(
-                'move_sound', type=[None] + sorted(
-                    os.listdir(floor_types_dir)
-                )
-            ),
-            self.make_field('follow_exits', type=bool)
-        ]
-        for name in ('min_move_interval', 'max_move_interval'):
-            fields.append(self.make_field(name, type=float))
-        return fields
-
     def get_move_sound(self):
         """Get an appropriate movement sound for this object."""
         if self.move_sound is None:
