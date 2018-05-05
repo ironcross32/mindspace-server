@@ -162,15 +162,17 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
             direction = db.Direction.query(x=x, y=y, z=z).first()
             old_tile = loc.tile_at(*player.coordinates)
             new_tile = loc.tile_at(px, py, pz)
-            if old_tile is new_tile:
+            if old_tile.name == new_tile.name:
                 msg = None
             elif new_tile is None:
                 if old_tile is None:
                     msg = None
                 else:
-                    msg = f'You step off {old_tile.name}.'
+                    msg = old_tile.step_off_msg
+                    other = old_tile
             else:
-                msg = f'You step onto {new_tile.name}.'
+                msg = new_tile.step_on_msg
+                other = new_tile
             default_walk_sound = loc.get_walk_sound(
                 (px, py, pz), covering=new_tile
             )
@@ -183,7 +185,8 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
                 obj.coordinates = (px, py, pz)
                 obj.update_neighbours()
                 if message is not None:
-                    obj.message(msg)
+                    string = factory.get_strings(msg, [obj, other])[0]
+                    obj.message(string)
                 if obj is player:
                     wsound = sound
                     if wsound is None:
