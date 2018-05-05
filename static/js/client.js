@@ -273,6 +273,7 @@ let connected = false
 
 // Page elements.
 
+let microphone_select = document.getElementById("microphone")
 let voice_voice = document.getElementById("voice-voice")
 
 voice_voice.onchange = () => {
