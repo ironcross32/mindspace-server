@@ -35,7 +35,6 @@ function init_microphone() {
                     reader.readAsArrayBuffer(data)
                 }
             }
-            write_message("Microphone ready.")
         }, () => {
             alert("Failed to use microphone.")
         }
