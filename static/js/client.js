@@ -376,6 +376,9 @@ for (let button of document.querySelectorAll(".key-standard")) {
 document.ontouchstart = unlock_audio
 document.onkeydown = (e) => {
     let current = document.activeElement
+    if (escape !== null && e.key != "escape") {
+        return
+    }
     if (
         (
             (
