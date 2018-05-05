@@ -169,7 +169,7 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
                     msg = f'You step off {old_tile.name}.'
             else:
                 msg = f'You step onto {new_tile.name}.'
-            default_walk_sound = loc.get_floor_type(
+            default_walk_sound = loc.get_walk_sound(
                 (px, py, pz), covering=new_tile
             )
             for obj in players:
