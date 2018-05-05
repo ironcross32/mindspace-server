@@ -393,7 +393,6 @@ document.onkeydown = (e) => {
     }
     let key = e.key.toUpperCase()
     if (escape_element === menu && key != "ESCAPE") {
-        write_message(`Key pressed: ${e.key}.`)
         let func = menu_keys[key]
         if (func !== undefined) {
             func(e)
@@ -414,7 +413,8 @@ document.onkeydown = (e) => {
     }
     if (!modifiers.count && key == "ESCAPE" && escape_element !== null) {
         hide(escape_element)
-    } else if (escape_element === copy_div && current.type == "button" && !modifiers.count && [" ", "ENTER"].includes(key)) {
+    // } else if (escape_element === copy_div && current.type == "button" && !modifiers.count && [" ", "ENTER"].includes(key)) {
+    } else if (escape_element !== null) {
         return
     } else {
         if (["'", "ENTER", " ", "TAB", "W", "Q", "T", "N"].includes(key) || key[0] == "F") {
