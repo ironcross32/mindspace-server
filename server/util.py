@@ -156,10 +156,22 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
         px += x
         py += y
         pz += z
-        if player.location.coordinates_ok((px, py, pz)):
+        if loc.coordinates_ok((px, py, pz)):
             player.clear_following()
             player.last_walked = now
             direction = db.Direction.query(x=x, y=y, z=z).first()
+            old_tile = loc.tile_at(*player.coordinates)
+            new_tile = loc.tile_at(px, py, pz)
+            if new_tile is None:
+                if old_tile is None:
+                    msg = None
+                else:
+                    msg = f'You step off {old_tile.name}.'
+            else:
+                msg = f'You step onto {new_tile.name}.'
+            default_walk_sound = loc.get_floor_type(
+                (px, py, pz), covering=new_tile
+            )
             for obj in players:
                 if obj.location is not loc:
                     continue
@@ -168,12 +180,14 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
                 obj.recent_exit_id = None
                 obj.coordinates = (px, py, pz)
                 obj.update_neighbours()
+                if message is not None:
+                    obj.message(msg)
                 if obj is player:
                     wsound = sound
                     if wsound is None:
-                        wsound = loc.get_walk_sound(obj.coordinates)
+                        wsound = default_walk_sound
                 else:
-                    wsound = loc.get_walk_sound(obj.coordinates)
+                    wsound = default_walk_sound
                 if wsound is not None:
                     obj.sound(wsound)
             s.add_all(players)
