@@ -415,6 +415,7 @@ document.onkeydown = (e) => {
         hide(escape_element)
     // } else if (escape_element === copy_div && current.type == "button" && !modifiers.count && [" ", "ENTER"].includes(key)) {
     } else if (escape_element !== null) {
+        write_message(`Key pressed: ${e.key}.`)
         return
     } else {
         if (["'", "ENTER", " ", "TAB", "W", "Q", "T", "N"].includes(key) || key[0] == "F") {
