@@ -6,6 +6,7 @@ from .base import (
     Base, CoordinatesMixin, NameMixin, DescriptionMixin, OwnerMixin,
     DirectionMixin, AmbienceMixin, StarshipMixin, HiddenMixin
 )
+from .session import Session
 from ..protocol import zone
 from ..util import distance_between
 
@@ -80,3 +81,11 @@ class Zone(
                 type = name[7:].title()
                 objects = [x for x in objects if x.get_type() != type]
         return objects
+
+    def delete(self):
+        """Destructively deletes all objects within this zone."""
+        for room in self.rooms:
+            for obj in room.objects:
+                Session.delete(obj)
+            Session.delete(room)
+        Session.delete(self)
