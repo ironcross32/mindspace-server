@@ -162,7 +162,9 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
             direction = db.Direction.query(x=x, y=y, z=z).first()
             old_tile = loc.tile_at(*player.coordinates)
             new_tile = loc.tile_at(px, py, pz)
-            if new_tile is None:
+            if old_tile is new_tile:
+                msg = None
+            elif new_tile is None:
                 if old_tile is None:
                     msg = None
                 else:
