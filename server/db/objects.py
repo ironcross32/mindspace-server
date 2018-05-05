@@ -673,6 +673,9 @@ class Object(
         if self.location is not None:
             self.update_neighbours()
             self.identify_location()
+            tile = location.tile_at(*coordinates)
+            if tile is not None:
+                tile.step_on(self)
 
     def clear_following(self):
         """Stop this object from following anyone."""

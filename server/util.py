@@ -165,16 +165,14 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
             if getattr(
                 old_tile, 'name', None
             ) == getattr(new_tile, 'name', None):
-                msg = None
+                func = None
             elif new_tile is None:
                 if old_tile is None:
-                    msg = None
+                    func = None
                 else:
-                    msg = old_tile.step_off_msg
-                    other = old_tile
+                    func = old_tile.step_off
             else:
-                msg = new_tile.step_on_msg
-                other = new_tile
+                func = new_tile.step_on
             default_walk_sound = loc.get_walk_sound(
                 (px, py, pz), covering=new_tile
             )
@@ -186,9 +184,8 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
                 obj.recent_exit_id = None
                 obj.coordinates = (px, py, pz)
                 obj.update_neighbours()
-                if msg is not None:
-                    string = factory.get_strings(msg, [obj, other])[0]
-                    obj.message(string)
+                if func is not None:
+                    func(obj)
                 if obj is player:
                     wsound = sound
                     if wsound is None:

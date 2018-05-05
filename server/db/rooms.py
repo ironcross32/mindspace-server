@@ -12,6 +12,7 @@ from .base import (
 )
 from ..protocol import hidden_sound
 from ..sound import get_sound, sounds_dir
+from ..socials import factory
 
 floor_types_dir = os.path.join(sounds_dir, 'footsteps')
 music_dir = os.path.join(sounds_dir, 'music')
@@ -67,6 +68,19 @@ class RoomFloorTile(Base, NameMixin):
             # Passed the x check, now let's check y.
             return self.start_y <= y and self.end_y >= y and self.end_z >= z
         return False
+
+    def step_on(self, obj):
+        """Object obj has stepped onto this tile."""
+        self.tell_object(obj, self.step_on_msg)
+
+    def step_off(self, obj):
+        """Object obj has stepped off this tile."""
+        self.tell_object(obj, self.step_off_msg)
+
+    def tell_object(self, obj, msg):
+        """Tell message msg to Object obj."""
+        string = factory.get_strings(msg, [obj, self])[0]
+        obj.message(string)
 
 
 class RoomAirlock(Base, CoordinatesMixin, BoardMixin, LeaveMixin):
