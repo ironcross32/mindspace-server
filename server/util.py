@@ -207,7 +207,9 @@ class WalkTask(LoopingCall):
                 return self.stop()
             obj.clear_following()
             kwargs = dict(observe_speed=False)
-            self.interval = obj.speed
+            if obj.speed != self.interval:
+                self.stop()
+                self.start(obj.speed)
             for name in ('x', 'y', 'z'):
                 coord = getattr(self, name)
                 current = getattr(obj, name)
