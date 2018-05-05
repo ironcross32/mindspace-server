@@ -5,18 +5,17 @@ import os.path
 from time import time
 from random import uniform, choice
 from sqlalchemy import Column, Float, Boolean
-from .base import Base, Sound
+from .base import Base, Sound, PauseMixin
 from .directions import Direction
 from .rooms import floor_types_dir
 from .objects import Object
 from .entrances import Entrance
-
 from .session import Session
 from ..sound import get_sound
 from ..util import walk
 
 
-class Mobile(Base):
+class Mobile(Base, PauseMixin):
     """Make an object mobile."""
 
     __tablename__ = 'mobiles'
