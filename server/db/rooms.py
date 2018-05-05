@@ -38,6 +38,7 @@ class RoomFloorTile(Base, NameMixin):
     end_x = Column(Float, nullable=False)
     end_y = Column(Float, nullable=False)
     end_z = Column(Float, nullable=False)
+    floor_type = message(None)
 
     @property
     def start_coordinates(self):
@@ -190,7 +191,7 @@ class Room(
             x, y, z = coordinates
             covering = self.tile_at(x, y, z)
             if covering is not None:
-                name = covering.name
+                name = covering.floor_type
         else:
             covering = None
         if self.floor_type is not None and covering is None:
