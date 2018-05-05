@@ -184,12 +184,16 @@ class Room(
             func = self.broadcast_command_selective
         return func(*args)
 
-    def get_walk_sound(self, coordinates=None):
-        """Return a suitable footstep sound for this room."""
+    def get_walk_sound(self, coordinates=None, covering=None):
+        """Return a suitable footstep sound for this room. If coordinates is
+        None then this room's overall walk sound will be returned, otherwise a
+        tile will be searched for. If covering is not None then it will be used
+        instead of querying for a tile."""
         name = None
         if coordinates is not None:
             x, y, z = coordinates
-            covering = self.tile_at(x, y, z)
+            if covering is None:
+                covering = self.tile_at(x, y, z)
             if covering is not None:
                 name = covering.floor_type
         else:
