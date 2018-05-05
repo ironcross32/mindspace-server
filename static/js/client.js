@@ -26,13 +26,13 @@ function init_microphone() {
                     if (cancel_recording) {
                         return
                     }
-                    let webm = new Blob(new Array(e.data), { type: "audio/m4a"})
+                    let data = new Blob(new Array(e.data), { type: "audio/m4a"})
                     let reader = new FileReader()
                     reader.onloadend = () => {
                         microphone_data = reader.result
                         send({name: "speak", args: [ab2str(microphone_data)]})
                     }
-                    reader.readAsArrayBuffer(webm)
+                    reader.readAsArrayBuffer(data)
                 }
             }
         }, () => {
@@ -286,9 +286,9 @@ if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
     write_message("Unable to get a list of devices.")
 } else {
     navigator.mediaDevices.enumerateDevices().then(
-        (devices) => {
+        devices => {
             devices.forEach(
-                (device) => {
+                device => {
                     if (device.kind == "audioinput") {
                         let child = document.createElement("option")
                         child.value = device.deviceId
