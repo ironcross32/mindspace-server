@@ -16,7 +16,6 @@ function init_microphone() {
     if (!microphone_select.childElementCount) {
         write_message("No microphones found on this system.")
     }
-    write_message(`Using microphone ${microphone_select.options[microphone_select.selectedIndex].text}.`)
     navigator.mediaDevices.getUserMedia({audio: {deviceId: microphone_select.value}, video: false}).then(
         stream => {
             if (MediaRecorder === undefined) {
@@ -36,6 +35,7 @@ function init_microphone() {
                     reader.readAsArrayBuffer(data)
                 }
             }
+            write_message("Microphone ready.")
         }, () => {
             alert("Failed to use microphone.")
         }
