@@ -197,7 +197,7 @@ class WalkTask(LoopingCall):
         super().__init__(self.walk)
 
     def start(self):
-        super().start(0.0)
+        super().start(db.Object.get(self.id).speed)
 
     def walk(self):
         """Make the player walk."""
