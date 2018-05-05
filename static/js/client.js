@@ -389,6 +389,7 @@ document.onkeydown = (e) => {
             current.className == "url"
         )
     ) {
+        write_message(`Key pressed: ${e.kjey}.`)
         return
     }
     let key = e.key.toUpperCase()
