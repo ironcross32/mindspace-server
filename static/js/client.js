@@ -711,7 +711,7 @@ let mindspace_functions = {
     stop_recording: () => {
         if (recorder === null) {
             write_message("You cannot record audio on this device.")
-        } else {
+        } else if (recorder.state == recording) {
             recorder.stop()
         }
     },
