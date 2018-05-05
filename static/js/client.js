@@ -379,7 +379,7 @@ document.onkeydown = (e) => {
     if (
         (
             (
-                e.key != "escape"
+                e.key != "ESCAPE"
             ) && (
                 e.key === undefined || !connected || [
                     "text", "password", "textarea", "number", "select-one"
@@ -401,9 +401,6 @@ document.onkeydown = (e) => {
     }
     if (key == "CONTROL") {
         window.speechSynthesis.cancel()
-    }
-    if (escape_element !== null && e.key != "escape") {
-        return
     }
     let modifiers = []
     for (let name of ["ctrl", "shift", "alt"]) {
