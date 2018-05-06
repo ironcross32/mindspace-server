@@ -185,7 +185,7 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
                 obj.coordinates = (px, py, pz)
                 obj.update_neighbours()
                 if func is not None:
-                    func(obj, private=obj is not player)
+                    func(obj, private=(obj is not player))
                 if obj is player:
                     wsound = sound
                     if wsound is None:
