@@ -481,3 +481,12 @@ def frange(start, stop, step):
     while start < stop:
         yield start
         start += step
+
+
+def format_coordinates(coordinates):
+    """Format coordinates."""
+    c = []
+    for coord in coordinates:
+        c.append('%g' % coord)
+    string = ', '.join(c)
+    return f'({string})'
