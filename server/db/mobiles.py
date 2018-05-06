@@ -25,7 +25,7 @@ class Mobile(Base, PauseMixin):
 
     def get_move_sound(self):
         """Get an appropriate movement sound for this object."""
-        if self.move_silently is None:
+        if self.move_silently:
             return
         elif self.move_sound is None:
             return self.object.location.get_walk_sound()
