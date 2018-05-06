@@ -424,7 +424,6 @@ document.onkeydown = (e) => {
     }
     let key = e.key.toUpperCase()
     if (escape_element === menu && key != "ESCAPE") {
-        console.log(`Key: "${key}".`)
         let func = menu_keys[key]
         if (func !== undefined) {
             func(e)
@@ -509,6 +508,7 @@ let menu_keys = {
 }
 
 function search_menu(e) {
+    e.preventDefault()
     let now = new Date().getTime()
     if (now - menu_last_search >= menu_search_interval) {
         menu_search = ""
