@@ -520,11 +520,12 @@ Command:
     \ escapable=True))", id: 54, name: view_help}
 - {code: "if con.walk_task is not None:\n    if con.walk_task.running:\n        con.walk_task.stop()\n\
     \    con.walk_task = None\n    player.message('You stop walking.')\nelif not a:\n\
-    \    obj = player.scanned\n    if obj is None:\n        obj = player\n    items\
-    \ = [Label('Enter coordinates to walk to')]\n    for name in ('x', 'y'):\n   \
-    \     items.append(Field(name, int(getattr(obj, name)), type=int))\n    f = Form('Autostroll',\
-    \ items, __name__, cancel='Cancel')\n    form(con, f)\nelse:\n    data = a[0]\n\
-    \    x = data['x']\n    y = data['y']\n    z = player.z\n    if (x, y, z) == player.coordinates:\n\
+    \    obj = player.scanned\n    if obj is None:\n        obj = player\n    get_text(\n\
+    \        con, 'Enter coordinates to walk to', __name__,\n        value=','.join(map(lambda\
+    \ c: str(int(c)), player.coordinates))\n    )\nelse:\n    if isinstance(a[0],\
+    \ str):\n        x, y, z = get_coordinates(player, *a)\n    else:\n        d =\
+    \ a[0]\n        x = d.get('x', player.x)\n        y = d.get('y', player.y)\n \
+    \   z = player.z  # Don't let them modify that.\n    if (x, y, z) == player.coordinates:\n\
     \        player.message('You are already there.')\n        end()\n    con.walk_task\
     \ = util.WalkTask(player.id, x, y, z)\n    kwargs = dict(x=x, y=y, z=z)\n    if\
     \ not player.is_staff:\n        kwargs['hidden'] = False\n    obj = player.get_visible(**kwargs).first()\n\
@@ -773,7 +774,7 @@ Command:
     \    z.direction = direction\n    player.beep()\n    player.message(f'New heading:\
     \ {direction.get_name(player.is_staff)}.')\nelse:\n    player.message('You must\
     \ wait %.2f seconds before turning again.' % diff)", id: 81, name: starship_course}
-- {builder: true, code: "q = RoomFloorType.query(room_id=player.location.id)\nif a:\n\
+- {builder: true, code: "q = RoomFloorTile.query(room_id=player.location.id)\nif a:\n\
     \    if a[0]:\n        player.message(f'Rows affected: {q.delete()}.')\n    else:\n\
     \        player.message('Aborted.')\nelse:\n    c = q.count()\n    if not c:\n\
     \        player.message('There are no floor coverings to delete.')\n    else:\n\
@@ -781,19 +782,7 @@ Command:
     \ [\n                    Item(f'Delete {c} floor {util.pluralise(c, \"covering\"\
     )}?', None),\n                    Item('Yes', __name__, args=[True]),\n      \
     \              Item('No', __name__, args=[False])\n                ], escapable=True\n\
-    \            )\n        )", id: 82, name: reset_floor_types}
-- {builder: true, code: "footsteps_dir = 'footsteps'\nconvertions = {\n    None: 'Clear',\n\
-    \    False: 'Silent'\n}\nif a:\n    name = a[0]\n    if name is None:\n      \
-    \  RoomFloorType.query(room_id=player.location_id, x=player.x, y=player.y, z=player.z).delete()\n\
-    \    else:\n        floor = RoomFloorType.query(room_id=player.location_id, x=player.x,\
-    \ y=player.y, z=player.z).first()\n        if floor is None:\n            floor\
-    \ = RoomFloorType(x=player.x, y=player.y, z=player.z, room_id=player.location_id)\n\
-    \        if name is False:\n            name = None\n        floor.name = name\n\
-    \        s.add(floor)\n    player.message('Done.')\nelse:\n    items = [LabelItem('Select\
-    \ Floor Covering')]\n    for name in [None, False] + sorted(os.listdir(os.path.join('sounds',\
-    \ footsteps_dir))):\n        items.append(Item(convertions.get(name, name), __name__,\
-    \ args=[os.path.join(footsteps_dir, name) if isinstance(name, str) else name]))\n\
-    \    menu(con, Menu('Floor Covering', items, escapable=True))\n", id: 83, name: set_floor_type}
+    \            )\n        )", id: 82, name: reset_floor_tiles}
 - {admin: true, code: "def parse_args(type_name, id=None, type_id=None):\n    return\
     \ (type_name, id, type_id)\n\ntype_name, id, type_id = parse_args(*a)\n\nother\
     \ = type_name.lower() + 's'\ncls = Base._decl_class_registry[type_name]\n\nif\
@@ -964,20 +953,6 @@ Command:
     \      topic.keywords.remove(keyword)\n        s.add(topic)\n        player.message(f'Removed\
     \ keyword {keyword.get_name(True)} from topic {topic.get_name(True)}.')", id: 97,
   name: remove_topic_keyword}
-- {builder: true, code: "footsteps = os.listdir('sounds/footsteps')\nhere = player.location\n\
-    \nif a:\n    data = a[0]\n    x1 = max(0, data['start_x'])\n    x2 = min(here.size_x,\
-    \ data['end_x'])\n    y1 = max(0, data['start_y'])\n    y2 = min(here.size_y,\
-    \ data['end_y'])\n    name = data['name']\n    assert name in footsteps\n    z\
-    \ = player.z\n    done = 0\n    for x in range(x1, x2 + 1):\n        for y in\
-    \ range(y1, y2 + 1):\n            RoomFloorType.query(x=x, y=y, z=z, room_id=here.id).delete()\n\
-    \            s.add(RoomFloorType(name=name, x=x, y=y, z=z, room_id=here.id))\n\
-    \            done += 1\n    player.message(f'Floor coverings added: {done}.')\n\
-    else:\n    fields = [\n        Field('start_x', 0, type=list(range(0, int(here.size_x)\
-    \ + 1))),\n        Field('end_x', 0, type=list(range(0, int(here.size_x) + 1))),\n\
-    \        Field('start_y', 0, type=list(range(0, int(here.size_y) + 1))),\n   \
-    \     Field('end_y', 0, type=list(range(0, int(here.size_y) + 1))),\n        Field('name',\
-    \ footsteps[0], type=footsteps)\n    ]\n    form(con, Form('Create Bulk Floor\
-    \ Coverings', fields, __name__, cancel='Cancel'))", id: 98, name: set_floor_type_range}
 - {code: "obj = Object.get(*a)\nvalid_object(player, obj)\ncheck_location(player,\
     \ obj)\nplayer.do_social(obj.knock_msg, _others=[obj])\nif obj.knock_sound:\n\
     \    sound = get_sound(obj.knock_sound)\n    obj.sound(sound)\n    if obj.is_exit:\n\
@@ -1031,12 +1006,12 @@ Command:
   id: 105, name: pause_transit_route}
 - {code: "if time() - player.last_walked < player.speed:\n    end()\nkey, modifiers\
     \ = a\n\nname = Direction.key_to_name(key)\ndirection = Direction.query(name=name,\
-    \ z=0.0).first()\nif con.walk_task is not None and con.walk_task.running:\n  \
-    \  con.walk_task.stop()\n    con.walk_task = None\nif 'shift' in modifiers:\n\
+    \ z=0.0).first()\nif con.walk_task is not None:\n    if con.walk_task.running:\n\
+    \        con.walk_task.stop()\n    con.walk_task = None\nif 'shift' in modifiers:\n\
     \    x, y, z = player.get_corner_coordinates(direction)\n    if (x, y, z) == player.coordinates:\n\
     \        player.message(f'You are already as far {direction.get_name()} as you\
     \ can go.')\n    else:\n        con.handle_command('autostroll', dict(x=x, y=y))\n\
-    else:\n    util.walk(player, x=direction.x, y=direction.y)", id: 106, name: travel_direction}
+    else:\n    util.walk(player, x=direction.x, y=direction.y)\n", id: 106, name: travel_direction}
 - {code: "def parse_args(id, start=0):\n    return (id, start)\nid, start = parse_args(*a)\n\
     channel = CommunicationChannel.get(id)\nvalid_object(player, channel)\nif not\
     \ channel.messages:\n    player.message('Nothing to display.')\n    end()\nitems\
@@ -1656,8 +1631,8 @@ Command:
     \ args=[name, True]),\n        Item('No, stop!', __name__, args=[name, False])\n\
     \    ]\n    menu(con, Menu('Change Character Name', items, escapable=True))\n\
     elif not response:\n    player.message('Name unchanged.')\nelse:\n    player.name\
-    \ = name\n    player.do_social('%1N change%1s %1his name to {name}.', name=name)\n",
-  id: 174, name: set_character_name}
+    \ = name\n    player.last_name_change = datetime.datetime.utcnow()\n    player.do_social('%1N\
+    \ change%1s %1his name to {name}.', name=name)\n", id: 174, name: set_character_name}
 - {code: "def parse_args(style_id=None, style_text=None):\n    return (style_id, style_text)\n\
     \nstyle_id, style_text = parse_args(*a)\n\nif style_id is None:\n    items = [LabelItem('Text\
     \ Styles')]\n    for style in TextStyle.query(player_id=player.player_id).order_by(TextStyle.name):\n\
@@ -1675,6 +1650,57 @@ Command:
     \ in (CommunicationChannelMessage, Revision, LoggedCommand):\n    deleted = cls.query().delete()\n\
     \    gone += deleted\n    player.message(f'{cls.__name__}: {deleted}')\nplayer.message(f'Objects\
     \ deleted: {gone}.')\n", id: 176, name: clean_db}
+- {builder: true, code: "def parse_args(start_coordinates=None, end_coordinates=None,\
+    \ name=None, floor_type=False):\n    return (start_coordinates, end_coordinates,\
+    \ name, floor_type)\n\nstart_coordinates, end_coordinates, name, floor_type =\
+    \ parse_args(*a)\n\nvalue = str(player.coordinates)\n\nif start_coordinates is\
+    \ None:\n    get_text(con, 'Enter start coordinates for the tile', __name__, value=value)\n\
+    elif end_coordinates is None:\n    get_text(con, 'Enter end coordinates for the\
+    \ tile', __name__, value=value, args=[start_coordinates])\nelif not name:\n  \
+    \  get_text(con, 'Enter the name for the new floor tile', __name__, args=[start_coordinates,\
+    \ end_coordinates])\nelif floor_type is False:\n    items = [\n        LabelItem('Floor\
+    \ Types'),\n        Item('Silent', __name__, args=[start_coordinates, end_coordinates,\
+    \ name, None])\n    ]\n    for filename in sorted(os.listdir(floor_types_dir)):\n\
+    \        items.append(Item(filename, __name__, args=[start_coordinates, end_coordinates,\
+    \ name, os.path.join(floor_types_dir, filename)]))\n    menu(con, Menu('Select\
+    \ Floor Type', items, escapable=True))\nelse:\n    start_coordinates = get_coordinates(player,\
+    \ start_coordinates)\n    end_coordinates = get_coordinates(player, end_coordinates)\n\
+    \    if not os.path.isdir(floor_type) and floor_type is not None:\n        player.message(f'Invalid\
+    \ floor type: {floor_type}.')\n        end()\n    tile = RoomFloorTile(room_id=player.location_id,\
+    \ name=name, floor_type=floor_type)\n    tile.start_coordinates = start_coordinates\n\
+    \    tile.end_coordinates = end_coordinates\n    s.add(tile)\n    s.commit()\n\
+    \    player.message(f'Tile {name} created.')\n", id: 177, name: add_floor_tile}
+- {builder: true, code: "def parse_args(tile_id=None, response=None):\n    return\
+    \ (tile_id, response)\n\ntile_id, response = parse_args(*a)\nif tile_id is None:\n\
+    \    if player.location.tiles:\n        items = [LabelItem('Select Tile')]\n \
+    \       for tile in player.location.tiles:\n            items.append(Item(f'{tile.name}\
+    \ from {tile.start_coordinates} to {tile.end_coordinates}', __name__, args=[tile.id]))\n\
+    \        menu(con, Menu('Delete Floor Tile', items))\n    else:\n        player.message('There\
+    \ are no tiles to delete.')\nelif response is None:\n    menu(con, DeleteMenu('Are\
+    \ you sure you want to delete this tile?', __name__, args=[tile_id]))\nelif not\
+    \ response:\n    player.message('Canceled.')\nelse:\n    tile = RoomFloorTile.get(tile_id)\n\
+    \    s.delete(tile)\n    s.commit()\n    player.message('Tile deleted.')\n", id: 178,
+  name: delete_floor_tile}
+- {builder: true, code: "items = [LabelItem('Select Tile')]\nfor tile in player.location.tiles:\n\
+    \    items.append(Item(tile.get_name(True), 'edit_', args=['RoomFloorTile', tile.id]))\n\
+    menu(con, Menu('Edit FLoor Tile', items))\n", id: 179, name: edit_floor_tile}
+- {code: 's.add(MapMarker(name=a[0], **kw))
+
+    s.commit()
+
+    player.message(''Marker created.'')
+
+    ', id: 180, name: add_map_marker}
+- {builder: true, code: "if a:\n    response = a[0]\nelse:\n    response = None\n\
+    loc = player.location\nif len(loc.objects) > 1:\n    player.message('To delete\
+    \ this room you must be the only object in it.')\nelif response is None:\n   \
+    \ m = DeleteMenu(f'Are you sure you want to delete {loc.get_name(True)}>', __name__)\n\
+    \    menu(con, m)\nelif response:\n    if player.player.home is None:\n      \
+    \  destination = Room.query(Room.id.isnot(loc.id)).first()\n    else:\n      \
+    \  destination = player.player.home\n    if destination is None:\n        player.message('You\
+    \ have nowhere else to go.')\n    else:\n        player.move(destination, (0,\
+    \ 0, 0))\n        s.delete(loc)\n        s.commit()\n        player.message('Room\
+    \ deleted.')\nelse:\n    player.message('Canceled.')\n", id: 181, name: delete_room}
 Credit:
 - {description: For inspiring me to write this game., id: 1, name: Science Fiction
     Authors}
@@ -1737,9 +1763,10 @@ Hotkey:
     \ else \"enable\"} {x.replace(\"_\", \" \").title()}', 'set_player_option', args=[x,\
     \ -1 if state else 1]))\nm = Menu('Game', items, escapable=True)\nmenu(con, m)",
   ctrl: false, description: Access the game menu., id: 3, name: ESCAPE, shift: false}
-- {alt: false, builder: true, code: "items = [\n    Item('Building Menu', None),\n\
-    \    Item('Set floor Type', 'set_floor_type'),\n    Item('Bulk Set Floor Types',\
-    \ 'set_floor_type_range'),\n    Item('Create Room', 'create_room'),\n    Item('Create\
+- {alt: false, builder: true, code: "items = [\n    LabelItem('Building Menu'),\n\
+    \    Item('Add Floor Tile', 'add_floor_tile'),\n    Item('Edit Floor Tile', 'edit_floor_tile'),\n\
+    \    Item('Delete Floor Tile', 'delete_floor_tile'),\n    Item('Reset Flooring',\
+    \ 'reset_floor_tiles'),\n    Item('Create Room', 'create_room'),\n    Item('Create\
     \ Object', 'create_object'),\n    Item('Build Exit', 'build_exit'),\n    Item('Build\
     \ Portal', 'build_portal'),\n    Item('Configure Room Objects', 'configure_object'),\n\
     \    Item('Random Sounds', None),\n    Item('Add Random Sound', 'add_random_sound',\
@@ -1747,11 +1774,11 @@ Hotkey:
     \ args=['Room', player.location.id]),\n    Item('Delete Random Sound', 'delete_random_sound',\
     \ args=['Room', player.location.id]),\n    Item('Configuration', None),\n    Item('Configure\
     \ Room', 'key', args=['F2']),\n    Item('Configure Zone', 'configure_zone'),\n\
-    \    Item('Delete Room Object', 'delete_object'),\n    Item('Reset Flooring',\
-    \ 'reset_floor_types'),\n    Item('Preview Sounds', 'preview_sounds'),\n    Item('Add\
-    \ Transit Stop', 'add_transit_stop')\n]\nobj = player.location\nitems.append(LabelItem('Room\
-    \ Flags'))\nif obj.airlock_id is None:\n    items.append(Item('Add Airlock', 'create_airlock'))\n\
-    else:\n    for name in ('edit', 'delete'):\n        items.append(Item(f'{name.title()}\
+    \    Item('Delete Object', 'delete_object'),\n    Item('Delete Room', 'delete_room'),\n\
+    \    Item('Preview Sounds', 'preview_sounds'),\n    Item('Add Transit Stop', 'add_transit_stop')\n\
+    ]\nobj = player.location\nitems.append(LabelItem('Room Flags'))\nif obj.airlock_id\
+    \ is None:\n    items.append(Item('Add Airlock', 'create_airlock'))\nelse:\n \
+    \   for name in ('edit', 'delete'):\n        items.append(Item(f'{name.title()}\
     \ Airlock', f'{name}_', args=['RoomAirlock', obj.airlock_id]))\nif obj.airlock\
     \ is not None:\n    items.append(Item('Configure Airlock', 'edit_', args=['RoomAirlock',\
     \ obj.airlock_id]))\nif obj.transit_route is not None:\n    route = obj.transit_route\n\
@@ -1810,10 +1837,14 @@ Hotkey:
     -0.1)', ctrl: false, description: Decrease sound volume., id: 20, name: F9, shift: false}
 - {alt: false, code: 'con.handle_command(''set_player_option'', ''sound_volume'',
     0.1)', ctrl: false, description: Increase sound volume., id: 21, name: F10, shift: false}
-- {alt: false, code: "loc = player.location\nc = player.coordinates\nplayer.message(\n\
-    \    f'{loc.zone.get_name(player.is_builder)}; {loc.get_name(player.is_builder)},\
-    \ coordinates ({\"%g, %g, %g\" % c}).\\n{loc.get_description()}'\n)", ctrl: false,
-  description: Announce your current location., id: 22, name: K, shift: false}
+- {alt: false, code: 'loc = player.location
+
+    player.message(f''{loc.zone.get_name(player.is_staff)}; {loc.get_name(player.is_staff)}'')
+
+    player.message(f''{loc.get_description()}''
+
+    )', ctrl: false, description: Announce your current location., id: 22, name: K,
+  shift: false}
 - {alt: false, code: "items = [LabelItem('Hotkeys')]\nfor key in Hotkey.query(reusable=False).order_by(Hotkey.name):\n\
     \    if key.objects:\n        continue\n    modifiers = []\n    args=[key.name,\
     \ []]\n    for name in ('ctrl', 'shift', 'alt'):\n        value = getattr(key,\
@@ -2153,3 +2184,153 @@ Hotkey:
     to somene else in the room, id: 102, name: '''', shift: true}
 - {alt: false, builder: true, code: con.handle_command('delete_object'), ctrl: false,
   description: Delete an object from the room., id: 103, name: DELETE, shift: true}
+- {alt: false, code: "kwargs = dict(x=player.x, y=player.y, z=player.z, owner_id=player.id,\
+    \ location_id=player.location_id)\nq = MapMarker.query(**kwargs)\nif q.count():\n\
+    \    q.delete()\n    player.message('Marker deleted.')\nelse:\n    get_text(con,\
+    \ 'Enter the name for the new marker', 'add_map_marker', kwargs=kwargs)\n", ctrl: false,
+  description: Add or remove a map marker at your current location., id: 104, name: '[',
+  shift: false}
+- {alt: false, code: "q = MapMarker.query(location_id=player.location_id, owner_id=player.id)\n\
+    if q.count():\n    items = [LabelItem('Map Markers')]\n    for m in q.order_by(MapMarker.name):\n\
+    \        items.append(Item(m.name, 'autostroll', args=[dict(x=m.x, y=m.y)]))\n\
+    \    menu(con, Menu('Select marker to walk to', items))\nelse:\n    player.message('There\
+    \ are no map markers defined for this location.')\n", ctrl: false, description: Select
+    a map marker to walk to., id: 105, name: ']', shift: false}
+- {alt: false, builder: true, code: 'con.handle_command(''delete_room'')
+
+    ', ctrl: true, description: 'Delete the current room.
+
+    ', id: 106, name: DELETE, shift: false}
+- {alt: false, code: "items = [LabelItem('Room Features')]\nq = RoomFloorTile.query(room_id=player.location_id).order_by(RoomFloorTile.name)\n\
+    if q.count():\n    for tile in q:\n        for name in ('start', 'end'):\n   \
+    \         coords = getattr(tile, f'{name}_coordinates')\n            distance\
+    \ = util.distance_between(player.coordinates, coords)\n            direction =\
+    \ util.direction_between(player.coordinates, coords)\n            if not distance:\n\
+    \                directions = 'here'\n            else:\n                directions\
+    \ = f'{distance} {direction.name}'\n            items.append(Item(f'{name.capitalize()}\
+    \ of {tile.name}: {directions} {util.format_coordinates(coords)}', 'autostroll',\
+    \ args=[dict(x=coords[0], y=coords[1])]))\n    menu(con, Menu('Select Room Feature',\
+    \ items))\nelse:\n    player.message('This room is featureless.')\n", ctrl: false,
+  id: 107, name: F, shift: true}
+Task:
+- {code: "started = time()\nlogger.info('Dumping database to disk...')\n# I got the\
+    \ below filename from the first answer at:\n# http://stackoverflow.com/questions/10607688/how-to-create-a-file-name-with-the-current-date-time-in-python\n\
+    output = 'world.dump %s.yaml' % strftime(\"%Y-%m-%d %H-%M-%S\")\ndump_db(filename=output,\
+    \ thread=True)\nlogger.info(\n    'Objects dumped: %d (%.2f seconds).', Base.number_of_objects(),\
+    \ time() - started\n)\n", description: Dump the database to disk, id: 1, interval: 1800.0,
+  name: Dump, next_run: 1525650078.5178041}
+- {code: "for obj in Zone.query(\n    sqlalchemy.or_(Zone.speed.isnot(None), Zone.acceleration.isnot(None))\n\
+    ):\n    ship = obj.starship\n    # Speed code:\n    if obj.speed is None:\n  \
+    \      # Let's clear speed.\n        obj.speed = 0.0\n    if obj.acceleration:\n\
+    \        if obj.direction is not None:\n            if obj.accelerating:\n   \
+    \             obj.speed += obj.acceleration\n            else:\n             \
+    \   obj.speed -= obj.acceleration\n                if obj.speed < 0.0:\n     \
+    \               obj.speed = 0.0\n                    ship.set_acceleration(0.0,\
+    \ True)\n                elif obj.speed > light_speed:\n                    #\
+    \ Simulate time dilation or something.\n                    obj.speed = uniform(light_speed\
+    \ - (km * 1000), light_speed)\n            for name in ('x', 'y', 'z'):\n    \
+    \            value = getattr(obj, name)\n                value += (obj.speed *\
+    \ getattr(obj.direction, name))\n                setattr(obj, name, value)\n \
+    \   if ship is not None:\n        # Ship-specific code goes here.\n        t =\
+    \ ship.target\n        if t is not None:\n            deceleration_distance =\
+    \ ship.get_deceleration_distance()\n            target_distance = util.distance_between(obj.coordinates,\
+    \ t.coordinates)\n            d = util.direction_between(obj.coordinates, t.coordinates)\n\
+    \            if d is None:\n                # We are probably here.\n        \
+    \        if not obj.speed:  # We arrived without overshooting.\n             \
+    \       assert obj.coordinates == t.coordinates\n                    ship.target_object\
+    \ = None\n                    ship.target_coordinates = None\n            else:\n\
+    \                obj.direction = d\n                if target_distance > deceleration_distance:\n\
+    \                    # Start accelerating.\n                    max_acceleration\
+    \ = getattr(ship.engine, 'max_acceleration', 1.0)\n                    acceleration\
+    \ = sum(util.frange(0.0, target_distance, max_acceleration))\n               \
+    \     accelerating = True\n                else:\n                    # Start\
+    \ decelerating.\n                    acceleration = deceleration_distance\n  \
+    \                  accelerating = False\n                ship.set_acceleration(min(1.0,\
+    \ acceleration), accelerating=accelerating)\n", description: Move space stuff
+    around., id: 2, interval: 1.0, name: Space, next_run: 1525649904.5179894}
+- {code: "now = time()\nfor cls in Base._decl_class_registry.values():\n    if not\
+    \ isclass(\n        cls\n    ) or base.RandomSoundContainerMixin not in cls.__bases__:\n\
+    \        continue\n    for obj in cls.query(\n        cls.next_random_sound.isnot(None),\n\
+    \        cls.next_random_sound < now\n    ):\n        if obj.random_sounds:\n\
+    \            obj.play_random_sound()\n        else:\n            obj.next_random_sound\
+    \ = 0.0\n        s.add(obj)", description: Play random sounds in rooms and the
+    like., id: 3, interval: 1.0, name: Random Sounds, next_run: 1525649904.5179894}
+- {code: "for obj in Object.join(Object.mobile).filter(\n    Object.location_id.isnot(None),\
+    \ Object.mobile_id.isnot(None),\n    Mobile.next_move < time(), Mobile.paused.is_(False)\n\
+    ):\n    obj.mobile.move()\n", description: Move mobiles around., id: 4, interval: 1.0,
+  name: Mobiles, next_run: 1525649904.5179894}
+- {code: "objects = 0\nstarted = time()\nlogger.info('Purging old objects...')\noldest\
+    \ = datetime.datetime.utcnow() - server_options().purge_after\nfor q in [\n  \
+    \  LoggedCommand.query(LoggedCommand.created < oldest),\n    CommunicationChannelMessage.query(CommunicationChannelMessage.created\
+    \ < oldest),\n    Player.query(object=None),\n    Entrance.query(object=None),\n\
+    \    Object.query(Object.player_id.isnot(None), steps=0)\n]:\n    logger.info('<sql>\\\
+    n%s\\n</sql>', q)\n    objects += q.count()\n    q.delete(synchronize_session=False)\n\
+    s.commit()\nlogger.info('Purged objects: %d in %.2f seconds.', objects, time()\
+    \ - started)", description: Purge unneeded objects., id: 5, interval: 86400.0,
+  name: Purge, next_run: 1525731076.5178404}
+- {code: "now = time()\nfor route in TransitRoute.query(\n    sqlalchemy.or_(\n  \
+    \      TransitRoute.next_move.is_(None),\n        TransitRoute.next_move <= now\n\
+    \    ),\n    paused=False\n):\n    if not route.stops:\n        continue\n   \
+    \ if route.next_stop_id is None or route.next_stop not in route.stops:\n     \
+    \   route.next_stop_id = route.stops[0].id\n        s.add(route)\n    obj = route.object\n\
+    \    if obj.location is None:\n        #We're in transit, let's pull into a stop.\n\
+    \        stop = route.next_stop\n        assert stop.location is not None, f'This\
+    \ stop ({repr(stop)}) has no location.'\n        obj.move(stop.location, stop.coordinates)\n\
+    \        assert obj.location is stop.location, f'This object ({obj.get_name(True)})\
+    \ failed to move to the next stop ({repr(stop)}).'\n        s.add(obj)\n     \
+    \   s.commit()\n        obj.do_social(route.arrive_msg, _channel='transit-arrive')\n\
+    \        if route.arrive_sound is not None:\n            obj.sound(get_sound(route.arrive_sound))\n\
+    \        i = route.stops.index(route.next_stop)\n        i += 1\n        if i\
+    \ >= len(route.stops):\n            i = 0\n        stop = route.stops[i]\n   \
+    \     route.next_stop_id = stop.id\n        s.add(route)\n        if route.room\
+    \ is not None:\n            here = obj.location.get_name()\n            new =\
+    \ stop.location.get_name()\n            when = util.format_timedelta(datetime.timedelta(seconds=stop.before_departure\
+    \ + stop.after_departure))\n            route.room.broadcast_command(message,\
+    \ route.arrive_other_msg.format(here, new, when))\n            if route.arrive_other_sound\
+    \ is not None:\n                sound = get_sound(route.arrive_other_sound)\n\
+    \                for occupant in route.room.objects:\n                    occupant.sound(sound,\
+    \ private=True)\n        route.next_move = now + stop.before_departure\n    else:\n\
+    \        # We're at a stop. Let's move out.\n        stop = route.next_stop\n\
+    \        obj.do_social(route.depart_msg, _channnel='transit-depart')\n       \
+    \ if route.depart_sound is not None:\n            obj.location.broadcast_command(random_sound,\
+    \ get_sound(route.depart_sound), *obj.coordinates, 1.0)\n        if route.room\
+    \ is not None:\n            here = obj.location.get_name(False)\n            new\
+    \ = route.next_stop.location.get_name(False)\n            when = util.format_timedelta(datetime.timedelta(seconds=route.next_stop.after_departure))\n\
+    \            route.room.broadcast_command(message, route.depart_other_msg.format(here,\
+    \ new, when))\n            if route.depart_other_sound is not None:\n        \
+    \        sound = get_sound(route.depart_other_sound)\n                for occupant\
+    \ in route.room.objects:\n                    occupant.sound(sound, private=True)\n\
+    \        route.next_move = now + stop.after_departure\n        obj.move(None,\
+    \ (0.0, 0.0, 0.0))\n    s.add_all([obj, route])\n", description: Move transit
+    vehicles along their designated routes., id: 6, interval: 1.0, name: Transit Routes,
+  next_run: 1525649904.5179894}
+- {code: "for ship in Starship.query(landing=True):\n    obj = ship.object\n    e\
+    \ = obj.engine\n    obj.z = max(0.0, obj.z - e.land_speed)\n    ship.zone.coordinates\
+    \ = obj.coordinates\n    obj.update_neighbours()\n    if not obj.z:\n        ship.landing\
+    \ = None\n        obj.do_social(ship.land_msg)\n        if ship.land_sound is\
+    \ not None:\n            obj.sound(get_sound(ship.land_sound))\n\nfor ship in\
+    \ Starship.query(landing=False):\n    obj = ship.object\n    loc = obj.location\n\
+    \    e = ship.engine\n    obj.z = min(loc.size_z, obj.z + e.launch_speed)\n  \
+    \  ship.zone.coordinates = obj.coordinates\n    if obj.z >= loc.size_z:\n    \
+    \    obj.location_id = None\n        loc.broadcast_command(delete, obj.id)\n \
+    \       ship.landing = None\n        ship.zone.coordinates = loc.zone.coordinates",
+  description: Manage the landing and launching of starships., id: 7, interval: 0.0,
+  name: Landing and Launching, next_run: 1525649904.5173895}
+- {code: "if not randint(0, 10):\n    adverts = Advert.query().all()\n    if adverts:\n\
+    \        ad = choice(adverts)\n        ad.last_shown = datetime.datetime.utcnow()\n\
+    \        sound = get_sound(os.path.join('notifications', 'advert.wav'))\n    \
+    \    for player in Object.join(Object.player).filter(Object.connected.is_(True),\
+    \ Player.donator.is_(False)):\n            con = player.get_connection()\n   \
+    \         interface_sound(con, sound)\n            message(con, ad.text)\n   \
+    \         message(con, 'For more information, press the A key.')\n", description: Show
+    adverts to non donators., id: 8, interval: 60.0, name: Adverts, next_run: 1525649946.5172706}
+- {code: "now = time()\nfor phone in Phone.query(\n    Phone.state.is_(PhoneStates.ringing),\n\
+    sqlalchemy.or_(Phone.next_ring.is_(None), Phone.next_ring < now)\n):\n    obj\
+    \ = phone.object\n    phone.next_ring = now + phone.ring_every\n    obj.sound(phone.ring_sound)",
+  description: Make phones ring., id: 9, interval: 1.0, name: Ringtone, next_run: 1525649904.5179894}
+- {code: "error_sound = get_sound('communication/error.wav')\nfor obj in Object.join(Object.location).filter(Object.connected.is_(True),\
+    \ Object.name.startswith('Passenger'), Room.zone_id != 1):\n    interface_sound(obj.get_connection(),\
+    \ error_sound)\n    obj.message('You have not yet set a character name. Please\
+    \ do that from within the game menu which you can access with the escape key.\
+    \ Once there, click on \"Options\".')\n", description: Remind players without
+    proper names to set them., id: 10, interval: 60.0, name: Player Names, next_run: 1525649946.5172706}
