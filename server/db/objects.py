@@ -674,7 +674,7 @@ class Object(
             self.update_neighbours()
             tile = location.tile_at(*coordinates)
             if tile is not None:
-                tile.step_on(self)
+                tile.step_on(self, private=bool(self.following))
             self.identify_location()
 
     def clear_following(self):
