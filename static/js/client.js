@@ -406,6 +406,7 @@ for (let button of document.querySelectorAll(".key-standard")) {
 document.ontouchstart = unlock_audio
 document.onkeydown = (e) => {
     let current = document.activeElement
+    write_message(`Key: ${e.key}.`)
     if (
         (
             (
@@ -443,7 +444,6 @@ document.onkeydown = (e) => {
     }
     if (!modifiers.count && key == "ESCAPE" && escape_element !== null) {
         hide(escape_element)
-    // } else if (escape_element === copy_div && current.type == "button" && !modifiers.count && [" ", "ENTER"].includes(key)) {
     } else if (escape_element !== null) {
         return
     } else {
