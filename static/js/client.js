@@ -404,6 +404,7 @@ for (let button of document.querySelectorAll(".key-standard")) {
 }
 
 document.ontouchstart = unlock_audio
+
 document.onkeydown = (e) => {
     let current = document.activeElement
     if (
@@ -423,8 +424,8 @@ document.onkeydown = (e) => {
     }
     let key = e.key.toUpperCase()
     if (escape_element === menu && key != "ESCAPE") {
+        console.log(`Key: "${key}".`)
         let func = menu_keys[key]
-        console.log(func)
         if (func !== undefined) {
             func(e)
         }
