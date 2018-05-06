@@ -12,6 +12,8 @@ from . import db
 from .protocol import interface_sound, message
 from .socials import factory
 
+nothing = object()
+
 
 def now(when=None):
     """Returns local game time according to ServerOptions.time_difference. If
@@ -138,11 +140,11 @@ def show_objects(player, f=None):
     interface_sound(con, sound)
 
 
-def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
+def walk(player, x=0, y=0, z=0, observe_speed=True, sound=nothing):
     """Walk player by the amount specified. If observe does not evaluate to
     True then the maximum speed of the player is ignored (used by WalkTask). If
-    sound is None then the default walk sound for the current room will be
-    used."""
+    sound is nothing then the default walk sound for the current room will be
+    used. If it is None then the walk will be silent."""
     if player.resting_state is not db.RestingStates.standing:
         player.message('You must stand up first.')
         return False  # Stop any walk task.
@@ -188,7 +190,7 @@ def walk(player, x=0, y=0, z=0, observe_speed=True, sound=None):
                     func(obj, private=(obj is not player))
                 if obj is player:
                     wsound = sound
-                    if wsound is None:
+                    if wsound is nothing:
                         wsound = default_walk_sound
                 else:
                     wsound = default_walk_sound
