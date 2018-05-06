@@ -169,7 +169,7 @@ def authenticated_key(con, name, modifiers=None):
             name = remap.to_key
             modifiers = remap.to_modifiers
         if player.data.get('debug', False):
-            player.message(f'{modifiers}: {name}.')
+            player.message(f'{repr(modifiers)}: {repr(name)}.')
         if con.object_id is None:
             obj = None
         else:
