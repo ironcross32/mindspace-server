@@ -69,18 +69,21 @@ class RoomFloorTile(Base, NameMixin):
             return self.start_y <= y and self.end_y >= y and self.end_z >= z
         return False
 
-    def step_on(self, obj):
+    def step_on(self, obj, private=False):
         """Object obj has stepped onto this tile."""
-        self.tell_object(obj, self.step_on_msg)
+        self.tell_object(obj, self.step_on_msg, private)
 
-    def step_off(self, obj):
+    def step_off(self, obj, private=False):
         """Object obj has stepped off this tile."""
-        self.tell_object(obj, self.step_off_msg)
+        self.tell_object(obj, self.step_off_msg, private)
 
-    def tell_object(self, obj, msg):
+    def tell_object(self, obj, msg, private):
         """Tell message msg to Object obj."""
-        string = factory.get_strings(msg, [obj, self])[0]
-        obj.message(string)
+        if private:
+            string = factory.get_strings(msg, [obj, self])[0]
+            obj.message(string)
+        else:
+            obj.do_social(msg, _others=[self])
 
 
 class RoomAirlock(Base, CoordinatesMixin, BoardMixin, LeaveMixin):
