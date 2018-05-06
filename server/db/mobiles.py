@@ -1,13 +1,10 @@
 """Provides the Mobile class."""
 
-import os
-import os.path
 from time import time
 from random import uniform, choice
 from sqlalchemy import Column, Float, Boolean
 from .base import Base, Sound, PauseMixin
 from .directions import Direction
-from .rooms import floor_types_dir
 from .objects import Object
 from .entrances import Entrance
 from .session import Session
@@ -30,7 +27,7 @@ class Mobile(Base, PauseMixin):
         if self.move_sound is None:
             return self.object.location.get_walk_sound()
         else:
-            return get_sound(os.path.join(floor_types_dir, self.move_sound))
+            return get_sound(self.move_sound)
 
     def move(self):
         """Move this object a bit."""
@@ -54,7 +51,7 @@ class Mobile(Base, PauseMixin):
             ]
             if obj.recent_exit_id is not None:
                 args.append(Object.id != obj.recent_exit_id)
-            exits = Session.query(Object).join(Entrance).filter(*args).all()
+            exits = Object.join(Entrance).filter(*args).all()
             if exits:
                 # We found one.
                 exit = choice(exits)
