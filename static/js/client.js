@@ -409,7 +409,7 @@ document.onkeydown = (e) => {
     if (
         (
             (
-                e.key != "ESCAPE"
+                [" ", "ESCAPE"].includes(e.key)
             ) && (
                 e.key === undefined || !connected || [
                     "text", "password", "textarea", "number", "select-one"
