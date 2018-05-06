@@ -25,7 +25,7 @@ def location(con, obj=None):
     player = con.get_player()
     if obj is None:
         obj = player.location
-    player.message(obj.get_name(player.is_staff))
+    player.message(obj.get_name(player.is_staff), channel='room_name')
     if obj.ambience is None:
         sound = None
     else:
@@ -37,7 +37,7 @@ def location(con, obj=None):
         music = get_sound(os.path.join('music', obj.music))
         music = music.dump()
     con.send('location', obj.name, sound, obj.ambience_volume, music)
-    message(con, obj.get_description())
+    message(con, obj.get_description(), channel='room_description')
     convolver(con, obj.convolver, obj.convolver_volume)
 
 
