@@ -5,7 +5,7 @@ import logging
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from time import time
 from server.db import (
-    load_db, dump_db, get_classes, session, Hotkey, Command, Credit, Base
+    load_db, dump_db, get_classes, session, Hotkey, Command, Credit, Base, Task
 )
 
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
@@ -30,7 +30,7 @@ def main():
     )
     with session() as s:
         for cls in get_classes():
-            if cls in (Hotkey, Command, Credit):
+            if cls in (Hotkey, Command, Credit, Task):
                 continue  # Don't delete those.
             q = cls.query()
             logging.info(
