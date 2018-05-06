@@ -16,6 +16,7 @@ class Mobile(Base, PauseMixin):
     """Make an object mobile."""
 
     __tablename__ = 'mobiles'
+    move_silently = Column(Boolean, nullable=False, default=False)
     move_sound = Column(Sound, nullable=True)
     next_move = Column(Float, nullable=False, default=0.0)
     min_move_interval = Column(Float, nullable=False, default=5.0)
@@ -24,7 +25,9 @@ class Mobile(Base, PauseMixin):
 
     def get_move_sound(self):
         """Get an appropriate movement sound for this object."""
-        if self.move_sound is None:
+        if self.move_silently is None:
+            return
+        elif self.move_sound is None:
             return self.object.location.get_walk_sound()
         else:
             return get_sound(self.move_sound)
