@@ -1,6 +1,5 @@
 /* global Cookies, reverbjs */
 
-let debug = false
 let cookies_options = {expires: 365}
 let recorder = null
 let cancel_recording = false
@@ -425,6 +424,7 @@ document.onkeydown = (e) => {
     let key = e.key.toUpperCase()
     if (escape_element === menu && key != "ESCAPE") {
         let func = menu_keys[key]
+        console.log(func)
         if (func !== undefined) {
             func(e)
         }
@@ -447,9 +447,6 @@ document.onkeydown = (e) => {
     } else if (escape_element !== null) {
         return
     } else {
-        if (debug) {
-            write_message(`Key: "${key}".`)
-        }
         if (["'", "ENTER", " ", "TAB", "W", "Q", "T", "N"].includes(key) || key[0] == "F") {
             e.preventDefault()
         }
