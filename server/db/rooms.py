@@ -39,7 +39,7 @@ class RoomFloorTile(Base, NameMixin):
     end_x = Column(Float, nullable=False)
     end_y = Column(Float, nullable=False)
     end_z = Column(Float, nullable=False)
-    floor_type = message(None)
+    floor_type = Column(Sound, nullable=True)
     step_on_msg = message('%1N step%1s onto %2n.')
     step_off_msg = message('%1N step%1s off %2n.')
 
