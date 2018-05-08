@@ -334,23 +334,27 @@ document.getElementById("username").focus()
 // https://paulbakaus.com/tutorials/html5/web-audio-on-ios/
 
 let audio_unlocked = false
+let speech_unlocked = false
 
-function unlock_audio() {
-    if(audio_unlocked) {
-        return
+function unlock_apple() {
+    if(!audio_unlocked) {
+        // create empty buffer and play it
+        let buffer = audio.createBuffer(1, 1, 22050)
+        let source = audio.createBufferSource()
+        source.buffer = buffer
+        source.connect(audio.destination)
+        source.start()
+        // by checking the play state after some time, we know if we're really unlocked
+        setTimeout(function() {
+            if((source.playbackState === source.PLAYING_STATE || source.playbackState === source.FINISHED_STATE)) {
+                audio_unlocked = true
+            }
+        }, 0)
     }
-    // create empty buffer and play it
-    let buffer = audio.createBuffer(1, 1, 22050)
-    let source = audio.createBufferSource()
-    source.buffer = buffer
-    source.connect(audio.destination)
-    source.start()
-    // by checking the play state after some time, we know if we're really unlocked
-    setTimeout(function() {
-        if((source.playbackState === source.PLAYING_STATE || source.playbackState === source.FINISHED_STATE)) {
-            audio_unlocked = true
-        }
-    }, 0)
+    if (!speech_unlocked) {
+        speak("TTS Initialised.")
+    }
+    
 }
 
 let keyboard_transformations = {
@@ -403,7 +407,7 @@ for (let button of document.querySelectorAll(".key-standard")) {
     button.onclick = standard_key
 }
 
-document.ontouchstart = unlock_audio
+document.ontouchstart = unlock_apple
 
 document.onkeydown = (e) => {
     let current = document.activeElement
@@ -640,7 +644,7 @@ function set_title(name) {
     document.title = title
 }
 
-function write_message(text) {
+function speak(text) {
     if (voice_enable.checked) {
         let msg = new SpeechSynthesisUtterance(text)
         msg.rate = parseInt(voice_rate.value)
@@ -649,7 +653,12 @@ function write_message(text) {
             msg.voice = tts.getVoices()[voice_index]
         }
         tts.speak(msg)
+        speech_unlocked = true
     }
+}
+
+function write_message(text) {
+    speak(text)
     let p = document.createElement("p")
     p.innerText = text
     output.appendChild(p)
