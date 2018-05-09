@@ -586,6 +586,7 @@ class Object(
     def use_exit(self, player):
         """Move player and their followers through this object if it is an
         exit."""
+        player.stop_walking()  # Stop their walk task.
         entrance = self.exit
         assert entrance is not None, '%s is not an exit.' % self
         con = player.get_connection()
@@ -716,3 +717,17 @@ class Object(
         else:
             gid = self.gender_id
         return Base._decl_class_registry['Gender'].get(gid)
+
+    def stop_walking(self):
+        """Stop this object walking if it is doing so."""
+        con = self.get_connection()
+        if con is None:
+            return True
+        elif con.walk_task is not None:
+            try:
+                con.walk_task.stop()
+            except AssertionError:
+                pass
+            return True
+        else:
+            return False
