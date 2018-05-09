@@ -237,7 +237,7 @@ def handle_traceback(e, program_name, player_name, location_name):
         )
         s.add(channel)
         s.commit()
-    sender = ServerOptions.get().system_object
+    sender = ServerOptions.instance().system_object
     assert sender is not None
     channel.transmit(sender, tb, strict=False)
 
@@ -270,7 +270,7 @@ ctx = dict(
     re=re,
     sqlalchemy=sqlalchemy,
     server_info=server_info,
-    server_options=db.ServerOptions.get,
+    server_options=db.ServerOptions.instance,
     SocialsError=SocialsError,
     socials=factory,
     time=time,

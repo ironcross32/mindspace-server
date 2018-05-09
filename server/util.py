@@ -21,7 +21,7 @@ def now(when=None):
     datetime.utcnow()."""
     if when is None:
         when = datetime.utcnow()
-    return when - db.ServerOptions.get().time_difference
+    return when - db.ServerOptions.instance().time_difference
 
 
 def directions(c1, c2, format=int):

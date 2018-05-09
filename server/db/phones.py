@@ -234,7 +234,7 @@ class Phone(Base, PhoneAddressMixin):
     def random_address(cls):
         """Generate a random (but possibly not unique) address."""
         return random_password(
-            length=ServerOptions.get().max_phone_address_length,
+            length=ServerOptions.instance().max_phone_address_length,
             characters=digits
         )
 

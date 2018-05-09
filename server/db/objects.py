@@ -182,7 +182,7 @@ class Object(
         name or None."""
         if self.last_name_change is not None:
             elapsed = datetime.utcnow() - self.last_name_change
-            i = ServerOptions.get().name_change_interval
+            i = ServerOptions.instance().name_change_interval
             if elapsed < i:
                 return i - elapsed
 

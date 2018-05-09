@@ -36,7 +36,7 @@ insecure_app = Klein()
 def redirect(request):
     return request.redirect(
         urljoin(
-            b'https://%s:%d' % (hostname, ServerOptions.get().https_port),
+            b'https://%s:%d' % (hostname, ServerOptions.instance().https_port),
             request.path
         )
     )
@@ -55,7 +55,7 @@ class Server:
 
     def valid_name(self, name):
         """Ensure a name is free of curses."""
-        m = re.match(ServerOptions.get().character_name_regexp, name)
+        m = re.match(ServerOptions.instance().character_name_regexp, name)
         if m is None:
             return False
         name = name.lower()
@@ -74,7 +74,7 @@ class Server:
     def start_listening(self, private_key, certificate_key):
         """Start everything listening."""
         self.started = datetime.utcnow()
-        o = ServerOptions.get()
+        o = ServerOptions.instance()
         web = Site(app.resource())
         ssl_context = ssl.DefaultOpenSSLContextFactory(
             private_key, certificate_key
@@ -127,7 +127,7 @@ class ProtocolBase:
         self.logger.info('Connected.')
         server.connections.append(self)
         self.parser = login_parser
-        message(self, ServerOptions.get().connect_msg)
+        message(self, ServerOptions.instance().connect_msg)
 
     def on_disconnect(self, reason):
         self.shell = None
@@ -225,7 +225,7 @@ class MindspaceWebSocketProtocol(WebSocketServerProtocol, ProtocolBase):
         try:
             self.parser.handle_command(name, self, *args, **kwargs)
         except Exception as e:
-            message(self, ServerOptions.get().command_error_msg)
+            message(self, ServerOptions.instance().command_error_msg)
             handle_traceback(e, 'handle_string', player_name, location_name)
 
     def send(self, name, *args, **kwargs):

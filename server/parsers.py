@@ -109,7 +109,7 @@ def login(con, username, password):
         obj.register_connection(con)
         obj.message(msg)
         if obj.location is None:
-            obj.location = ServerOptions.get().first_room
+            obj.location = ServerOptions.instance().first_room
             s.add(obj)
         obj.message('Welcome back, %s.' % player.username)
         for character in Object.join(Object.player).filter(
@@ -145,7 +145,7 @@ def login(con, username, password):
 @main_parser.command
 def speak(con, data):
     """Send out microphone data."""
-    if len(data) > ServerOptions.get().max_speak_length:
+    if len(data) > ServerOptions.instance().max_speak_length:
         message(con, 'Transmition too long.')
     else:
         con.get_player().speak(data)

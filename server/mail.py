@@ -17,7 +17,7 @@ class Message(MIMEText):
         if subject is not None:
             self['Subject'] = subject
         self['To'] = ', '.join(recipients)
-        o = ServerOptions.get()
+        o = ServerOptions.instance()
         addr = o.mail_from_address
         sender = formataddr((o.mail_from_name, addr))
         self['From'] = sender
