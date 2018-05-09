@@ -1,5 +1,6 @@
 """Utility functions."""
 
+import logging
 from time import time
 from datetime import datetime
 from math import sin, cos, radians, pi, degrees, atan2
@@ -215,9 +216,12 @@ class WalkTask(LoopingCall):
 
     def __attrs_post_init__(self):
         super().__init__(self.walk)
+        self.logger = logging.getLogger(f'{db.Object.get(self.id)} walk task')
 
     def start(self):
-        super().start(db.Object.get(self.id).speed)
+        super().start(
+            db.Object.get(self.id).speed
+        ).addCallback(self.logger.info).addErrback(self.logger.error)
 
     def walk(self):
         """Make the player walk."""
