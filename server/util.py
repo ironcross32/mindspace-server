@@ -218,10 +218,14 @@ class WalkTask(LoopingCall):
         super().__init__(self.walk)
         self.logger = logging.getLogger(f'{db.Object.get(self.id)} walk task')
 
+    def log_error(self, failure):
+        """Log a failure instance."""
+        self.logger.exception(failure.getTraceback())
+
     def start(self):
         super().start(
             db.Object.get(self.id).speed
-        ).addCallback(self.logger.info).addErrback(self.logger.error)
+        ).addCallback(self.logger.info).addErrback(self.log_error)
 
     def walk(self):
         """Make the player walk."""
