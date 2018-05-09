@@ -397,16 +397,17 @@ Command:
     \    player.message(str(e))\r\nelse:\r\n    player.message('You must emote something.')",
   id: 39, name: emote}
 - {builder: true, code: "def parse_args(zone_id=None, room_id=None):\n    return (zone_id,\
-    \ room_id)\n\nzone_id, room_id = parse_args(*a)\n\nitems = [LabelItem('Teleport')]\n\
-    if zone_id is None:\n    for z in Zone.query().order_by(Zone.name):\n        items.append(Item(z.get_name(True),\
+    \ room_id)\n\ncoordinates = kw.get('coordinates', (0.0, 0.0, 0.0))\nzone_id, room_id\
+    \ = parse_args(*a)\n\nitems = [LabelItem('Teleport')]\nif zone_id is None:\n \
+    \   for z in Zone.query().order_by(Zone.name):\n        items.append(Item(z.get_name(True),\
     \ __name__, args=[z.id]))\nelif room_id is None:\n    zone = Zone.get(zone_id)\n\
     \    valid_object(player, zone)\n    for r in Room.query(zone_id=zone_id).order_by(Room.name):\n\
     \        items.append(Item(r.get_name(True), __name__, [zone.id, r.id]))\nelse:\n\
     \    room = Room.get(room_id)\n    valid_object(player, room)\n    if room is\
     \ player.location:\n        player.message('You are already there.')\n    else:\n\
-    \        player.teleport(room, (0.0, 0.0, 0.0))\n    end()\nitems.extend(\n  \
-    \  [\n        LabelItem('Actions'),\n        Item('Set Home', 'set_home')\n  \
-    \  ]\n)\nif player.player.home is not None:\n    items.append(Item('Home', __name__,\
+    \        player.teleport(room, coordinates)\n    end()\nitems.extend(\n    [\n\
+    \        LabelItem('Actions'),\n        Item('Set Home', 'set_home')\n    ]\n\
+    )\nif player.player.home is not None:\n    items.append(Item('Home', __name__,\
     \ args=[player.player.home.zone_id, player.player.home.id]))\nmenu(con, Menu('Teleport',\
     \ items, escapable=True))\n", id: 40, name: teleport}
 - {admin: true, code: "def parse_args(id, hotkey_id=None):\n    return (id, hotkey_id)\n\
@@ -1647,8 +1648,9 @@ Command:
     \     player.message('New style set.', channel=style.name)\n", id: 175, name: text_styles}
 - {admin: true, code: "player.message('Cleaning the database...')\ngone = 0\nfor cls\
     \ in (CommunicationChannelMessage, Revision, LoggedCommand):\n    deleted = cls.query().delete()\n\
-    \    gone += deleted\n    player.message(f'{cls.__name__}: {deleted}')\nplayer.message(f'Objects\
-    \ deleted: {gone}.')\n", id: 176, name: clean_db}
+    \    gone += deleted\n    player.message(f'{cls.__table__.name.replace(\"_\",\
+    \ \" \").capitalize()}: {deleted}')\nplayer.message(f'Objects deleted: {gone}.')\n",
+  id: 176, name: clean_db}
 - {builder: true, code: "def parse_args(start_coordinates=None, end_coordinates=None,\
     \ name=None, floor_type=False):\n    return (start_coordinates, end_coordinates,\
     \ name, floor_type)\n\nstart_coordinates, end_coordinates, name, floor_type =\
@@ -1759,6 +1761,28 @@ Command:
     \ string]),\n        Item('Copy CSS', 'copy', args=[string])\n    ]\n)\n\nplayer.message('This\
     \ is how your new style looks so far.', style=string)\nmenu(con, Menu('Generate\
     \ CSS', items))\n", id: 182, name: generate_css}
+- {code: "if a:\n    text = a[0]\n    r = BugReport(text=a[0])\n    r.owner = player\n\
+    \    r.location = player.location\n    r.coordinates = player.coordinates\n  \
+    \  s.add(r)\n    s.commit()\n    player.message('Bug report submitted. Thank you\
+    \ for your feedback.')\nelse:\n    get_text(con, 'Enter the text of the bug report.',\
+    \ __name__, multiline=True)\n", id: 183, name: bug_report}
+- {admin: true, code: "def parse_args(report_id=None, read=False):\n    return (report_id,\
+    \ read)\n\nreport_id, read = parse_args(*a)\n\nif report_id is None:\n    q =\
+    \ BugReport.query(read=False).order_by(BugReport.created)\n    items = [LabelItem(f'Bug\
+    \ Reports ({q.count()})')]\n    for report in q:\n        items.append(Item(f'Bug\
+    \ report from {report.owner} at {report.location} {util.format_coordinates(report.coordinates)}',\
+    \ __name__, args=[report.id]))\n    menu(con, Menu('Bug Reports', items))\nelse:\n\
+    \    report = BugReport.get(report_id)\n    if read:\n        player.message('Marked\
+    \ report as read.')\n        report.read = True\n    items = [\n        LabelItem(f'Bug\
+    \ Report #{report.id}'),\n        CopyItem(f'Submitted: {report.created.ctime()}'),\n\
+    \        CopyItem(f'Reported by: {report.owner}'),\n        CopyItem(f'Reported\
+    \ from: {report.location} {util.format_coordinates(report.coordinates)}'),\n \
+    \       LabelItem('---'),\n        Item('Mark Read', __name__, args=[report.id,\
+    \ True])\n    ]\n    for line in report.text.splitlines():\n        if line:\n\
+    \            items.append(CopyItem(line))\n    items.append(Item('Visit Scene',\
+    \ 'teleport', args=[report.location.zone_id, report.location_id], kwargs={'coordinates':\
+    \ report.coordinates}))\n    menu(con, Menu('Bug Report', items))\n", id: 184,
+  name: bug_reports}
 Credit:
 - {description: For inspiring me to write this game., id: 1, name: Science Fiction
     Authors}
@@ -1783,7 +1807,7 @@ Hotkey:
   shift: false}
 - {admin: true, alt: false, code: "names = ('Command', 'Hotkey', 'Action', 'Task',\
     \ 'StarshipEngine', 'ObjectType', 'Gender', 'Currency', 'Zone', 'Bank')\nitems\
-    \ = [Item('Search', None)]\nfor name in names:\n    items.append(Item(f'Search\
+    \ = [LabelItem('Search')]\nfor name in names:\n    items.append(Item(f'Search\
     \ {name}s', 'search_', args=[name, 'menu_']))\nitems.extend(\n    [\n        Item('Find\
     \ Object', 'find_object'),\n        LabelItem('Add, Edit, and Delete')\n    ]\n\
     )\nfor name in names:\n    cls = Base._decl_class_registry[name]\n    items.append(LabelItem(name\
@@ -1791,24 +1815,26 @@ Hotkey:
     \ and action == 'add':\n            items.append(Item('Add Bank', 'add_bank'))\n\
     \        else:\n            items.append(Item(f'{action.title()} {name}', f'{action}_',\
     \ args=[name]))\n    if hasattr(cls, 'revisions'):\n        items.append(Item(f'{name}\
-    \ Revisions', 'show_revisions', args=[name]))\nitems.extend(\n    [\n        Item('Rules',\
-    \ None),\n        Item('Add Rule', 'add_', args=['Rule']),\n        Item('Edit\
-    \ Rule', 'edit_', args=['Rule']),\n        Item('Delete Rule', 'delete_', args=['Rule']),\n\
-    \        Item('Python Console', 'key', args=['BACKSPACE']),\n        Item('Administrative\
-    \ Actions', None),\n        Item('Bring Player', 'bring_object'),\n        Item('Join\
-    \ Player', 'join_object'),\n        Item('Make an Announcement', 'announce'),\n\
-    \        Item('Manage Connections', 'manage_connections'),\n        Item('Watch\
-    \ Player', 'watch_player'),\n        Item('Shutdown', 'shutdown'),\n        LabelItem('Programming'),\n\
-    \        Item('Reset Sounds', 'reset_sounds'),\n        Item('Clean Database',\
-    \ 'clean_db')\n    ]\n)\nfor name in ('Action', 'Hotkey'):\n    for action in\
-    \ ('bind', 'unbind'):\n        items.append(Item(f'{action.title()} {name}', action,\
-    \ args=[name]))\nitems.append(Item('Server Options', 'edit_', args=['ServerOptions',\
-    \ ServerOptions.instance_id]))\nmenu(con, Menu('Administration', items, escapable=True))\n",
-  ctrl: false, description: Administration menu., id: 2, name: DELETE, shift: false}
-- {alt: false, code: "items = [\n    LabelItem('Game Options'),\n    Item('Disconnect',\
-    \ 'quit'),\n    CopyItem('No connection metrics available' if player.player.connected_time\
-    \ is None else f'Total time connected: {util.format_timedelta(player.player.connected_time)}'),\n\
-    \    Item(f'{\"set\" if player.pose is None else \"Clear\"} pose', 'set_pose'),\n\
+    \ Revisions', 'show_revisions', args=[name]))\nitems.extend(\n    [\n        LabelItem('Rules'),\n\
+    \        Item('Add Rule', 'add_', args=['Rule']),\n        Item('Edit Rule', 'edit_',\
+    \ args=['Rule']),\n        Item('Delete Rule', 'delete_', args=['Rule']),\n  \
+    \      LabelItem('Administrative Actions'),\n        Item('Server Options', 'edit_',\
+    \ args=['ServerOptions', ServerOptions.instance_id]),\n        Item('Python Console',\
+    \ 'key', args=['BACKSPACE']),\n        Item('Bug Reports', 'bug_reports'),\n \
+    \       Item('Bring Player', 'bring_object'),\n        Item('Join Player', 'join_object'),\n\
+    \        Item('Make an Announcement', 'announce'),\n        Item('Manage Connections',\
+    \ 'manage_connections'),\n        Item('Watch Player', 'watch_player'),\n    \
+    \    Item('Shutdown', 'shutdown'),\n        LabelItem('Programming'),\n      \
+    \  Item('Reset Sounds', 'reset_sounds'),\n        Item('Clean Database', 'clean_db')\n\
+    \    ]\n)\nfor name in ('Action', 'Hotkey'):\n    for action in ('bind', 'unbind'):\n\
+    \        items.append(Item(f'{action.title()} {name}', action, args=[name]))\n\
+    menu(con, Menu('Administration', items, escapable=True))\n", ctrl: false, description: Administration
+    menu., id: 2, name: DELETE, shift: false}
+- {alt: false, code: "items = [\n    LabelItem('Game Options'),\n    Item('Submit\
+    \ Bug Report', 'bug_report'),\n    Item('Disconnect', 'quit'),\n    CopyItem('No\
+    \ connection metrics available' if player.player.connected_time is None else f'Total\
+    \ time connected: {util.format_timedelta(player.player.connected_time)}'),\n \
+    \   Item(f'{\"set\" if player.pose is None else \"Clear\"} pose', 'set_pose'),\n\
     \    Item('Mail', 'mail'),\n    Item('Rules', 'rules'),\n    Item('Ideas', 'ideas'),\n\
     \    Item('Changelog', 'changelog'),\n    Item('Visit Mailing List', 'show_url',\
     \ args=['mindspace-users@groups.io', 'https://groups.io/g/mindspace-users']),\n\
@@ -2277,7 +2303,7 @@ Task:
     output = 'world.dump %s.yaml' % strftime(\"%Y-%m-%d %H-%M-%S\")\ndump_db(filename=output,\
     \ thread=True)\nlogger.info(\n    'Objects dumped: %d (%.2f seconds).', Base.number_of_objects(),\
     \ time() - started\n)\n", description: Dump the database to disk, id: 1, interval: 1800.0,
-  name: Dump, next_run: 1525854629.6740553}
+  name: Dump, next_run: 1525898844.3092747}
 - {code: "for obj in Zone.query(\n    sqlalchemy.or_(Zone.speed.isnot(None), Zone.acceleration.isnot(None))\n\
     ):\n    ship = obj.starship\n    # Speed code:\n    if obj.speed is None:\n  \
     \      # Let's clear speed.\n        obj.speed = 0.0\n    if obj.acceleration:\n\
@@ -2306,18 +2332,18 @@ Task:
     \ decelerating.\n                    acceleration = deceleration_distance\n  \
     \                  accelerating = False\n                ship.set_acceleration(min(1.0,\
     \ acceleration), accelerating=accelerating)\n", description: Move space stuff
-    around., id: 2, interval: 1.0, name: Space, next_run: 1525853440.673356}
+    around., id: 2, interval: 1.0, name: Space, next_run: 1525897300.3101227}
 - {code: "now = time()\nfor cls in Base._decl_class_registry.values():\n    if not\
     \ isclass(\n        cls\n    ) or base.RandomSoundContainerMixin not in cls.__bases__:\n\
     \        continue\n    for obj in cls.query(\n        cls.next_random_sound.isnot(None),\n\
     \        cls.next_random_sound < now\n    ):\n        if obj.random_sounds:\n\
     \            obj.play_random_sound()\n        else:\n            obj.next_random_sound\
     \ = 0.0\n        s.add(obj)", description: Play random sounds in rooms and the
-    like., id: 3, interval: 1.0, name: Random Sounds, next_run: 1525853440.673356}
+    like., id: 3, interval: 1.0, name: Random Sounds, next_run: 1525897300.3101227}
 - {code: "for obj in Object.join(Object.mobile).filter(\n    Object.location_id.isnot(None),\
     \ Object.mobile_id.isnot(None),\n    Mobile.next_move < time(), Mobile.paused.is_(False)\n\
     ):\n    obj.mobile.move()\n", description: Move mobiles around., id: 4, interval: 1.0,
-  name: Mobiles, next_run: 1525853440.673356}
+  name: Mobiles, next_run: 1525897300.3101227}
 - {code: "objects = 0\nstarted = time()\nlogger.info('Purging old objects...')\noldest\
     \ = datetime.datetime.utcnow() - server_options().purge_after\nfor q in [\n  \
     \  LoggedCommand.query(LoggedCommand.created < oldest),\n    CommunicationChannelMessage.query(CommunicationChannelMessage.created\
@@ -2326,7 +2352,7 @@ Task:
     n%s\\n</sql>', q)\n    objects += q.count()\n    q.delete(synchronize_session=False)\n\
     s.commit()\nlogger.info('Purged objects: %d in %.2f seconds.', objects, time()\
     \ - started)", description: Purge unneeded objects., id: 5, interval: 86400.0,
-  name: Purge, next_run: 1525939229.6741865}
+  name: Purge, next_run: 1525976241.3100576}
 - {code: "now = time()\nfor route in TransitRoute.query(\n    sqlalchemy.or_(\n  \
     \      TransitRoute.next_move.is_(None),\n        TransitRoute.next_move <= now\n\
     \    ),\n    paused=False\n):\n    if not route.stops:\n        continue\n   \
@@ -2362,7 +2388,7 @@ Task:
     \        route.next_move = now + stop.after_departure\n        obj.move(None,\
     \ (0.0, 0.0, 0.0))\n    s.add_all([obj, route])\n", description: Move transit
     vehicles along their designated routes., id: 6, interval: 1.0, name: Transit Routes,
-  next_run: 1525853440.673356}
+  next_run: 1525897300.3101227}
 - {code: "for ship in Starship.query(landing=True):\n    obj = ship.object\n    e\
     \ = obj.engine\n    obj.z = max(0.0, obj.z - e.land_speed)\n    ship.zone.coordinates\
     \ = obj.coordinates\n    obj.update_neighbours()\n    if not obj.z:\n        ship.landing\
@@ -2374,7 +2400,7 @@ Task:
     \    obj.location_id = None\n        loc.broadcast_command(delete, obj.id)\n \
     \       ship.landing = None\n        ship.zone.coordinates = loc.zone.coordinates",
   description: Manage the landing and launching of starships., id: 7, interval: 0.0,
-  name: Landing and Launching, next_run: 1525853439.673356}
+  name: Landing and Launching, next_run: 1525897299.3101227}
 - {code: "if not randint(0, 10):\n    adverts = Advert.query().all()\n    if adverts:\n\
     \        ad = choice(adverts)\n        ad.last_shown = datetime.datetime.utcnow()\n\
     \        sound = get_sound(os.path.join('notifications', 'advert.wav'))\n    \
@@ -2382,14 +2408,14 @@ Task:
     \ Player.donator.is_(False)):\n            con = player.get_connection()\n   \
     \         interface_sound(con, sound)\n            message(con, ad.text)\n   \
     \         message(con, 'For more information, press the A key.')\n", description: Show
-    adverts to non donators., id: 8, interval: 60.0, name: Adverts, next_run: 1525853497.6731362}
+    adverts to non donators., id: 8, interval: 60.0, name: Adverts, next_run: 1525897346.309583}
 - {code: "now = time()\nfor phone in Phone.query(\n    Phone.state.is_(PhoneStates.ringing),\n\
     sqlalchemy.or_(Phone.next_ring.is_(None), Phone.next_ring < now)\n):\n    obj\
     \ = phone.object\n    phone.next_ring = now + phone.ring_every\n    obj.sound(phone.ring_sound)",
-  description: Make phones ring., id: 9, interval: 1.0, name: Ringtone, next_run: 1525853440.673356}
+  description: Make phones ring., id: 9, interval: 1.0, name: Ringtone, next_run: 1525897300.3101227}
 - {code: "error_sound = get_sound('communication/error.wav')\nfor obj in Object.join(Object.location).filter(Object.connected.is_(True),\
     \ Object.name.startswith('Passenger'), Room.zone_id != 1):\n    interface_sound(obj.get_connection(),\
     \ error_sound)\n    obj.message('You have not yet set a character name. Please\
     \ do that from within the game menu which you can access with the escape key.\
     \ Once there, click on \"Options\".')\n", description: Remind players without
-    proper names to set them., id: 10, interval: 60.0, name: Player Names, next_run: 1525853497.6731362}
+    proper names to set them., id: 10, interval: 60.0, name: Player Names, next_run: 1525897346.309583}
