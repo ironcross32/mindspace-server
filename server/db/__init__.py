@@ -60,6 +60,7 @@ from .phones import (
     PhoneContact, Phone, PhoneStates, BlockedPhoneAddress, TextMessage
 )
 from .markers import MapMarker
+from .bug_reports import BugReport
 
 logger = logging.getLogger(__name__)
 db_file = 'world.yaml'
@@ -255,5 +256,5 @@ __all__ = (
     'TextMessage', 'RemappedHotkey', 'CreditCard', 'CreditCardTransfer',
     'TransferDirections', 'CreditCardError', 'Bank', 'BankAccountAccessor',
     'BankAccount', 'ATM', 'ATMError', 'BankAccessError', 'TextStyle',
-    'get_sorted_classes', 'floor_types_dir', 'MapMarker'
+    'get_sorted_classes', 'floor_types_dir', 'MapMarker', 'BugReport'
 )
