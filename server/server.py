@@ -143,20 +143,18 @@ class ProtocolBase:
             with session() as s:
                 player = self.get_player(s)
                 player.connected = False
-                for account in Player.query(disconnect_notifications=True):
-                    obj = account.object
-                    if obj is None:
-                        continue
+                sound = get_sound(
+                    os.path.join('notifications', 'disconnect.wav')
+                )
+                for obj in Object.join(Object.player).filter(
+                    Object.connected.is_(True),
+                    Player.disconnect_notifications.is_(True)
+                ):
                     connection = obj.get_connection()
-                    if connection is not None:
-                        name = player.get_name(obj.is_staff)
-                        msg = f'{name} has disconnected.'
-                        account.object.message(msg, channel='Connection')
-                        interface_sound(
-                            connection, get_sound(
-                                os.path.join('notifications', 'disconnect.wav')
-                            )
-                        )
+                    name = player.get_name(obj.is_staff)
+                    msg = f'{name} has disconnected.'
+                    obj.message(msg, channel='Connection')
+                    interface_sound(connection, sound)
                 player.register_connection(None)
                 s.add_all([player, player.player])
 

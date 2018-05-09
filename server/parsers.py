@@ -114,18 +114,15 @@ def login(con, username, password):
         obj.message('Welcome back, %s.' % player.username)
         obj.connected = True
         s.commit()
+        sound = get_sound(os.path.join('notifications', 'connect.wav'))
         for character in Object.join(Object.player).filter(
             Object.connected.is_(True),
             Player.disconnect_notifications.is_(True)
         ):
             connection = character.get_connection()
-            if connection is not None:
-                msg = f'{obj.get_name(character.is_staff)} has connected.'
-                character.message(msg, channel='Connection')
-                interface_sound(
-                    connection,
-                    get_sound(os.path.join('notifications', 'connect.wav'))
-                )
+            msg = f'{obj.get_name(character.is_staff)} has connected.'
+            character.message(msg, channel='Connection')
+            interface_sound(connection, sound)
         obj.identify(con)
         character_id(con, obj.id)
         obj.identify_location()
