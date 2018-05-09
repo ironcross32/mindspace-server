@@ -8,20 +8,21 @@ Command:
     \            description = f': {thing.get_description()}'\n        else:\n   \
     \         description = ''\n        items.append(Item(f'{thing}{description}',\
     \ __name__, args=[type, thing.id]))\n    m = Menu(f'Choose {cls.__name__.lower()}',\
-    \ items, escapable=True)\n    menu(con, m)\n    end()\nobj = cls.get(id)\nvalid_object(player,\
-    \ obj)\nif getattr(obj, 'owner', None) is not player:\n    check_staff(player)\n\
-    try:\n    if data:\n        for name, value in data.items():\n            if '.'\
-    \ in name:\n                where, name = name.split('.')\n                where\
-    \ = getattr(obj, where)\n            else:\n                where = obj\n    \
-    \        setattr(where, name, value)\n        s.add(obj)\n        s.commit()\n\
-    \        if isinstance(obj, Object) and obj.location is not None:\n          \
-    \  obj.update_neighbours()\n        elif isinstance(obj, Zone):\n            obj.update_occupants()\n\
-    \        player.message('Edits saved.')\n        end()\nexcept Exception as e:\n\
-    \    if isinstance(e, OK):\n        raise e\n    player.message(repr(e))\n   \
-    \ logger.warning(\n        '%s caused an error while editing %s:',\n        player.get_name(True),\
-    \ obj.get_name(True) if hasattr(obj, 'get_name') else repr(obj))\n    logger.exception(e)\n\
-    form(con, ObjectForm(obj, __name__, args=[type, obj.id], cancel='Cancel'))", id: 3,
-  name: edit_}
+    \ items, escapable=True)\n    menu(con, m)\n    end()\n# Don't use get because\
+    \ I'm an idiot and made ServerOptions stupidly.\nobj = cls.query(id=id).first()\n\
+    valid_object(player, obj)\nif getattr(obj, 'owner', None) is not player:\n   \
+    \ check_staff(player)\ntry:\n    if data:\n        for name, value in data.items():\n\
+    \            if '.' in name:\n                where, name = name.split('.')\n\
+    \                where = getattr(obj, where)\n            else:\n            \
+    \    where = obj\n            setattr(where, name, value)\n        s.add(obj)\n\
+    \        s.commit()\n        if isinstance(obj, Object) and obj.location is not\
+    \ None:\n            obj.update_neighbours()\n        elif isinstance(obj, Zone):\n\
+    \            obj.update_occupants()\n        player.message('Edits saved.')\n\
+    \        end()\nexcept Exception as e:\n    if isinstance(e, OK):\n        raise\
+    \ e\n    player.message(repr(e))\n    logger.warning(\n        '%s caused an error\
+    \ while editing %s:',\n        player.get_name(True), obj.get_name(True) if hasattr(obj,\
+    \ 'get_name') else repr(obj))\n    logger.exception(e)\nform(con, ObjectForm(obj,\
+    \ __name__, args=[type, obj.id], cancel='Cancel'))\n", id: 3, name: edit_}
 - {code: "def parse_args(t, id=None, res=None):\n    return (t, id, res)\n\ntype,\
     \ id, response = parse_args(*a)\nif type == 'Credit_Card':  # From interact_object.\n\
     \    type = 'CreditCard'\ncls = Base._decl_class_registry[type]\ncheck_staff(player)\n\
@@ -521,15 +522,15 @@ Command:
 - {code: "if con.walk_task is not None:\n    if con.walk_task.running:\n        con.walk_task.stop()\n\
     \    con.walk_task = None\n    player.message('You stop walking.')\nelif not a:\n\
     \    obj = player.scanned\n    if obj is None:\n        obj = player\n    get_text(\n\
-    \        con, 'Enter coordinates to walk to', __name__,\n        value=','.join(map(lambda\
-    \ c: str(int(c)), player.coordinates))\n    )\nelse:\n    if isinstance(a[0],\
-    \ str):\n        x, y, z = get_coordinates(player, *a)\n    else:\n        d =\
-    \ a[0]\n        x = d.get('x', player.x)\n        y = d.get('y', player.y)\n \
-    \   z = player.z  # Don't let them modify that.\n    if (x, y, z) == player.coordinates:\n\
-    \        player.message('You are already there.')\n        end()\n    con.walk_task\
-    \ = util.WalkTask(player.id, x, y, z)\n    kwargs = dict(x=x, y=y, z=z)\n    if\
-    \ not player.is_staff:\n        kwargs['hidden'] = False\n    obj = player.get_visible(**kwargs).first()\n\
-    \    if obj:\n        player.message(f'You begin walking towards {obj.get_name(player.is_staff)}.')\n\
+    \        con, 'Enter coordinates to walk to', __name__,\n        value=util.format_coordinates(obj.coordinates)\n\
+    \    )\nelse:\n    if isinstance(a[0], str):\n        x, y, z = get_coordinates(player,\
+    \ *a)\n    else:\n        d = a[0]\n        x = d.get('x', player.x)\n       \
+    \ y = d.get('y', player.y)\n    z = player.z  # Don't let them modify that.\n\
+    \    if (x, y, z) == player.coordinates:\n        player.message('You are already\
+    \ there.')\n        end()\n    con.walk_task = util.WalkTask(player.id, x, y,\
+    \ z)\n    kwargs = dict(x=x, y=y, z=z)\n    if not player.is_staff:\n        kwargs['hidden']\
+    \ = False\n    obj = player.get_visible(**kwargs).first()\n    if obj:\n     \
+    \   player.message(f'You begin walking towards {obj.get_name(player.is_staff)}.')\n\
     \    else:\n        player.message('You begin walking.')\n    con.walk_task.start()\n",
   id: 55, name: autostroll}
 - {admin: true, code: "def parse_args(type, command, text=None):\n    return (type,\
@@ -1247,9 +1248,6 @@ Command:
     \    player.location.zone.starship.target_coordinates = coords\n    player.beep()\n\
     \    player.do_social('%1N make%1s a course change.')\nelse:\n    player.message('Course\
     \ unchanged.')", id: 132, name: set_ship_coordinates}
-- {code: 'data = a[0][:ServerOptions.get().max_speak_length]
-
-    player.speak(data)', id: 133, name: speak}
 - {admin: true, code: "def parse_args(phone_id, address=None):\n    return (phone_id,\
     \ address)\n\nphone_id, address = parse_args(*a)\n\nphone = Phone.get(phone_id)\n\
     valid_object(player, phone)\n\nif not address:\n    get_text(con, 'Enter address',\
@@ -1637,15 +1635,16 @@ Command:
     \nstyle_id, style_text = parse_args(*a)\n\nif style_id is None:\n    items = [LabelItem('Text\
     \ Styles')]\n    for style in TextStyle.query(player_id=player.player_id).order_by(TextStyle.name):\n\
     \        items.append(Item(f'{\"Default\" if style.name is None else style.get_name(player.is_staff)}:\
-    \ {style.example_text}', __name__, args=[style.id]))\n    items.append(Item('CSS\
-    \ Cheatsheet', 'show_url', args=['CSS Cheatsheet', 'https://adam-marsden.co.uk/css-cheat-sheet']))\n\
-    \    menu(con, Menu('Edit Text Style', items, escapable=True))\nelse:\n    style\
-    \ = TextStyle.query(player_id=player.player_id, id=style_id).first()\n    valid_object(player,\
-    \ style)\n    if style_text is None:\n        player.message(f'Example text: {style.example_text}',\
-    \ channel=style.name)\n        get_text(con, 'Enter the new CSS', __name__, args=[style.id],\
-    \ value=style.style)\n    else:\n        style.style = style_text\n        s.add(style)\n\
-    \        s.commit()\n        player.message('New style set.', channel=style.name)\n",
-  id: 175, name: text_styles}
+    \ {style.example_text}', __name__, args=[style.id, style_text]))\n    items.extend(\n\
+    \        [\n            Item('Generate CSS', 'generate_css'),\n            Item('CSS\
+    \ Cheatsheet', 'show_url', args=['CSS Cheatsheet', 'https://adam-marsden.co.uk/css-cheat-sheet'])\n\
+    \        ]\n    )\n    menu(con, Menu('Edit Text Style', items, escapable=True))\n\
+    else:\n    style = TextStyle.query(player_id=player.player_id, id=style_id).first()\n\
+    \    valid_object(player, style)\n    if style_text is None:\n        player.message(f'Example\
+    \ text: {style.example_text}', channel=style.name)\n        get_text(con, 'Enter\
+    \ the new CSS', __name__, args=[style.id], value=style.style)\n    else:\n   \
+    \     style.style = style_text\n        s.add(style)\n        s.commit()\n   \
+    \     player.message('New style set.', channel=style.name)\n", id: 175, name: text_styles}
 - {admin: true, code: "player.message('Cleaning the database...')\ngone = 0\nfor cls\
     \ in (CommunicationChannelMessage, Revision, LoggedCommand):\n    deleted = cls.query().delete()\n\
     \    gone += deleted\n    player.message(f'{cls.__name__}: {deleted}')\nplayer.message(f'Objects\
@@ -1701,6 +1700,65 @@ Command:
     \ have nowhere else to go.')\n    else:\n        player.move(destination, (0,\
     \ 0, 0))\n        s.delete(loc)\n        s.commit()\n        player.message('Room\
     \ deleted.')\nelse:\n    player.message('Canceled.')\n", id: 181, name: delete_room}
+- {code: "font_sizes = [f'{i / 2}em' for i in range(2, 21)]\nsizes = (\n    '0px',\
+    \ '2px', '4px', '6px', '8px', '10px', '12px', '14px', '16px', '18px',\n    '20px'\n\
+    )\nborder_widths = ('thin', 'medium', 'thick')\nborder_styles = (\n    'dotted',\
+    \ 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset',\n    'outset', 'none',\
+    \ 'hidden'\n)\ncolours = (\n    'AliceBlue', 'AntiqueWhite', 'Aqua', 'Aquamarine',\
+    \ 'Azure', 'Beige',\n    'Bisque', 'Black', 'BlanchedAlmond', 'Blue', 'BlueViolet',\
+    \ 'Brown',\n    'BurlyWood', 'CadetBlue', 'Chartreuse', 'Chocolate', 'Coral',\n\
+    \    'CornflowerBlue', 'Cornsilk', 'Crimson', 'Cyan', 'DarkBlue', 'DarkCyan',\n\
+    \    'DarkGoldenRod', 'DarkGray', 'DarkGrey', 'DarkGreen', 'DarkKhaki',\n    'DarkMagenta',\
+    \ 'DarkOliveGreen', 'DarkOrange', 'DarkOrchid', 'DarkRed',\n    'DarkSalmon',\
+    \ 'DarkSeaGreen', 'DarkSlateBlue', 'DarkSlateGray',\n    'DarkSlateGrey', 'DarkTurquoise',\
+    \ 'DarkViolet', 'DeepPink', 'DeepSkyBlue',\n    'DimGray', 'DimGrey', 'DodgerBlue',\
+    \ 'FireBrick', 'FloralWhite',\n    'ForestGreen', 'Fuchsia', 'Gainsboro', 'GhostWhite',\
+    \ 'Gold', 'GoldenRod',\n    'Gray', 'Grey', 'Green', 'GreenYellow', 'HoneyDew',\
+    \ 'HotPink', 'IndianRed',\n    'Indigo ', 'Ivory', 'Khaki', 'Lavender', 'LavenderBlush',\
+    \ 'LawnGreen',\n    'LemonChiffon', 'LightBlue', 'LightCoral', 'LightCyan',\n\
+    \    'LightGoldenRodYellow', 'LightGray', 'LightGrey', 'LightGreen',\n    'LightPink',\
+    \ 'LightSalmon', 'LightSeaGreen', 'LightSkyBlue',\n    'LightSlateGray', 'LightSlateGrey',\
+    \ 'LightSteelBlue', 'LightYellow',\n    'Lime', 'LimeGreen', 'Linen', 'Magenta',\
+    \ 'Maroon', 'MediumAquaMarine',\n    'MediumBlue', 'MediumOrchid', 'MediumPurple',\
+    \ 'MediumSeaGreen',\n    'MediumSlateBlue', 'MediumSpringGreen', 'MediumTurquoise',\n\
+    \    'MediumVioletRed', 'MidnightBlue', 'MintCream', 'MistyRose', 'Moccasin',\n\
+    \    'NavajoWhite', 'Navy', 'OldLace', 'Olive', 'OliveDrab', 'Orange',\n    'OrangeRed',\
+    \ 'Orchid', 'PaleGoldenRod', 'PaleGreen', 'PaleTurquoise',\n    'PaleVioletRed',\
+    \ 'PapayaWhip', 'PeachPuff', 'Peru', 'Pink', 'Plum',\n    'PowderBlue', 'Purple',\
+    \ 'RebeccaPurple', 'Red', 'RosyBrown', 'RoyalBlue',\n    'SaddleBrown', 'Salmon',\
+    \ 'SandyBrown', 'SeaGreen', 'SeaShell', 'Sienna',\n    'Silver', 'SkyBlue', 'SlateBlue',\
+    \ 'SlateGray', 'SlateGrey', 'Snow',\n    'SpringGreen', 'SteelBlue', 'Tan', 'Teal',\
+    \ 'Thistle', 'Tomato',\n    'Turquoise', 'Violet', 'Wheat', 'White', 'WhiteSmoke',\
+    \ 'Yellow',\n    'YellowGreen'\n)\noptions = (\n    ('Text Colour', 'color', colours),\n\
+    \    ('Background Colour', 'background-color', colours),\n    ('Border', 'border',\
+    \ sizes),\n    ('Border Style', 'border-style', border_styles),\n    ('Border\
+    \ Width', 'border-width', border_widths),\n    ('Border Colour', 'border-color',\
+    \ colours),\n    ('Top Padding', 'padding-top', sizes),\n    ('Bottom Padding',\
+    \ 'padding-bottom', sizes),\n    ('Left Padding', 'padding-left', sizes),\n  \
+    \  ('Right Padding', 'padding-right', sizes),\n    ('Text Alignment', 'text-align',\
+    \ ('center', 'left', 'right', 'justify')),\n    (\n        'Decoration', 'text-decoration',\
+    \ (\n            'none', 'overline', 'line-through', 'underline'\n        )\n\
+    \    ),\n    ('Font Style', 'font-style', ('normal', 'italic')),\n    ('Font Size',\
+    \ 'font-size', font_sizes),\n    ('Font Weight', 'font-weight', ('normal', 'bold'))\n\
+    )\n\ndef parse_args(css=None, attribute=None, value=None):\n    if css is None:\n\
+    \        css = {'color': 'white', 'background-color': 'black', 'border-color':\
+    \ 'black'}\n    return (css, attribute, value)\n\nvalues = {}\nfor title, attribute,\
+    \ choices in options:\n    values[attribute] = choices\n\ncss, attribute, value\
+    \ = parse_args(*a)\n\nif attribute is not None:\n    if value is None:\n     \
+    \   items = [LabelItem(f'Choose value for {attribute.replace(\"-\", \" \")}')]\n\
+    \        if attribute in values:\n            for value in values[attribute]:\n\
+    \                items.append(Item(value, __name__, args=[css, attribute, value]))\n\
+    \            menu(con, Menu('Generate CSS', items))\n        else:\n         \
+    \   player.message(f'Invalid attribute: {attribute}.')\n        end()\n    else:\n\
+    \        css[attribute] = value\n\nitems = [LabelItem('Click \"Copy\" when you\\\
+    're done')]\n\nstrings = []\nfor title, attribute, values in options:\n    if\
+    \ attribute not in css:\n        css[attribute] = values[0]\n    value = css[attribute]\n\
+    \    strings.append(f'{attribute}: {value}')\n    items.append(Item(f'{title}\
+    \ ({value})', __name__, args=[css, attribute, None]))\n\nstring = '; '.join(strings)\n\
+    items.extend(\n    [\n        Item('Apply to Style', 'text_styles', args=[None,\
+    \ string]),\n        Item('Copy CSS', 'copy', args=[string])\n    ]\n)\n\nplayer.message('This\
+    \ is how your new style looks so far.', style=string)\nmenu(con, Menu('Generate\
+    \ CSS', items))\n", id: 182, name: generate_css}
 Credit:
 - {description: For inspiring me to write this game., id: 1, name: Science Fiction
     Authors}
@@ -1744,7 +1802,8 @@ Hotkey:
     \        Item('Reset Sounds', 'reset_sounds'),\n        Item('Clean Database',\
     \ 'clean_db')\n    ]\n)\nfor name in ('Action', 'Hotkey'):\n    for action in\
     \ ('bind', 'unbind'):\n        items.append(Item(f'{action.title()} {name}', action,\
-    \ args=[name]))\nmenu(con, Menu('Administration', items, escapable=True))\n",
+    \ args=[name]))\nitems.append(Item('Server Options', 'edit_', args=['ServerOptions',\
+    \ ServerOptions.instance_id]))\nmenu(con, Menu('Administration', items, escapable=True))\n",
   ctrl: false, description: Administration menu., id: 2, name: DELETE, shift: false}
 - {alt: false, code: "items = [\n    LabelItem('Game Options'),\n    Item('Disconnect',\
     \ 'quit'),\n    CopyItem('No connection metrics available' if player.player.connected_time\
@@ -2218,7 +2277,7 @@ Task:
     output = 'world.dump %s.yaml' % strftime(\"%Y-%m-%d %H-%M-%S\")\ndump_db(filename=output,\
     \ thread=True)\nlogger.info(\n    'Objects dumped: %d (%.2f seconds).', Base.number_of_objects(),\
     \ time() - started\n)\n", description: Dump the database to disk, id: 1, interval: 1800.0,
-  name: Dump, next_run: 1525650078.5178041}
+  name: Dump, next_run: 1525854629.6740553}
 - {code: "for obj in Zone.query(\n    sqlalchemy.or_(Zone.speed.isnot(None), Zone.acceleration.isnot(None))\n\
     ):\n    ship = obj.starship\n    # Speed code:\n    if obj.speed is None:\n  \
     \      # Let's clear speed.\n        obj.speed = 0.0\n    if obj.acceleration:\n\
@@ -2247,18 +2306,18 @@ Task:
     \ decelerating.\n                    acceleration = deceleration_distance\n  \
     \                  accelerating = False\n                ship.set_acceleration(min(1.0,\
     \ acceleration), accelerating=accelerating)\n", description: Move space stuff
-    around., id: 2, interval: 1.0, name: Space, next_run: 1525649904.5179894}
+    around., id: 2, interval: 1.0, name: Space, next_run: 1525853440.673356}
 - {code: "now = time()\nfor cls in Base._decl_class_registry.values():\n    if not\
     \ isclass(\n        cls\n    ) or base.RandomSoundContainerMixin not in cls.__bases__:\n\
     \        continue\n    for obj in cls.query(\n        cls.next_random_sound.isnot(None),\n\
     \        cls.next_random_sound < now\n    ):\n        if obj.random_sounds:\n\
     \            obj.play_random_sound()\n        else:\n            obj.next_random_sound\
     \ = 0.0\n        s.add(obj)", description: Play random sounds in rooms and the
-    like., id: 3, interval: 1.0, name: Random Sounds, next_run: 1525649904.5179894}
+    like., id: 3, interval: 1.0, name: Random Sounds, next_run: 1525853440.673356}
 - {code: "for obj in Object.join(Object.mobile).filter(\n    Object.location_id.isnot(None),\
     \ Object.mobile_id.isnot(None),\n    Mobile.next_move < time(), Mobile.paused.is_(False)\n\
     ):\n    obj.mobile.move()\n", description: Move mobiles around., id: 4, interval: 1.0,
-  name: Mobiles, next_run: 1525649904.5179894}
+  name: Mobiles, next_run: 1525853440.673356}
 - {code: "objects = 0\nstarted = time()\nlogger.info('Purging old objects...')\noldest\
     \ = datetime.datetime.utcnow() - server_options().purge_after\nfor q in [\n  \
     \  LoggedCommand.query(LoggedCommand.created < oldest),\n    CommunicationChannelMessage.query(CommunicationChannelMessage.created\
@@ -2267,7 +2326,7 @@ Task:
     n%s\\n</sql>', q)\n    objects += q.count()\n    q.delete(synchronize_session=False)\n\
     s.commit()\nlogger.info('Purged objects: %d in %.2f seconds.', objects, time()\
     \ - started)", description: Purge unneeded objects., id: 5, interval: 86400.0,
-  name: Purge, next_run: 1525731076.5178404}
+  name: Purge, next_run: 1525939229.6741865}
 - {code: "now = time()\nfor route in TransitRoute.query(\n    sqlalchemy.or_(\n  \
     \      TransitRoute.next_move.is_(None),\n        TransitRoute.next_move <= now\n\
     \    ),\n    paused=False\n):\n    if not route.stops:\n        continue\n   \
@@ -2303,7 +2362,7 @@ Task:
     \        route.next_move = now + stop.after_departure\n        obj.move(None,\
     \ (0.0, 0.0, 0.0))\n    s.add_all([obj, route])\n", description: Move transit
     vehicles along their designated routes., id: 6, interval: 1.0, name: Transit Routes,
-  next_run: 1525649904.5179894}
+  next_run: 1525853440.673356}
 - {code: "for ship in Starship.query(landing=True):\n    obj = ship.object\n    e\
     \ = obj.engine\n    obj.z = max(0.0, obj.z - e.land_speed)\n    ship.zone.coordinates\
     \ = obj.coordinates\n    obj.update_neighbours()\n    if not obj.z:\n        ship.landing\
@@ -2315,7 +2374,7 @@ Task:
     \    obj.location_id = None\n        loc.broadcast_command(delete, obj.id)\n \
     \       ship.landing = None\n        ship.zone.coordinates = loc.zone.coordinates",
   description: Manage the landing and launching of starships., id: 7, interval: 0.0,
-  name: Landing and Launching, next_run: 1525649904.5173895}
+  name: Landing and Launching, next_run: 1525853439.673356}
 - {code: "if not randint(0, 10):\n    adverts = Advert.query().all()\n    if adverts:\n\
     \        ad = choice(adverts)\n        ad.last_shown = datetime.datetime.utcnow()\n\
     \        sound = get_sound(os.path.join('notifications', 'advert.wav'))\n    \
@@ -2323,14 +2382,14 @@ Task:
     \ Player.donator.is_(False)):\n            con = player.get_connection()\n   \
     \         interface_sound(con, sound)\n            message(con, ad.text)\n   \
     \         message(con, 'For more information, press the A key.')\n", description: Show
-    adverts to non donators., id: 8, interval: 60.0, name: Adverts, next_run: 1525649946.5172706}
+    adverts to non donators., id: 8, interval: 60.0, name: Adverts, next_run: 1525853497.6731362}
 - {code: "now = time()\nfor phone in Phone.query(\n    Phone.state.is_(PhoneStates.ringing),\n\
     sqlalchemy.or_(Phone.next_ring.is_(None), Phone.next_ring < now)\n):\n    obj\
     \ = phone.object\n    phone.next_ring = now + phone.ring_every\n    obj.sound(phone.ring_sound)",
-  description: Make phones ring., id: 9, interval: 1.0, name: Ringtone, next_run: 1525649904.5179894}
+  description: Make phones ring., id: 9, interval: 1.0, name: Ringtone, next_run: 1525853440.673356}
 - {code: "error_sound = get_sound('communication/error.wav')\nfor obj in Object.join(Object.location).filter(Object.connected.is_(True),\
     \ Object.name.startswith('Passenger'), Room.zone_id != 1):\n    interface_sound(obj.get_connection(),\
     \ error_sound)\n    obj.message('You have not yet set a character name. Please\
     \ do that from within the game menu which you can access with the escape key.\
     \ Once there, click on \"Options\".')\n", description: Remind players without
-    proper names to set them., id: 10, interval: 60.0, name: Player Names, next_run: 1525649946.5172706}
+    proper names to set them., id: 10, interval: 60.0, name: Player Names, next_run: 1525853497.6731362}
