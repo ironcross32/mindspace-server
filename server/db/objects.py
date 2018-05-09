@@ -533,7 +533,7 @@ class Object(
     def match(self, string):
         """Match a string with an object from this room."""
         if self.is_admin and string.startswith('#'):
-            return Session.query(Object).get(string[1:])
+            return Object.get(string[1:])
         else:
             return self.get_visible(
                 func.lower(Object.name).like(f'{string}%')
