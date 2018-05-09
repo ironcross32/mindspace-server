@@ -65,10 +65,10 @@ if __name__ == '__main__':
         logging.info('Database loaded successfully.')
         raise SystemExit
     ServerOptions.instance_id = args.options_id
-    if ServerOptions.get() is None:
+    if ServerOptions.instance() is None:
         logging.critical('Invalid ID for server options: %d.', args.options_id)
     else:
-        logging.info('Using server options: %s.', ServerOptions.get())
+        logging.info('Using server options: %s.', ServerOptions.instance())
     build_context()
     try:
         server.start_listening(args.private_key, args.cert_key)
