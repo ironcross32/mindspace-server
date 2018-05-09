@@ -56,3 +56,9 @@ nonempty_room = get_sound(
 empty_room = get_sound(
     os.path.join('notifications', 'look_empty.wav')
 )
+
+connect_sound = get_sound(os.path.join('notifications', 'connect.wav'))
+
+disconnect_sound = get_sound(os.path.join('notifications', 'disconnect.wav'))
+
+motd_sound = get_sound(os.path.join('notifications', 'motd.wav'))

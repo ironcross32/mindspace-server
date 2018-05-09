@@ -1,7 +1,6 @@
 """Provides the Server class."""
 
 import logging
-import os.path
 import re
 from time import time
 from datetime import datetime
@@ -18,7 +17,7 @@ from autobahn.websocket.compress import (
 from twisted.internet import reactor, ssl
 from twisted.web.server import Site
 from .protocol import interface_sound, message
-from .sound import get_sound
+from .sound import disconnect_sound
 from .parsers import login_parser
 from .program import handle_traceback
 from .db import (
@@ -143,9 +142,7 @@ class ProtocolBase:
             with session() as s:
                 player = self.get_player(s)
                 player.connected = False
-                sound = get_sound(
-                    os.path.join('notifications', 'disconnect.wav')
-                )
+                s.commit()
                 for obj in Object.join(Object.player).filter(
                     Object.connected.is_(True),
                     Player.disconnect_notifications.is_(True)
@@ -154,7 +151,7 @@ class ProtocolBase:
                     name = player.get_name(obj.is_staff)
                     msg = f'{name} has disconnected.'
                     obj.message(msg, channel='Connection')
-                    interface_sound(connection, sound)
+                    interface_sound(connection, disconnect_sound)
                 player.register_connection(None)
                 s.add_all([player, player.player])
 

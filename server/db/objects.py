@@ -20,10 +20,10 @@ from .communication import CommunicationChannel
 from ..util import directions
 from ..protocol import (
     object_sound, location, message as _message, identify, delete, zone,
-    random_sound, remember_quit, speak
+    random_sound, remember_quit, speak, interface_sound
 )
 from ..forms import Label, Field
-from ..sound import Sound as _Sound, get_sound, nonempty_room
+from ..sound import Sound as _Sound, get_sound, nonempty_room, motd_sound
 from ..socials import factory
 from .phones import PhoneStates
 
@@ -176,6 +176,17 @@ class Object(
     get_sound = Column(Sound, nullable=True)
     drop_sound = Column(Sound, nullable=True)
     give_sound = Column(Sound, nullable=True)
+
+    def show_motd(self):
+        """Show the message of the day to this object."""
+        con = self.get_connection()
+        if con is None:
+            return False
+        motd = ServerOptions.instance().motd
+        if motd is not None:
+            interface_sound(con, motd_sound)
+            self.message(motd, channel='motd')
+        return True
 
     def can_change_name(self):
         """Returns a timedelta indicating when this object can change its own

@@ -14,7 +14,7 @@ from .program import (
 from .protocol import (
     character_id, interface_sound, remember_quit, message, menu
 )
-from .sound import get_sound
+from .sound import get_sound, connect_sound
 from .db import (
     Command, session, Player, ServerOptions, Object, MailMessage, Hotkey,
     Action, RemappedHotkey
@@ -114,15 +114,14 @@ def login(con, username, password):
         obj.message('Welcome back, %s.' % player.username)
         obj.connected = True
         s.commit()
-        sound = get_sound(os.path.join('notifications', 'connect.wav'))
         for character in Object.join(Object.player).filter(
             Object.connected.is_(True),
-            Player.disconnect_notifications.is_(True)
+            Player.connect_notifications.is_(True)
         ):
             connection = character.get_connection()
             msg = f'{obj.get_name(character.is_staff)} has connected.'
             character.message(msg, channel='Connection')
-            interface_sound(connection, sound)
+            interface_sound(connection, connect_sound)
         obj.identify(con)
         character_id(con, obj.id)
         obj.identify_location()
