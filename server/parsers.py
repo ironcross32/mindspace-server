@@ -112,6 +112,8 @@ def login(con, username, password):
             obj.location = ServerOptions.instance().first_room
             s.add(obj)
         obj.message('Welcome back, %s.' % player.username)
+        obj.connected = True
+        s.commit()
         for character in Object.join(Object.player).filter(
             Object.connected.is_(True),
             Player.disconnect_notifications.is_(True)
@@ -128,7 +130,6 @@ def login(con, username, password):
         character_id(con, obj.id)
         obj.identify_location()
         obj.player.send_options(con)
-        obj.connected = True
         s.add_all([obj, obj.player])
         c = MailMessage.query(to_id=obj.id, read=False).count()
         if c:
