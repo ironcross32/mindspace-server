@@ -185,6 +185,7 @@ class Object(
         motd = ServerOptions.instance().motd
         if motd is not None:
             interface_sound(con, motd_sound)
+            self.message('Message of the day:')
             self.message(motd, channel='motd')
         return True
 
