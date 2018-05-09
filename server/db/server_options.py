@@ -21,7 +21,6 @@ class ServerOptions(Base, NameMixin):
     http_port = Column(Integer, nullable=False, default=6464)
     websocket_port = Column(Integer, nullable=False, default=6465)
     https_port = Column(Integer, nullable=False, default=6466)
-    udp_port = Column(Integer, nullable=False, default=9000)
     name_change_interval = Column(
         Interval, nullable=False, default=timedelta(days=30)
     )
@@ -55,9 +54,10 @@ class ServerOptions(Base, NameMixin):
         'to call across the room at a posh dinner. When you have checked all '
         'these things try again.'
     )
+    motd = message(None, nullable=True)
 
     @classmethod
-    def get(cls):
+    def instance(cls):
         return Session.query(cls).get(cls.instance_id)
 
     @classmethod

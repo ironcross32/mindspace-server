@@ -20,6 +20,7 @@ from .db import (
     Action, RemappedHotkey
 )
 from .menus import Menu, LabelItem, Item
+from .util import pluralise
 
 logger = logging.getLogger(__name__)
 
@@ -111,10 +112,10 @@ def login(con, username, password):
             obj.location = ServerOptions.get().first_room
             s.add(obj)
         obj.message('Welcome back, %s.' % player.username)
-        for account in Player.query(disconnect_notifications=True):
-            character = account.object
-            if character is None:
-                continue
+        for character in Object.join(Object.player).filter(
+            Object.connected.is_(True),
+            Player.disconnect_notifications.is_(True)
+        ):
             connection = character.get_connection()
             if connection is not None:
                 msg = f'{obj.get_name(character.is_staff)} has connected.'
@@ -129,11 +130,15 @@ def login(con, username, password):
         obj.player.send_options(con)
         obj.connected = True
         s.add_all([obj, obj.player])
-        if MailMessage.query(to_id=obj.id, read=False).count():
-            obj.message('You have unread mail.')
+        c = MailMessage.query(to_id=obj.id, read=False).count()
+        if c:
+            obj.message(f'You have {c} unread {pluralise(c, "message")}.')
             interface_sound(
                 con, get_sound(os.path.join('notifications', 'mail.wav'))
             )
+        motd = ServerOptions.instance().motd
+        if motd is not None:
+            obj.message(motd, channel='motd')
         con.parser = main_parser
 
 
