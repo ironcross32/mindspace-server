@@ -1,4 +1,4 @@
-# mindspace-server
+# Mindspace Server
 The Mindspace server
 
 ## Description
