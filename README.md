@@ -28,3 +28,8 @@ To run the server, try `python main.py -h`. Alternatively you can use the `start
 
 ## Problems
 If you have any problems using Mindspace please either [submit an issue](https://github.com/chrisnorman7/mindspace-server/issues/new), or get in touch with me via [Twitter](https://twitter.com/chrisnorman7).
+
+## Instances
+If you would like your instance adding to this list please drop me a line.
+
+* [My Mindspace Server](https://mindspace.site:6466/client/)
