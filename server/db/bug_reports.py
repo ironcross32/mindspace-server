@@ -1,10 +1,14 @@
 """Provides the Report class."""
 
 from sqlalchemy import Column, Boolean
-from .base import Base, OwnerMixin, LocationMixin, CoordinatesMixin, Text, CreatedMixin
+from .base import (
+    Base, OwnerMixin, LocationMixin, CoordinatesMixin, Text, CreatedMixin
+)
 
 
-class BugReport(Base, OwnerMixin, LocationMixin, CoordinatesMixin, CreatedMixin):
+class BugReport(
+    Base, OwnerMixin, LocationMixin, CoordinatesMixin, CreatedMixin
+):
     """A bug report."""
 
     __tablename__ = 'bug_reports'
