@@ -1,5 +1,6 @@
 """Server entry point."""
 
+import os.path
 import logging
 from time import time
 from argparse import ArgumentParser, FileType, ArgumentDefaultsHelpFormatter
@@ -40,11 +41,13 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    'private_key', metavar='PRIVATE-KEY', help='Private key file'
+    'private_key', nargs='?', metavar='PRIVATE-KEY',
+    default=os.path.join('certs', 'privkey.pem'), help='Private key file'
 )
 
 parser.add_argument(
-    'cert_key', metavar='CERTIFICATE-KEY', help='Certificate key file'
+    'cert_key', nargs='?', metavar='CERTIFICATE-KEY',
+    default=os.path.join('certs', 'fullchain.pem'), help='Certificate key file'
 )
 
 
