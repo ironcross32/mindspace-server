@@ -87,7 +87,7 @@ if __name__ == '__main__':
         Task.query(Task.next_run.isnot(None)).update({Task.next_run: None})
     start_tasks_task = LoopingCall(start_tasks)
     start_tasks_task.start(
-        ServerOptions.get_instance().auto_start_tasks, now=True
+        ServerOptions.instance().auto_start_tasks, now=True
     ).addErrback(
         lambda err: logging.exception(err.getTraceback())
     )
