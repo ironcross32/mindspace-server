@@ -6,6 +6,7 @@ from datetime import datetime
 from math import sin, cos, radians, pi, degrees, atan2
 from emote_utils import NoMatchError
 from attr import attrs, attrib
+from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 from .distance import pc, kpc, mpc, gpc, tpc, au, ly, km, light_speed
 from .sound import get_sound, empty_room, nonempty_room
@@ -229,6 +230,14 @@ class WalkTask(LoopingCall):
             self.log_error
         )
 
+    def restart(self):
+        """Restart this task."""
+        obj = db.Object.get(self.id)
+        con = obj.get_connection()
+        if con.walk_task is None:  # Noe new task was started in the meantime.
+            con.walk_task = self
+            self.start()
+
     def walk(self):
         """Make the player walk."""
         with db.session() as s:
@@ -238,8 +247,10 @@ class WalkTask(LoopingCall):
             obj.clear_following()
             kwargs = dict(observe_speed=False)
             if obj.speed != self.interval:
+                con = obj.get_connection()
+                con.walk_task = None
                 self.stop()
-                self.start()
+                reactor.callLater(obj.speed, self.restart)
                 return
             for name in ('x', 'y', 'z'):
                 coord = getattr(self, name)
