@@ -64,8 +64,9 @@ class TaskLoopingCall(LoopingCall):
 def start_tasks():
     """Call queue_task for each Task instance."""
     now = time()
-    ids = [Task.id.isnot(id) for id in tasks]
-    for t in Task.query(Task.paused.isnot(True), *ids):
+    for t in Task.query(Task.paused.isnot(True), Task.next_run.is_(None)):
+        if t.id in tasks:
+            tasks[t.id].stop()
         task = TaskLoopingCall(t)
         tasks[t.id] = task
         task.start(t.interval, now=False)
