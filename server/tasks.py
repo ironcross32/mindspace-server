@@ -31,25 +31,28 @@ class TaskLoopingCall(LoopingCall):
             if t is None:
                 logger.info('Task %d has since been deleted.', self.task_id)
                 self.stop()
-                return
-            logger.debug('Running task %s.', t)
-            try:
-                run_program(None, s, t)
-                t.next_run = now + t.interval
-                if t.interval != self.interval:
-                    self.stop()
-                    logger.debug(
-                        'Adjusting task for task %s with interval %g.', t,
-                        t.interval
-                    )
-                    self.start(t.interval)
-            except Exception as e:
-                s.rollback()
-                t.paused = True
+            elif t.paused:
+                logger.info('Pausing task %s.', t)
                 self.stop()
-                s.add(t)
-                task_name = str(t)
-                handle_traceback(e, task_name, 'Task Scheduler', __name__)
+            else:
+                logger.debug('Running task %s.', t)
+                try:
+                    run_program(None, s, t)
+                    t.next_run = now + t.interval
+                    if t.interval != self.interval:
+                        self.stop()
+                        logger.debug(
+                            'Adjusting task for task %s with interval %g.', t,
+                            t.interval
+                        )
+                        self.start(t.interval)
+                except Exception as e:
+                    s.rollback()
+                    t.paused = True
+                    self.stop()
+                    s.add(t)
+                    task_name = str(t)
+                    handle_traceback(e, task_name, 'Task Scheduler', __name__)
 
     def start(self, *args, **kwargs):
         """Start this task."""
