@@ -75,7 +75,6 @@ if __name__ == '__main__':
     build_context()
     try:
         server.start_listening(args.private_key, args.cert_key)
-        tasks_task.start(1.0, now=False).addErrback(tasks_errback)
     except error.CannotListenError as e:
         logging.critical('Listening failed.')
         logging.exception(e)
@@ -87,6 +86,7 @@ if __name__ == '__main__':
         for t in Task.query():
             t.next_run = time() + t.interval
             s.add(t)
+    tasks_task.start(1.0, now=False).addErrback(tasks_errback)
     logging.info('Initialisation completed in %.2f seconds.', time() - started)
     reactor.run()
     started = time()
