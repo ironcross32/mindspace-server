@@ -10,3 +10,8 @@ class Task(Base, NameMixin, DescriptionMixin, CodeMixin, PauseMixin):
     __tablename__ = 'tasks'
     interval = Column(Float, nullable=False, default=3600)
     next_run = Column(Float, nullable=True)
+
+    def pause(self):
+        """Pause this task."""
+        self.paused = True
+        self.next_run = None

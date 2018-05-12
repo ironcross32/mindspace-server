@@ -33,6 +33,7 @@ class TaskLoopingCall(LoopingCall):
                 self.stop()
             elif t.paused:
                 logger.info('Pausing task %s.', t)
+                t.pause()
                 self.stop()
             else:
                 logger.debug('Running task %s.', t)
@@ -48,7 +49,7 @@ class TaskLoopingCall(LoopingCall):
                         self.start(t.interval)
                 except Exception as e:
                     s.rollback()
-                    t.paused = True
+                    t.pause()
                     self.stop()
                     s.add(t)
                     task_name = str(t)
