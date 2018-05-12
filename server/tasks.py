@@ -74,7 +74,7 @@ def start_tasks():
             present = False
             task = TaskLoopingCall(t)
             tasks[t.id] = task
-        task.start(t.interval, now=present)
         t.next_run = t.interval + now
         Session.add(t)
         Session.commit()
+        task.start(t.interval, now=present)
