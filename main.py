@@ -86,7 +86,9 @@ if __name__ == '__main__':
     with session():
         Task.query(Task.next_run.isnot(None)).update({Task.next_run: None})
     start_tasks_task = LoopingCall(start_tasks)
-    start_tasks_task.start(10.0, now=True).addErrback(lambda err: logging.exception(err.getTraceback()))
+    start_tasks_task.start(10.0, now=True).addErrback(
+        lambda err: logging.exception(err.getTraceback())
+    )
     logging.info('Initialisation completed in %.2f seconds.', time() - started)
     reactor.run()
     started = time()

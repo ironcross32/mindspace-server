@@ -2,7 +2,6 @@
 
 import logging
 from time import time
-from sqlalchemy import or_
 from twisted.internet.task import LoopingCall
 from .db import session, Task
 from .program import run_program, handle_traceback
@@ -70,3 +69,4 @@ def start_tasks():
         task = TaskLoopingCall(t)
         tasks[t.id] = task
         task.start(t.interval, now=False)
+        t.next_run = t.interval + now
