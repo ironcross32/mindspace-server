@@ -225,7 +225,9 @@ class WalkTask(LoopingCall):
     def start(self):
         super().start(
             db.Object.get(self.id).speed
-        ).addCallback(self.logger.info).addErrback(self.log_error)
+        ).addCallback(lambda task: self.logger.info('Finished.')).addErrback(
+            self.log_error
+        )
 
     def walk(self):
         """Make the player walk."""
