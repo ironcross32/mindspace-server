@@ -33,3 +33,4 @@ If you have any problems using Mindspace please either [submit an issue](https:/
 If you would like your instance adding to this list please drop me a line.
 
 * [My Mindspace Server](https://mindspace.site:6466/client/)
+* [ironlabs.me](https://ironlabs.me:6466/client)
