@@ -5,11 +5,12 @@ import logging
 from time import time
 from argparse import ArgumentParser, FileType, ArgumentDefaultsHelpFormatter
 from twisted.internet import reactor, error
+from twisted.internet.task import LoopingCall
 from server.server import server
 from server.db import load_db, dump_db, ServerOptions, Task, session, Base
 from server.program import build_context
 from server.log_handler import LogHandler
-from server.tasks import tasks_task, tasks_errback
+from server.tasks import start_tasks
 
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
 
@@ -82,11 +83,10 @@ if __name__ == '__main__':
     handler = LogHandler()
     logger = logging.getLogger()
     logger.addHandler(handler)
-    with session() as s:
-        for t in Task.query():
-            t.next_run = time() + t.interval
-            s.add(t)
-    tasks_task.start(1.0, now=False).addErrback(tasks_errback)
+    with session():
+        Task.query(Task.next_run.isnot(None)).update({Task.next_run: None})
+    start_tasks_task = LoopingCall(start_tasks)
+    start_tasks_task.start(10.0, now=True).addErrback(lambda err: logging.exception(err.getTraceback()))
     logging.info('Initialisation completed in %.2f seconds.', time() - started)
     reactor.run()
     started = time()
