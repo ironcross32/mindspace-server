@@ -2,7 +2,7 @@
 
 from socket import getfqdn
 from datetime import timedelta
-from sqlalchemy import Column, Integer, Interval, ForeignKey
+from sqlalchemy import Column, Integer, Interval, ForeignKey, Float
 from sqlalchemy.orm import relationship, backref
 from .base import Base, NameMixin, message
 from .session import Session
@@ -55,6 +55,7 @@ class ServerOptions(Base, NameMixin):
         'these things try again.'
     )
     motd = message(None, nullable=True)
+    auto_start_tasks = Column(Float, nullable=False, default=60)
 
     @classmethod
     def instance(cls):
