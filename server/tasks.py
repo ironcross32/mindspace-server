@@ -3,7 +3,7 @@
 import logging
 from time import time
 from twisted.internet.task import LoopingCall
-from .db import session, Task
+from .db import Session, session, Task
 from .program import run_program, handle_traceback
 
 logger = logging.getLogger(__name__)
@@ -76,3 +76,5 @@ def start_tasks():
             tasks[t.id] = task
         task.start(t.interval, now=present)
         t.next_run = t.interval + now
+        Session.add(t)
+        Session.commit()
