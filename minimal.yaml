@@ -104,7 +104,8 @@ Command:
     \ Menu'),\n    CopyItem(name),\n    CopyItem(description)\n]\nif player.is_staff:\n\
     \    items.append(CopyItem(f'#{obj.id}'))\nif obj is player.following:\n    items.append(Item('Stop\
     \ Following', 'stop_following'))\nelif any((obj.is_mobile, obj.is_player)):\n\
-    \    items.append(Item('Follow', 'follow', args=[obj.id]))\nif obj.hotkeys:\n\
+    \    items.extend(\n        [\n            Item('Follow', 'follow', args=[obj.id]),\n\
+    \            Item('Lead', 'lead', args=[obj.id])\n        ]\n    )\nif obj.hotkeys:\n\
     \    items.append(Item('Start using', 'use', args=[obj.id]))\nitems.append(Item('Knock',\
     \ 'knock', args=[obj.id]))\nfor action in obj.get_actions():\n    if action.name\
     \ is None or (action.admin and not player.is_admin) or (action.builder and not\
@@ -557,10 +558,10 @@ Command:
     \ is not following you.')\r\nelse:\r\n    player.followers.remove(obj)\r\n   \
     \ player.do_social(player.ditch_msg, _others=[obj])", id: 58, name: ditch}
 - {code: "if player.followers:\n    player.message('You must ditch your followers\
-    \ first.')\n    end()\nid = a[0]\nobj = Object.get(id)\nvalid_object(player, obj)\n\
-    check_location(player, obj)\nif obj is player.following:\n    player.message(f'You\
-    \ are already following {obj.get_name(player.is_staff)}.')\nelse:\n    player.following\
-    \ = obj\n    player.do_social(player.follow_msg, _others=[obj])\n", id: 59, name: follow}
+    \ first.')\n    end()\nobj = Object.get(*a)\nvalid_object(player, obj)\ncheck_location(player,\
+    \ obj)\nif obj is player.following:\n    player.message(f'You are already following\
+    \ {obj.get_name(player.is_staff)}.')\nelse:\n    player.following = obj\n    player.do_social(player.follow_msg,\
+    \ _others=[obj])\n", id: 59, name: follow}
 - {code: "if player.following is None:\n    player.message('You are not currently\
     \ following anyone.')\nelse:\n    player.do_social(player.unfollow_msg, _others=[player.following])\n\
     \    player.following = None\n", id: 60, name: stop_following}
@@ -1783,6 +1784,27 @@ Command:
     \ 'teleport', args=[report.location.zone_id, report.location_id], kwargs={'coordinates':\
     \ report.coordinates}))\n    menu(con, Menu('Bug Report', items))\n", id: 184,
   name: bug_reports}
+- {builder: true, code: "def parse_args(object_id=False, text=None):\n    return (object_id,\
+    \ text)\n\nobject_id, text = parse_args(*a)\n\nif object_id is False:\n    items\
+    \ = [\n        LabelItem('Players'),\n        Item('Everyone', __name__, args=[None,\
+    \ text])\n    ]\n    for obj in player.get_visible(Object.player_id.isnot(None)):\n\
+    \        items.append(Item(obj.get_name(True), __name__, args=[obj.id, text]))\n\
+    \    menu(con, Menu('Choose target', items))\nelif text is None:\n    get_text(con,\
+    \ 'Enter the text to paste', __name__, multiline=True, args=[object_id])\nelse:\n\
+    \    if object_id is None:\n        objects = player.get_visible(Object.player_id.isnot(None))\n\
+    \    else:\n        obj = Object.get(object_id)\n        valid_object(player,\
+    \ obj)\n        objects = [obj]\n    sound = get_sound('notifications/paste.wav')\n\
+    \    for obj in objects:\n        connection = obj.get_connection()\n        if\
+    \ connection is not None:\n            interface_sound(connection, sound)\n  \
+    \          obj.message(f'Paste from {player.get_name(obj.is_staff)}:')\n     \
+    \       obj.message(text)\n", id: 185, name: paste}
+- {code: "obj = Object.get(*a)\nvalid_object(player, obj)\ncheck_location(player,\
+    \ obj)\nconnection = obj.get_connection()\nif connection is None:\n    player.message(f'{obj.get_name(player.is_staff)}\
+    \ is not connected.')\n    end()\nplayer.do_social('%1N gesture%1s to %2n to follow\
+    \ %1him.', _others=[obj])\nstring = 'decline%1s {{{}}}ss request.'.format(player.name)\n\
+    items = [\n    LabelItem(f'Do you want to follow {player.get_name(obj.is_staff)}?'),\n\
+    \    Item('Yes', 'follow', args=[player.id]),\n    Item('No', 'emote', args=[string])\n\
+    ]\nmenu(connection, Menu('Follow Request', items))\n", id: 186, name: lead}
 Credit:
 - {description: For inspiring me to write this game., id: 1, name: Science Fiction
     Authors}
@@ -1860,22 +1882,23 @@ Hotkey:
     \ args=['Room', player.location.id]),\n    Item('Configuration', None),\n    Item('Configure\
     \ Room', 'key', args=['F2']),\n    Item('Configure Zone', 'configure_zone'),\n\
     \    Item('Delete Object', 'delete_object'),\n    Item('Delete Room', 'delete_room'),\n\
-    \    Item('Preview Sounds', 'preview_sounds'),\n    Item('Add Transit Stop', 'add_transit_stop')\n\
-    ]\nobj = player.location\nitems.append(LabelItem('Room Flags'))\nif obj.airlock_id\
-    \ is None:\n    items.append(Item('Add Airlock', 'create_airlock'))\nelse:\n \
-    \   for name in ('edit', 'delete'):\n        items.append(Item(f'{name.title()}\
-    \ Airlock', f'{name}_', args=['RoomAirlock', obj.airlock_id]))\nif obj.airlock\
-    \ is not None:\n    items.append(Item('Configure Airlock', 'edit_', args=['RoomAirlock',\
-    \ obj.airlock_id]))\nif obj.transit_route is not None:\n    route = obj.transit_route\n\
-    \    items.append(LabelItem(route.get_name(True)))\n    items.append(Item('Resume'\
-    \ if route.paused else 'Pause', 'pause_transit_route', args=[route.id, not route.paused]))\n\
-    \    for name in ('edit', 'delete'):\n        items.append(Item(f'{name.title()}\
-    \ Transit Route', f'{name}_', args=['TransitRoute', route.id]))\n    items.append(Item(f'Stops\
-    \ ({len(route.stops)})', None))\n    for stop in route.stops:\n        for name\
-    \ in ('edit', 'delete'):\n            items.append(Item(f'{name.title()} {stop.location.get_name(True)}\
-    \ stop', f'{name}_', args=['TransitStop', stop.id]))\nmenu(con, Menu('Building\
-    \ Commands', items, escapable=True))", ctrl: false, description: Building menu.,
-  id: 5, name: B, shift: false}
+    \    Item('Preview Sounds', 'preview_sounds'),\n    Item('Paste', 'paste'),\n\
+    \    Item('Add Transit Stop', 'add_transit_stop')\n]\nobj = player.location\n\
+    items.append(LabelItem('Room Flags'))\nif obj.airlock_id is None:\n    items.append(Item('Add\
+    \ Airlock', 'create_airlock'))\nelse:\n    for name in ('edit', 'delete'):\n \
+    \       items.append(Item(f'{name.title()} Airlock', f'{name}_', args=['RoomAirlock',\
+    \ obj.airlock_id]))\nif obj.airlock is not None:\n    items.append(Item('Configure\
+    \ Airlock', 'edit_', args=['RoomAirlock', obj.airlock_id]))\nif obj.transit_route\
+    \ is not None:\n    route = obj.transit_route\n    items.append(LabelItem(route.get_name(True)))\n\
+    \    items.append(Item('Resume' if route.paused else 'Pause', 'pause_transit_route',\
+    \ args=[route.id, not route.paused]))\n    for name in ('edit', 'delete'):\n \
+    \       items.append(Item(f'{name.title()} Transit Route', f'{name}_', args=['TransitRoute',\
+    \ route.id]))\n    items.append(Item(f'Stops ({len(route.stops)})', None))\n \
+    \   for stop in route.stops:\n        for name in ('edit', 'delete'):\n      \
+    \      items.append(Item(f'{name.title()} {stop.location.get_name(True)} stop',\
+    \ f'{name}_', args=['TransitStop', stop.id]))\nmenu(con, Menu('Building Commands',\
+    \ items, escapable=True))\n", ctrl: false, description: Building menu., id: 5,
+  name: B, shift: false}
 - {alt: false, code: "items = [LabelItem('Adverts')]\nif player.is_admin:\n    for\
     \ name in ('add', 'edit', 'delete'):\n        items.append(Item(f'{name.title()}\
     \ Advert', f'{name}_', args=['Advert']))\nq = Advert.query().order_by(Advert.last_shown.desc())\n\
@@ -2297,13 +2320,25 @@ Hotkey:
     \ args=[dict(x=coords[0], y=coords[1])]))\n    menu(con, Menu('Select Room Feature',\
     \ items))\nelse:\n    player.message('This room is featureless.')\n", ctrl: false,
   id: 107, name: F, shift: true}
+- {alt: false, builder: true, code: 'get_text(con, ''Enter text to paste'', ''paste'',
+    multiline=True, args=[False])
+
+    ', ctrl: false, description: Paste text to other people in the room., id: 108,
+  name: P, shift: true}
+- {alt: false, code: "if player.scanned is None:\n    player.message('You must first\
+    \ select an object with the tab key or control shift and numbers.')\nelif not\
+    \ player.is_staff and util.distance_between(player.coordinates, player.scanned.coordinates)\
+    \ > player.location.max_distance:\n    player.message('You cannot see that from\
+    \ here.')\nelse:\n    player.message(f'{util.directions(player.coordinates, player.scanned.coordinates).capitalize()}\
+    \ ({player.scanned.get_name(player.is_staff)})')\n", ctrl: false, description: Show
+    directions to the most recently scanned object., id: 109, name: Y, shift: false}
 Task:
 - {code: "started = time()\nlogger.info('Dumping database to disk...')\n# I got the\
     \ below filename from the first answer at:\n# http://stackoverflow.com/questions/10607688/how-to-create-a-file-name-with-the-current-date-time-in-python\n\
     output = 'world.dump %s.yaml' % strftime(\"%Y-%m-%d %H-%M-%S\")\ndump_db(filename=output,\
     \ thread=True)\nlogger.info(\n    'Objects dumped: %d (%.2f seconds).', Base.number_of_objects(),\
     \ time() - started\n)\n", description: Dump the database to disk, id: 1, interval: 1800.0,
-  name: Dump, next_run: 1525985531.6282988}
+  name: Dump, next_run: 1526115468.9167783}
 - {code: "for obj in Zone.query(\n    sqlalchemy.or_(Zone.speed.isnot(None), Zone.acceleration.isnot(None))\n\
     ):\n    ship = obj.starship\n    # Speed code:\n    if obj.speed is None:\n  \
     \      # Let's clear speed.\n        obj.speed = 0.0\n    if obj.acceleration:\n\
@@ -2332,18 +2367,18 @@ Task:
     \ decelerating.\n                    acceleration = deceleration_distance\n  \
     \                  accelerating = False\n                ship.set_acceleration(min(1.0,\
     \ acceleration), accelerating=accelerating)\n", description: Move space stuff
-    around., id: 2, interval: 1.0, name: Space, next_run: 1525983946.6284266}
+    around., id: 2, interval: 1.0, name: Space, next_run: 1526114396.9169044}
 - {code: "now = time()\nfor cls in Base._decl_class_registry.values():\n    if not\
     \ isclass(\n        cls\n    ) or base.RandomSoundContainerMixin not in cls.__bases__:\n\
     \        continue\n    for obj in cls.query(\n        cls.next_random_sound.isnot(None),\n\
     \        cls.next_random_sound < now\n    ):\n        if obj.random_sounds:\n\
     \            obj.play_random_sound()\n        else:\n            obj.next_random_sound\
     \ = 0.0\n        s.add(obj)", description: Play random sounds in rooms and the
-    like., id: 3, interval: 1.0, name: Random Sounds, next_run: 1525983946.6284266}
+    like., id: 3, interval: 1.0, name: Random Sounds, next_run: 1526114396.9169044}
 - {code: "for obj in Object.join(Object.mobile).filter(\n    Object.location_id.isnot(None),\
     \ Object.mobile_id.isnot(None),\n    Mobile.next_move < time(), Mobile.paused.is_(False)\n\
     ):\n    obj.mobile.move()\n", description: Move mobiles around., id: 4, interval: 1.0,
-  name: Mobiles, next_run: 1525983946.6284266}
+  name: Mobiles, next_run: 1526114396.9169044}
 - {code: "objects = 0\nstarted = time()\nlogger.info('Purging old objects...')\noldest\
     \ = datetime.datetime.utcnow() - server_options().purge_after\nfor q in [\n  \
     \  LoggedCommand.query(LoggedCommand.created < oldest),\n    CommunicationChannelMessage.query(CommunicationChannelMessage.created\
@@ -2352,7 +2387,7 @@ Task:
     n%s\\n</sql>', q)\n    objects += q.count()\n    q.delete(synchronize_session=False)\n\
     s.commit()\nlogger.info('Purged objects: %d in %.2f seconds.', objects, time()\
     \ - started)", description: Purge unneeded objects., id: 5, interval: 86400.0,
-  name: Purge, next_run: 1526070110.628736}
+  name: Purge, next_run: 1526133446.917011}
 - {code: "now = time()\nfor route in TransitRoute.query(\n    sqlalchemy.or_(\n  \
     \      TransitRoute.next_move.is_(None),\n        TransitRoute.next_move <= now\n\
     \    ),\n    paused=False\n):\n    if not route.stops:\n        continue\n   \
@@ -2388,7 +2423,7 @@ Task:
     \        route.next_move = now + stop.after_departure\n        obj.move(None,\
     \ (0.0, 0.0, 0.0))\n    s.add_all([obj, route])\n", description: Move transit
     vehicles along their designated routes., id: 6, interval: 1.0, name: Transit Routes,
-  next_run: 1525983946.6284266}
+  next_run: 1526114396.9169044}
 - {code: "for ship in Starship.query(landing=True):\n    obj = ship.object\n    e\
     \ = obj.engine\n    obj.z = max(0.0, obj.z - e.land_speed)\n    ship.zone.coordinates\
     \ = obj.coordinates\n    obj.update_neighbours()\n    if not obj.z:\n        ship.landing\
@@ -2400,7 +2435,7 @@ Task:
     \    obj.location_id = None\n        loc.broadcast_command(delete, obj.id)\n \
     \       ship.landing = None\n        ship.zone.coordinates = loc.zone.coordinates",
   description: Manage the landing and launching of starships., id: 7, interval: 0.0,
-  name: Landing and Launching, next_run: 1525983945.6284266}
+  name: Landing and Launching, next_run: 1526114396.9168012}
 - {code: "if not randint(0, 10):\n    adverts = Advert.query().all()\n    if adverts:\n\
     \        ad = choice(adverts)\n        ad.last_shown = datetime.datetime.utcnow()\n\
     \        sound = get_sound(os.path.join('notifications', 'advert.wav'))\n    \
@@ -2408,14 +2443,14 @@ Task:
     \ Player.donator.is_(False)):\n            con = player.get_connection()\n   \
     \         interface_sound(con, sound)\n            message(con, ad.text)\n   \
     \         message(con, 'For more information, press the A key.')\n", description: Show
-    adverts to non donators., id: 8, interval: 60.0, name: Adverts, next_run: 1525983976.6283324}
+    adverts to non donators., id: 8, interval: 60.0, name: Adverts, next_run: 1526114403.9166746}
 - {code: "now = time()\nfor phone in Phone.query(\n    Phone.state.is_(PhoneStates.ringing),\n\
     sqlalchemy.or_(Phone.next_ring.is_(None), Phone.next_ring < now)\n):\n    obj\
     \ = phone.object\n    phone.next_ring = now + phone.ring_every\n    obj.sound(phone.ring_sound)",
-  description: Make phones ring., id: 9, interval: 1.0, name: Ringtone, next_run: 1525983946.6284266}
+  description: Make phones ring., id: 9, interval: 1.0, name: Ringtone, next_run: 1526114396.9169044}
 - {code: "error_sound = get_sound('communication/error.wav')\nfor obj in Object.join(Object.location).filter(Object.connected.is_(True),\
     \ Object.name.startswith('Passenger'), Room.zone_id != 1):\n    interface_sound(obj.get_connection(),\
     \ error_sound)\n    obj.message('You have not yet set a character name. Please\
     \ do that from within the game menu which you can access with the escape key.\
     \ Once there, click on \"Options\".')\n", description: Remind players without
-    proper names to set them., id: 10, interval: 60.0, name: Player Names, next_run: 1525983976.6283324}
+    proper names to set them., id: 10, interval: 60.0, name: Player Names, next_run: 1526114403.9166746}
