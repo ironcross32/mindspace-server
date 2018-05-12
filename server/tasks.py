@@ -37,6 +37,7 @@ class TaskLoopingCall(LoopingCall):
                 run_program(None, s, t)
                 t.next_run = now + t.interval
                 if t.interval != self.interval:
+                    self.stop()
                     logger.debug(
                         'Adjusting task for task %s with interval %g.', t,
                         t.interval
@@ -66,8 +67,12 @@ def start_tasks():
     now = time()
     for t in Task.query(Task.paused.isnot(True), Task.next_run.is_(None)):
         if t.id in tasks:
-            tasks[t.id].stop()
-        task = TaskLoopingCall(t)
-        tasks[t.id] = task
-        task.start(t.interval, now=False)
+            present = True
+            task = tasks[t.id]
+            task.stop()
+        else:
+            present = False
+            task = TaskLoopingCall(t)
+            tasks[t.id] = task
+        task.start(t.interval, now=present)
         t.next_run = t.interval + now
