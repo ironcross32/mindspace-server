@@ -1794,10 +1794,11 @@ Command:
     \    if object_id is None:\n        objects = player.get_visible(Object.player_id.isnot(None))\n\
     \    else:\n        obj = Object.get(object_id)\n        valid_object(player,\
     \ obj)\n        objects = [obj]\n    sound = get_sound('notifications/paste.wav')\n\
-    \    for obj in objects:\n        connection = obj.get_connection()\n        if\
-    \ connection is not None:\n            interface_sound(connection, sound)\n  \
-    \          obj.message(f'Paste from {player.get_name(obj.is_staff)}:')\n     \
-    \       obj.message(text)\n", id: 185, name: paste}
+    \    player.message(f'You paste to {util.english_list(objects)}.')\n    for obj\
+    \ in objects:\n        connection = obj.get_connection()\n        if connection\
+    \ is not None:\n            interface_sound(connection, sound)\n            obj.message(f'Paste\
+    \ from {player.get_name(obj.is_staff)}:')\n            obj.message(text)\n", id: 185,
+  name: paste}
 - {code: "obj = Object.get(*a)\nvalid_object(player, obj)\ncheck_location(player,\
     \ obj)\nconnection = obj.get_connection()\nif connection is None:\n    player.message(f'{obj.get_name(player.is_staff)}\
     \ is not connected.')\n    end()\nplayer.do_social('%1N gesture%1s to %2n to follow\
@@ -2333,12 +2334,12 @@ Hotkey:
     \ ({player.scanned.get_name(player.is_staff)})')\n", ctrl: false, description: Show
     directions to the most recently scanned object., id: 109, name: Y, shift: false}
 Task:
-- {code: "started = time()\nlogger.info('Dumping database to disk...')\n# I got the\
-    \ below filename from the first answer at:\n# http://stackoverflow.com/questions/10607688/how-to-create-a-file-name-with-the-current-date-time-in-python\n\
+- {code: "started = time()\n# I got the below filename from the first answer at:\n\
+    # http://stackoverflow.com/questions/10607688/how-to-create-a-file-name-with-the-current-date-time-in-python\n\
     output = 'world.dump %s.yaml' % strftime(\"%Y-%m-%d %H-%M-%S\")\ndump_db(filename=output,\
     \ thread=True)\nlogger.info(\n    'Objects dumped: %d (%.2f seconds).', Base.number_of_objects(),\
     \ time() - started\n)\n", description: Dump the database to disk, id: 1, interval: 1800.0,
-  name: Dump, next_run: 1526115468.9167783}
+  name: Dump, next_run: 1526251200.27}
 - {code: "for obj in Zone.query(\n    sqlalchemy.or_(Zone.speed.isnot(None), Zone.acceleration.isnot(None))\n\
     ):\n    ship = obj.starship\n    # Speed code:\n    if obj.speed is None:\n  \
     \      # Let's clear speed.\n        obj.speed = 0.0\n    if obj.acceleration:\n\
@@ -2367,18 +2368,18 @@ Task:
     \ decelerating.\n                    acceleration = deceleration_distance\n  \
     \                  accelerating = False\n                ship.set_acceleration(min(1.0,\
     \ acceleration), accelerating=accelerating)\n", description: Move space stuff
-    around., id: 2, interval: 1.0, name: Space, next_run: 1526114396.9169044}
+    around., id: 2, interval: 1.0, name: Space, next_run: 1526250839.2688704}
 - {code: "now = time()\nfor cls in Base._decl_class_registry.values():\n    if not\
     \ isclass(\n        cls\n    ) or base.RandomSoundContainerMixin not in cls.__bases__:\n\
     \        continue\n    for obj in cls.query(\n        cls.next_random_sound.isnot(None),\n\
     \        cls.next_random_sound < now\n    ):\n        if obj.random_sounds:\n\
     \            obj.play_random_sound()\n        else:\n            obj.next_random_sound\
     \ = 0.0\n        s.add(obj)", description: Play random sounds in rooms and the
-    like., id: 3, interval: 1.0, name: Random Sounds, next_run: 1526114396.9169044}
+    like., id: 3, interval: 1.0, name: Random Sounds, next_run: 1526250839.2786303}
 - {code: "for obj in Object.join(Object.mobile).filter(\n    Object.location_id.isnot(None),\
     \ Object.mobile_id.isnot(None),\n    Mobile.next_move < time(), Mobile.paused.is_(False)\n\
     ):\n    obj.mobile.move()\n", description: Move mobiles around., id: 4, interval: 1.0,
-  name: Mobiles, next_run: 1526114396.9169044}
+  name: Mobiles, next_run: 1526250839.5745232}
 - {code: "objects = 0\nstarted = time()\nlogger.info('Purging old objects...')\noldest\
     \ = datetime.datetime.utcnow() - server_options().purge_after\nfor q in [\n  \
     \  LoggedCommand.query(LoggedCommand.created < oldest),\n    CommunicationChannelMessage.query(CommunicationChannelMessage.created\
@@ -2387,7 +2388,7 @@ Task:
     n%s\\n</sql>', q)\n    objects += q.count()\n    q.delete(synchronize_session=False)\n\
     s.commit()\nlogger.info('Purged objects: %d in %.2f seconds.', objects, time()\
     \ - started)", description: Purge unneeded objects., id: 5, interval: 86400.0,
-  name: Purge, next_run: 1526133446.917011}
+  name: Purge, next_run: 1526254800.2613132}
 - {code: "now = time()\nfor route in TransitRoute.query(\n    sqlalchemy.or_(\n  \
     \      TransitRoute.next_move.is_(None),\n        TransitRoute.next_move <= now\n\
     \    ),\n    paused=False\n):\n    if not route.stops:\n        continue\n   \
@@ -2423,7 +2424,7 @@ Task:
     \        route.next_move = now + stop.after_departure\n        obj.move(None,\
     \ (0.0, 0.0, 0.0))\n    s.add_all([obj, route])\n", description: Move transit
     vehicles along their designated routes., id: 6, interval: 1.0, name: Transit Routes,
-  next_run: 1526114396.9169044}
+  next_run: 1526250839.6794767}
 - {code: "for ship in Starship.query(landing=True):\n    obj = ship.object\n    e\
     \ = obj.engine\n    obj.z = max(0.0, obj.z - e.land_speed)\n    ship.zone.coordinates\
     \ = obj.coordinates\n    obj.update_neighbours()\n    if not obj.z:\n        ship.landing\
@@ -2435,7 +2436,7 @@ Task:
     \    obj.location_id = None\n        loc.broadcast_command(delete, obj.id)\n \
     \       ship.landing = None\n        ship.zone.coordinates = loc.zone.coordinates",
   description: Manage the landing and launching of starships., id: 7, interval: 0.0,
-  name: Landing and Launching, next_run: 1526114396.9168012}
+  name: Landing and Launching, next_run: 1526250838.9593194}
 - {code: "if not randint(0, 10):\n    adverts = Advert.query().all()\n    if adverts:\n\
     \        ad = choice(adverts)\n        ad.last_shown = datetime.datetime.utcnow()\n\
     \        sound = get_sound(os.path.join('notifications', 'advert.wav'))\n    \
@@ -2443,14 +2444,14 @@ Task:
     \ Player.donator.is_(False)):\n            con = player.get_connection()\n   \
     \         interface_sound(con, sound)\n            message(con, ad.text)\n   \
     \         message(con, 'For more information, press the A key.')\n", description: Show
-    adverts to non donators., id: 8, interval: 60.0, name: Adverts, next_run: 1526114403.9166746}
+    adverts to non donators., id: 8, interval: 60.0, name: Adverts, next_run: 1526250840.7107751}
 - {code: "now = time()\nfor phone in Phone.query(\n    Phone.state.is_(PhoneStates.ringing),\n\
     sqlalchemy.or_(Phone.next_ring.is_(None), Phone.next_ring < now)\n):\n    obj\
     \ = phone.object\n    phone.next_ring = now + phone.ring_every\n    obj.sound(phone.ring_sound)",
-  description: Make phones ring., id: 9, interval: 1.0, name: Ringtone, next_run: 1526114396.9169044}
+  description: Make phones ring., id: 9, interval: 1.0, name: Ringtone, next_run: 1526250839.6876843}
 - {code: "error_sound = get_sound('communication/error.wav')\nfor obj in Object.join(Object.location).filter(Object.connected.is_(True),\
     \ Object.name.startswith('Passenger'), Room.zone_id != 1):\n    interface_sound(obj.get_connection(),\
     \ error_sound)\n    obj.message('You have not yet set a character name. Please\
     \ do that from within the game menu which you can access with the escape key.\
     \ Once there, click on \"Options\".')\n", description: Remind players without
-    proper names to set them., id: 10, interval: 60.0, name: Player Names, next_run: 1526114403.9166746}
+    proper names to set them., id: 10, interval: 60.0, name: Player Names, next_run: 1526250840.7162862}
