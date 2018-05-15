@@ -170,8 +170,6 @@ def authenticated_key(con, name, modifiers=None):
         if remap is not None:
             name = remap.to_key
             modifiers = remap.to_modifiers
-        if player.data.get('debug', False):
-            player.message(f'{repr(modifiers)}: {repr(name)}.')
         if con.object_id is None:
             obj = None
         else:
@@ -185,7 +183,7 @@ def authenticated_key(con, name, modifiers=None):
             string = ' + '.join(modifiers)
             if string:
                 string += ' + '
-            string += name
+            string += ('SPACE' if name == ' ' else name)
             player.message(string)
         if obj is None:
             if name == ESC and not modifiers and player.player.help_mode:
