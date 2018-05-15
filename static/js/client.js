@@ -451,9 +451,8 @@ document.onkeydown = (e) => {
     } else if (escape_element !== null) {
         return
     } else {
-        if (["'", "ENTER", " ", "TAB", "W", "Q", "T", "N"].includes(key) || key[0] == "F") {
-            e.preventDefault()
-        }
+        // if (["'", "ENTER", " ", "TAB", "W", "Q", "T", "N"].includes(key) || key[0] == "F") {
+        e.preventDefault()
         send({name: "key", args: [key, modifiers]})
     }
 }
