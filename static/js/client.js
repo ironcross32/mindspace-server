@@ -660,7 +660,8 @@ function speak(text) {
 function write_message(text) {
     speak(text)
     let p = document.createElement("p")
-    p.innerText = text
+    let t = document.createTextNode(text)
+    p.appendChild(t)
     output.appendChild(p)
     scroll_bottom()
     return p
