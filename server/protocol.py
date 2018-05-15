@@ -13,7 +13,7 @@ def message(con, text, channel=None, style=None, split_lines=True):
     else:
         messages = [text]
     for line in messages:
-        con.send('message', message, channel, style)
+        con.send('message', line, channel, style)
 
 
 def url(con, title, url):
