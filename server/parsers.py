@@ -183,8 +183,8 @@ def authenticated_key(con, name, modifiers=None):
             string = ' + '.join(modifiers)
             if string:
                 string += ' + '
-            string += ('SPACE' if name == ' ' else name)
-            player.message(string)
+            string += ('space' if name == ' ' else name)
+            player.message(string.upper())
         if obj is None:
             if name == ESC and not modifiers and player.player.help_mode:
                 player.player.help_mode = False
