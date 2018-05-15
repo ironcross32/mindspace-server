@@ -5,9 +5,15 @@ import os.path
 from .sound import get_sound
 
 
-def message(con, message, channel=None, style=None):
-    """Get the client to display a message."""
-    con.send('message', message, channel, style)
+def message(con, text, channel=None, style=None, split_lines=True):
+    """Get the client to display a message. Automatically split messages up
+    into multiple lines, unless split_lines evaluates to False."""
+    if split_lines:
+        messages = text.splitlines()
+    else:
+        messages = [text]
+    for line in messages:
+        con.send('message', message, channel, style)
 
 
 def url(con, title, url):
