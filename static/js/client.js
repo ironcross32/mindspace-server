@@ -1148,6 +1148,7 @@ function create_socket(obj) {
         }
         soc.onopen = () => {
             connected = true
+            clear_element(output)
             let AudioContext = window.AudioContext || window.webkitAudioContext
             if (AudioContext) {
                 audio = new AudioContext()
@@ -1157,7 +1158,6 @@ function create_socket(obj) {
                 alert("Your web browser does not support audio.")
             }
             write_special("Connection Open")
-            clear_element(output)
             send(
                 {
                     "name": "login",
