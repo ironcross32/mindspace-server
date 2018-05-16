@@ -126,7 +126,6 @@ class ProtocolBase:
         self.logger.info('Connected.')
         server.connections.append(self)
         self.parser = login_parser
-        message(self, ServerOptions.instance().connect_msg)
 
     def on_disconnect(self, reason):
         self.shell = None
@@ -227,6 +226,10 @@ class MindspaceWebSocketProtocol(WebSocketServerProtocol, ProtocolBase):
         """Prepare data and send it via self.sendString."""
         data = dumps(dict(name=name, args=args, kwargs=kwargs))
         self.sendMessage(data.encode())
+
+    def onOpen(self):
+        """Web socket is now open."""
+        message(self, ServerOptions.instance().connect_msg)
 
     def connectionMade(self):
         super().connectionMade()
