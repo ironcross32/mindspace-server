@@ -449,12 +449,11 @@ Command:
     \ c.get_name(player.is_builder or player.is_admin), __name__, args=[c.id])\nelif\
     \ not message:\n    player.message('You transmit nothing.')\nelse:\n    s.add(c.transmit(player,\
     \ message))", id: 45, name: transmit}
-- {code: "items = [Item('Rules', None)]\nfor rule in Rule.query().order_by(Rule.name):\n\
-    \    text = f'{rule.get_name(player.is_staff)}: {rule.get_description()}'\n  \
-    \  items.append(CopyItem(text))\nif player.is_admin:\n    items.append(LabelItem('Actions'))\n\
-    \    for name in ('add', 'edit', 'delete'):\n        items.append(Item(f'{name.title()}\
-    \ Rule', f'{name}_', args=['Rule']))\nmenu(con, Menu('Game Rules', items, escapable=True))",
-  id: 46, name: rules}
+- {code: "items = [LabelItem('Rules')]\nfor rule in Rule.query().order_by(Rule.name):\n\
+    \    items.append(Item(rule.get_name(player.is_staff), 'show_message', args=[rule.description]))\n\
+    if player.is_admin:\n    items.append(LabelItem('Actions'))\n    for name in ('add',\
+    \ 'edit', 'delete'):\n        items.append(Item(f'{name.title()} Rule', f'{name}_',\
+    \ args=['Rule']))\nmenu(con, Menu('Game Rules', items))", id: 46, name: rules}
 - {builder: true, code: "items = [LabelItem('Select Object')]\nfor obj in player.location.objects:\n\
     \    if obj.is_player:\n        continue\n    items.append(Item(f'{obj.get_name(True)}\
     \ ({util.directions(player.coordinates, obj.coordinates)})', 'delete_', args=['Object',\
@@ -589,83 +588,20 @@ Command:
     \           Item('Join Object', 'join_object', args=[obj.id]),\n            Item('Edit\
     \ Object', 'edit_', args=['Object', obj.id])\n        ]\n        menu(con, Menu('Object',\
     \ items, escapable=True))", id: 63, name: find_object}
-- {code: "def on_error(player, e):\n    \"\"\"There was an error with the social.\"\
-    \"\"\n    player.message(f'There was a problem with your social: {e}')\n\ndef\
-    \ parse_args(number, modifiers, id=None):\n    return (number, modifiers, id)\n\
-    \nnumber, modifiers, id = parse_args(*a)\nfor name in ('scrolllock', 'numlock'):\n\
-    \    if name in modifiers:\n        modifiers.remove(name)\nmodifiers = sorted(modifiers)\n\
-    if number:\n    number -= 1\n    if modifiers:\n        if modifiers == ['ctrl',\
-    \ 'shift']:\n            if number == -1:\n                number = 9\n      \
-    \      objects = player.get_visible(Object.id != player.id).order_by(Object.name).all()\n\
-    \            try:\n                player.scanned = objects[number]\n        \
-    \        player.inspect(player.scanned)\n            except IndexError:\n    \
-    \            player.message('There are not that many objects.')\n            finally:\n\
-    \                end()\n        try:\n            social = player.socials[number]\n\
-    \        except IndexError:\n            if 'ctrl' in modifiers:\n           \
-    \     social = Social(object_id=player.id, name='Untitled Social', first='', second='',\
-    \ third='')\n                s.add(social)\n                s.commit()\n     \
-    \       else:\n                player.message(f'No social at position {number\
-    \ + 1}.')\n                end()\n        if modifiers == ['alt']:\n         \
-    \   try:\n                player.do_social(social.first)\n            except SocialsError\
-    \ as e:\n                on_error(player, e)\n        elif modifiers == ['ctrl']:\n\
-    \            f = ObjectForm(social, 'edit_', title='Edit Social', args=['Social',\
-    \ social.id], cancel='Cancel')\n            form(con, f)\n        elif modifiers\
-    \ == ['shift']:\n            if id is None:\n                items = [Item(f'Select\
-    \ Object for {social.get_name(player.is_staff)}', None)]\n                for\
-    \ obj in player.get_visible():\n                    items.append(Item(obj.get_name(player.is_staff),\
-    \ __name__, args=[number + 1, modifiers, obj.id]))\n                menu(con,\
-    \ Menu('Social', items, escapable=True))\n            else:\n                obj\
-    \ = player.get_visible(Object.id == id).first()\n                if obj is None:\n\
-    \                    player.message('Invalid object.')\n                else:\n\
-    \                    if obj is player:\n                        text = social.second\n\
-    \                    else:\n                        text = social.third\n    \
-    \                try:\n                        player.do_social(text, _others=[obj],\
-    \ _channel='social')\n                    except SocialsError as e:\n        \
-    \                on_error(player, e)\n    else:\n        try:\n            channel\
-    \ = player.communication_channels[number]\n            con.handle_command('transmit',\
-    \ channel.id)\n        except IndexError:\n            player.message(f'No channel\
-    \ at position {number + 1}.')\nelse:\n    if not modifiers:\n        items = [Item('Communication\
-    \ Channels', None)]\n        for c in player.possible_communication_channels():\n\
+- {code: "number, modifiers = a\n\nnumber -= 1\nif modifiers == ['ctrl']:\n    if\
+    \ number == -1:\n        number = 9\n    objects = player.get_visible(Object.id\
+    \ != player.id).order_by(Object.name).all()\n    try:\n        player.scanned\
+    \ = objects[number]\n        player.inspect(player.scanned)\n    except IndexError:\n\
+    \        player.message(f'There are not that many objects (max: {len(objects)}).')\n\
+    elif not modifiers:\n    if number == -1:\n        items = [LabelItem('Communication\
+    \ Channels')]\n        for c in player.possible_communication_channels().order_by(CommunicationChannel.name):\n\
     \            if player in c.listeners:\n                items.append(Item(c.get_name(player.is_staff),\
     \ 'transmit', args=[c.id]))\n        menu(con, Menu('Transmit Message', items,\
-    \ escapable=True))\n    elif modifiers == ['shift']:\n        items = [Item('Social\
-    \ Suffixes.', None)]\n        for string in (\n            'Format: %[index[formatter]][|[filter]]',\n\
-    \            'As you can see, only the percent sign is necessary. The other values\
-    \ have defaults:',\n            'index: 1',\n            'format: n',\n      \
-    \      'If not provided, no filter is used. This is even true if you used the\
-    \ filter symbol with no suffix name.',\n            'With emotes with the e key\
-    \ and custom socials with the number keys, your player is always first in the\
-    \ list, so %1.',\n            'In the second form of custom socials your player\
-    \ is also in the second position, so %2.',\n            'In the third form of\
-    \ custom socials your player is still in the first position, with the object you\
-    \ choose in the second position.',\n            'You can put the formatter in\
-    \ upper case to capitalise the first letter of the resulting string. This uses\
-    \ the filter named \"normal\".',\n            'For example:',\n            '%1N\
-    \ should be used at the start of each social string.',\n            'There are\
-    \ other \"filters\" which can be used to modify the result of a formatter. These\
-    \ are given below the list of suffixes.'\n        ):\n            items.append(CopyItem(string))\n\
-    \        items.append(LabelItem('Suffixes'))\n        for suffix in socials.get_suffixes():\n\
-    \            names = util.english_list(suffix.names)\n            docstring =\
-    \ suffix.func.__doc__\n            text = f'{names}: {docstring}'\n          \
-    \  items.append(CopyItem(text))\n        items.append(LabelItem('Filters'))\n\
-    \        for name, func in socials.filters.items():\n            items.extend(\n\
-    \                [\n                    CopyItem(name),\n                    CopyItem(func.__doc__)\n\
-    \                ]\n            )\n        items.append(Item('emote-utils on Github',\
-    \ 'show_url', args=['emote-utils', 'https://github.com/chrisnorman7/emote-utils']))\n\
-    \        menu(con, Menu('Socials Help', items, escapable=True))\n    elif modifiers\
-    \ == ['ctrl']:\n        if id:\n            try:\n                other = Object.first()\n\
-    \                strings = socials.get_strings(id, [player, other])\n        \
-    \    except SocialsError as e:\n                player.message(str(e))\n     \
-    \           con.handle_command(__name__, number, modifiers)\n                end()\n\
-    \            l = [\n                f'Social string: {id}',\n                f'You\
-    \ would see: {strings[0]}',\n                f'The second object would see ({other.get_name(player.is_staff)}\
-    \ in this case): {strings[1]}',\n                f'Everyone else will see: {strings[2]}'\n\
-    \            ]\n            items = []\n            for string in l:\n       \
-    \         items.append(Item(string, 'copy', args=[string]))\n            items.append(Item('Try\
-    \ again', __name__, args=[number, modifiers]))\n            menu(con, Menu('Social\
-    \ String Example', items, escapable=True))\n        else:\n            get_text(con,\
-    \ 'Enter a social string to test or press escape to exit', __name__, args=[number,\
-    \ modifiers])", id: 64, name: number_action}
+    \ escapable=True))\n    else:\n        try:\n            channel = sorted(player.communication_channels,\
+    \ key=lambda channel: channel.name)[number]\n            con.handle_command('transmit',\
+    \ channel.id)\n        except IndexError:\n            player.message(f'No channel\
+    \ at position {number + 1}.')\nelse:\n    player.message('Try again with no modifiers\
+    \ to transmit, or control to scan objects in the room.')\n", id: 64, name: number_action}
 - {code: "check_staff(player)\r\n\r\nif a:\r\n    path = a[0]\r\nelse:\r\n    path\
     \ = 'sounds'\r\n\r\nif os.path.isfile(path):\r\n    copy(con, path)\r\n    sound\
     \ = get_sound(path)\r\n    path = os.path.split(path)[0]\r\n    interface_sound(con,\
@@ -1806,6 +1742,99 @@ Command:
     items = [\n    LabelItem(f'Do you want to follow {player.get_name(obj.is_staff)}?'),\n\
     \    Item('Yes', 'follow', args=[player.id]),\n    Item('No', 'emote', args=[string])\n\
     ]\nmenu(connection, Menu('Follow Request', items))\n", id: 186, name: lead}
+- {code: "items = [LabelItem('Social Suffixes.')]\nfor string in (\n    'Format: %[index[formatter]][|[filter]]',\n\
+    \    'As you can see, only the percent sign is necessary. The other values have\
+    \ defaults:',\n    'index: 1',\n    'format: n',\n    'If not provided, no filter\
+    \ is used. This is even true if you used the filter symbol with no suffix name.',\n\
+    \    'With emotes with the e key and custom socials with the number keys, your\
+    \ player is always first in the list, so %1.',\n    'In the second form of custom\
+    \ socials your player is also in the second position, so %2.',\n    'In the third\
+    \ form of custom socials your player is still in the first position, with the\
+    \ object you choose in the second position.',\n    'You can put the formatter\
+    \ in upper case to capitalise the first letter of the resulting string. This uses\
+    \ the filter named \"normal\".',\n    'For example:',\n    '%1N should be used\
+    \ at the start of each social string.',\n    'There are other \"filters\" which\
+    \ can be used to modify the result of a formatter. These are given below the list\
+    \ of suffixes.'\n):\n    items.append(CopyItem(string))\nitems.append(LabelItem('Suffixes'))\n\
+    for suffix in socials.get_suffixes():\n    names = util.english_list(suffix.names)\n\
+    \    docstring = suffix.func.__doc__\n    text = f'{names}: {docstring}'\n   \
+    \ items.append(CopyItem(text))\nitems.append(LabelItem('Filters'))\nfor name,\
+    \ func in socials.filters.items():\n    items.extend(\n        [\n           \
+    \ CopyItem(name),\n            CopyItem(func.__doc__)\n        ]\n    )\nitems.append(Item('emote-utils\
+    \ on Github', 'show_url', args=['emote-utils', 'https://github.com/chrisnorman7/emote-utils']))\n\
+    menu(con, Menu('Socials Help', items))\n", id: 187, name: socials_help}
+- {code: "def parse_args(text=None, object_id=False):\n    return (text, object_id)\n\
+    \ntext, object_id = parse_args(*a)\n\nif not text:\n    get_text(con, 'Enter a\
+    \ social string to test or press escape to exit', __name__)\nelif object_id is\
+    \ False:\n    items = [LabelItem('Select Object'), Item('Random Object', __name__,\
+    \ args=[text, None])]\n    for obj in player.get_visible().order_by(Object.name):\n\
+    \        items.append(Item(obj.get_name(player.is_staff), __name__, args=[text,\
+    \ obj.id]))\n    menu(con, Menu('Socials Test', items))\nelse:\n    if object_id\
+    \ is None:\n        obj = choice(player.get_visible().all())\n    else:\n    \
+    \    obj = Object.get(object_id)\n        valid_object(player, obj)\n        check_location(player,\
+    \ obj, coordinates=False)\n    strings = socials.get_strings(text, [player, obj])\n\
+    \    items = [\n        LabelItem('Social Results'),\n        CopyItem(f'Social\
+    \ string: {text}'),\n        CopyItem(f'Second Object for this example: {obj.get_name(player.is_staff)}.'),\n\
+    \        CopyItem(f'You would see: {strings[0]}'),\n        CopyItem(f'{obj.get_name(player.is_staff).title()}\
+    \ would see: {strings[1]}'),\n        CopyItem(f'Everyone else will see: {strings[2]}'),\n\
+    \        Item('Try Again', __name__)\n    ]\n    menu(con, Menu('Social String\
+    \ Example', items))\n", id: 188, name: socials_test}
+- {code: "def parse_args(social_id, object_id=False):\n    return (social_id, object_id)\n\
+    \nsocial_id, object_id = parse_args(*a)\n\nif object_id is False:\n    items =\
+    \ [\n        LabelItem(f'Select Object'),\n        Item('Nobody', __name__, args=[social_id,\
+    \ None])\n    ]\n    for obj in player.get_visible().order_by(Object.name):\n\
+    \        items.append(Item(obj.get_name(player.is_staff), __name__, args=[social_id,\
+    \ obj.id]))\n    menu(con, Menu('Social', items, escapable=True))\nelse:\n   \
+    \ social = Social.query(object_id=player.id, id=social_id).first()\n    valid_object(player,\
+    \ social)\n    if object_id is None:\n        obj = None\n    else:\n        obj\
+    \ = player.get_visible(id=object_id).first()\n        valid_object(player, obj)\n\
+    \    if obj is None:\n        text = social.first\n        others = []\n    else:\n\
+    \        if obj is player:\n            text = social.second\n        else:\n\
+    \            text = social.third\n        others = [obj]\n    try:\n        player.do_social(text,\
+    \ _others=others)\n    except SocialsError as e:\n        player.message(f'There\
+    \ was an error with your social: {e}.')\n", id: 189, name: do_social}
+- {code: "def parse_args(name=None, first=None, second=None, third=None):\n    return\
+    \ (name, first, second, third)\n\nname, first, second, third = parse_args(*a)\n\
+    \nif not name:\n    get_text(con, 'Enter the name for your new social.', __name__)\n\
+    elif not first:\n    get_text(con, 'Enter the first form of your new social. This\
+    \ is the version used if you do not specify a target.', __name__, args=[name])\n\
+    elif not second:\n    get_text(con, 'Enter the second form of your new social.\
+    \ This is the form which will be used when you select yourself as the target.',\
+    \ __name__, args=[name, first])\nelif not third:\n    get_text(con, 'Enter the\
+    \ third form of your new social. This is the form used when you select any other\
+    \ object as the target.', __name__, args=[name, first, second])\nelse:\n    c\
+    \ = Social.query(sqlalchemy.func.lower(Social.name) == name.lower(), Social.object_id\
+    \ == player.id).count()\n    if c:\n        name = f'{name} {c + 1}'\n    name\
+    \ = name.title()\n    social = Social(object_id=player.id, name=name, first=first,\
+    \ second=second, third=third)\n    s.add(social)\n    s.commit()\n    player.message(f'Created\
+    \ social {social.get_name(player.is_staff)}.')\n", id: 190, name: add_social}
+- {code: "def parse_args(social_id=None, name=None, first=None, second=None, third=None):\n\
+    \    return social_id, name, first, second, third\n\nsocial_id, name, first, second,\
+    \ third = parse_args(*a)\n\nif social_id is None:\n    items = [LabelItem('Socials')]\n\
+    \    for social in Social.query(object_id=player.id).order_by(Social.name):\n\
+    \        items.append(Item(social.get_name(player.is_staff), __name__, args=[social.id]))\n\
+    \    menu(con, Menu('Edit Social', items))\nelse:\n    social = Social.query(object_id=player.id,\
+    \ id=social_id).first()\n    valid_object(player, social)\n    if not name:\n\
+    \        get_text(con, 'Enter the new name for this social.', __name__, args=[social.id],\
+    \ value=social.name)\n    elif not first:\n        get_text(con, 'Enter the new\
+    \ first form for this social.', __name__, args=[social.id, name], value=social.first)\n\
+    \    elif not second:\n        get_text(con, 'Enter the new second form for this\
+    \ social.', __name__, args=[social_id, name, first], value=social.second)\n  \
+    \  elif not third:\n        get_text(con, 'Enter the new third form for your social.',\
+    \ __name__, args=[social_id, name, first, second], value=social.third)\n    else:\n\
+    \        social.name = name.title()\n        social.first = first\n        social.second\
+    \ = second\n        social.third = third\n        player.message('Changes saved.')\n",
+  id: 191, name: edit_social}
+- {code: "def parse_args(social_id=None, response=None):\n    return (social_id, response)\n\
+    \nsocial_id, response = parse_args(*a)\n\nif social_id is None:\n    items = [LabelItem('Socials')]\n\
+    \    for social in Social.query(object_id=player.id).order_by(Social.name):\n\
+    \        items.append(Item(social.get_name(player.is_staff), __name__, args=[social.id]))\n\
+    \    menu(con, Menu('Delete Social', items))\nelif response is None:\n    menu(con,\
+    \ DeleteMenu(f'Are you sure you want to delete this social?', __name__, args=[social_id]))\n\
+    elif response:\n    social = Social.query(object_id=player.id, id=social_id).first()\n\
+    \    valid_object(player, social)\n    player.message(f'Social {social.get_name(player.is_staff)}\
+    \ deleted.')\n    s.delete(social)\nelse:\n    player.message('Canceled.')\n",
+  id: 192, name: delete_social}
 Credit:
 - {description: For inspiring me to write this game., id: 1, name: Science Fiction
     Authors}
@@ -1952,7 +1981,9 @@ Hotkey:
 
     player.message(f''{loc.get_description()}''
 
-    )', ctrl: false, description: Announce your current location., id: 22, name: K,
+    )
+
+    ', ctrl: false, description: Announce your current location., id: 22, name: K,
   shift: false}
 - {alt: false, code: "items = [LabelItem('Hotkeys')]\nfor key in Hotkey.query(reusable=False).order_by(Hotkey.name):\n\
     \    if key.objects:\n        continue\n    modifiers = []\n    args=[key.name,\
@@ -2053,8 +2084,8 @@ Hotkey:
     \    if obj is player:\n        continue\n    elif obj.is_exit:\n        exits\
     \ += 1\n    elif obj.is_player:\n        players += 1\n    else:\n        objects\
     \ += 1\nplayer.message(f'Size: {size}.\\nObjects: {objects}.\\nPlayers: {players}.\\\
-    nExits: {exits}.')\nif player.location.zone.owner is not None:\n    player.message(f'This\
-    \ zone was built by {player.location.zone.owner.get_name(player.is_staff)}.')\n",
+    nExits: {exits}.')\nplayer.message(f'Visibility: {loc.visibility}.')\nif player.location.zone.owner\
+    \ is not None:\n    player.message(f'This zone was built by {player.location.zone.owner.get_name(player.is_staff)}.')\n",
   ctrl: false, description: View information about your location., id: 53, name: V,
   shift: false}
 - {alt: false, code: "items = [\n    Item('Help', None),\n    Item('Search Help',\
@@ -2329,17 +2360,24 @@ Hotkey:
 - {alt: false, code: "if player.scanned is None:\n    player.message('You must first\
     \ select an object with the tab key or control shift and numbers.')\nelif not\
     \ player.is_staff and util.distance_between(player.coordinates, player.scanned.coordinates)\
-    \ > player.location.max_distance:\n    player.message('You cannot see that from\
+    \ > player.location.visibility:\n    player.message('You cannot see that from\
     \ here.')\nelse:\n    player.message(f'{util.directions(player.coordinates, player.scanned.coordinates).capitalize()}\
     \ ({player.scanned.get_name(player.is_staff)})')\n", ctrl: false, description: Show
     directions to the most recently scanned object., id: 109, name: Y, shift: false}
+- {alt: false, code: "items = [LabelItem('Select A Social')]\nfor social in Social.query(object_id=player.id).order_by(Social.name):\n\
+    \    items.append(Item(social.get_name(player.is_staff), 'do_social', args=[social.id]))\n\
+    items.extend(\n    [\n        LabelItem('Actions'),\n        Item('Add Social',\
+    \ 'add_social'),\n        Item('Edit Social', 'edit_social'),\n        Item('Delete\
+    \ Social', 'delete_social'),\n        Item('Help', 'socials_help'),\n        Item('Test\
+    \ Social', 'socials_test')\n    ]\n)\nmenu(con, Menu('Socials', items))\n", ctrl: false,
+  description: Choose a social from your saved socials., id: 110, name: E, shift: true}
 Task:
 - {code: "started = time()\n# I got the below filename from the first answer at:\n\
     # http://stackoverflow.com/questions/10607688/how-to-create-a-file-name-with-the-current-date-time-in-python\n\
     output = 'world.dump %s.yaml' % strftime(\"%Y-%m-%d %H-%M-%S\")\ndump_db(filename=output,\
     \ thread=True)\nlogger.info(\n    'Objects dumped: %d (%.2f seconds).', Base.number_of_objects(),\
     \ time() - started\n)\n", description: Dump the database to disk, id: 1, interval: 1800.0,
-  name: Dump, next_run: 1526251200.27}
+  name: Dump, next_run: 1526503875.5492754}
 - {code: "for obj in Zone.query(\n    sqlalchemy.or_(Zone.speed.isnot(None), Zone.acceleration.isnot(None))\n\
     ):\n    ship = obj.starship\n    # Speed code:\n    if obj.speed is None:\n  \
     \      # Let's clear speed.\n        obj.speed = 0.0\n    if obj.acceleration:\n\
@@ -2368,18 +2406,18 @@ Task:
     \ decelerating.\n                    acceleration = deceleration_distance\n  \
     \                  accelerating = False\n                ship.set_acceleration(min(1.0,\
     \ acceleration), accelerating=accelerating)\n", description: Move space stuff
-    around., id: 2, interval: 1.0, name: Space, next_run: 1526250839.2688704}
+    around., id: 2, interval: 1.0, name: Space, next_run: 1526502648.5512395}
 - {code: "now = time()\nfor cls in Base._decl_class_registry.values():\n    if not\
     \ isclass(\n        cls\n    ) or base.RandomSoundContainerMixin not in cls.__bases__:\n\
     \        continue\n    for obj in cls.query(\n        cls.next_random_sound.isnot(None),\n\
     \        cls.next_random_sound < now\n    ):\n        if obj.random_sounds:\n\
     \            obj.play_random_sound()\n        else:\n            obj.next_random_sound\
     \ = 0.0\n        s.add(obj)", description: Play random sounds in rooms and the
-    like., id: 3, interval: 1.0, name: Random Sounds, next_run: 1526250839.2786303}
+    like., id: 3, interval: 1.0, name: Random Sounds, next_run: 1526502648.5614605}
 - {code: "for obj in Object.join(Object.mobile).filter(\n    Object.location_id.isnot(None),\
     \ Object.mobile_id.isnot(None),\n    Mobile.next_move < time(), Mobile.paused.is_(False)\n\
     ):\n    obj.mobile.move()\n", description: Move mobiles around., id: 4, interval: 1.0,
-  name: Mobiles, next_run: 1526250839.5745232}
+  name: Mobiles, next_run: 1526502648.8569055}
 - {code: "objects = 0\nstarted = time()\nlogger.info('Purging old objects...')\noldest\
     \ = datetime.datetime.utcnow() - server_options().purge_after\nfor q in [\n  \
     \  LoggedCommand.query(LoggedCommand.created < oldest),\n    CommunicationChannelMessage.query(CommunicationChannelMessage.created\
@@ -2388,7 +2426,7 @@ Task:
     n%s\\n</sql>', q)\n    objects += q.count()\n    q.delete(synchronize_session=False)\n\
     s.commit()\nlogger.info('Purged objects: %d in %.2f seconds.', objects, time()\
     \ - started)", description: Purge unneeded objects., id: 5, interval: 86400.0,
-  name: Purge, next_run: 1526254800.2613132}
+  name: Purge, next_run: 1526509275.543821}
 - {code: "now = time()\nfor route in TransitRoute.query(\n    sqlalchemy.or_(\n  \
     \      TransitRoute.next_move.is_(None),\n        TransitRoute.next_move <= now\n\
     \    ),\n    paused=False\n):\n    if not route.stops:\n        continue\n   \
@@ -2424,7 +2462,7 @@ Task:
     \        route.next_move = now + stop.after_departure\n        obj.move(None,\
     \ (0.0, 0.0, 0.0))\n    s.add_all([obj, route])\n", description: Move transit
     vehicles along their designated routes., id: 6, interval: 1.0, name: Transit Routes,
-  next_run: 1526250839.6794767}
+  next_run: 1526502648.9773746}
 - {code: "for ship in Starship.query(landing=True):\n    obj = ship.object\n    e\
     \ = obj.engine\n    obj.z = max(0.0, obj.z - e.land_speed)\n    ship.zone.coordinates\
     \ = obj.coordinates\n    obj.update_neighbours()\n    if not obj.z:\n        ship.landing\
@@ -2436,7 +2474,7 @@ Task:
     \    obj.location_id = None\n        loc.broadcast_command(delete, obj.id)\n \
     \       ship.landing = None\n        ship.zone.coordinates = loc.zone.coordinates",
   description: Manage the landing and launching of starships., id: 7, interval: 0.0,
-  name: Landing and Launching, next_run: 1526250838.9593194}
+  name: Landing and Launching, next_run: 1526502647.9986498}
 - {code: "if not randint(0, 10):\n    adverts = Advert.query().all()\n    if adverts:\n\
     \        ad = choice(adverts)\n        ad.last_shown = datetime.datetime.utcnow()\n\
     \        sound = get_sound(os.path.join('notifications', 'advert.wav'))\n    \
@@ -2444,14 +2482,14 @@ Task:
     \ Player.donator.is_(False)):\n            con = player.get_connection()\n   \
     \         interface_sound(con, sound)\n            message(con, ad.text)\n   \
     \         message(con, 'For more information, press the A key.')\n", description: Show
-    adverts to non donators., id: 8, interval: 60.0, name: Adverts, next_run: 1526250840.7107751}
+    adverts to non donators., id: 8, interval: 60.0, name: Adverts, next_run: 1526502676.0289037}
 - {code: "now = time()\nfor phone in Phone.query(\n    Phone.state.is_(PhoneStates.ringing),\n\
     sqlalchemy.or_(Phone.next_ring.is_(None), Phone.next_ring < now)\n):\n    obj\
     \ = phone.object\n    phone.next_ring = now + phone.ring_every\n    obj.sound(phone.ring_sound)",
-  description: Make phones ring., id: 9, interval: 1.0, name: Ringtone, next_run: 1526250839.6876843}
+  description: Make phones ring., id: 9, interval: 1.0, name: Ringtone, next_run: 1526502648.985679}
 - {code: "error_sound = get_sound('communication/error.wav')\nfor obj in Object.join(Object.location).filter(Object.connected.is_(True),\
     \ Object.name.startswith('Passenger'), Room.zone_id != 1):\n    interface_sound(obj.get_connection(),\
     \ error_sound)\n    obj.message('You have not yet set a character name. Please\
     \ do that from within the game menu which you can access with the escape key.\
     \ Once there, click on \"Options\".')\n", description: Remind players without
-    proper names to set them., id: 10, interval: 60.0, name: Player Names, next_run: 1526250840.7162862}
+    proper names to set them., id: 10, interval: 60.0, name: Player Names, next_run: 1526502676.0346596}
